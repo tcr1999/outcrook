@@ -224,39 +224,28 @@ Best, ${userName}, special investigator`;
     function simulateTyping(targetElement, fullText, charsPerKey = 8, onComplete) {
         let charIndex = 0;
         let keydownListener;
-        let enterListenerAddedForThisTyping = false; // Local flag for this typing instance
+        let typingCompleted = false; // Flag to track if typing is fully done
 
         function typeChar() {
+            console.log(`typeChar called. charIndex: ${charIndex}, fullText.length: ${fullText.length}`); // Debug
             if (charIndex < fullText.length) {
                 targetElement.textContent += fullText.substring(charIndex, charIndex + charsPerKey);
                 charIndex += charsPerKey;
-            } else {
-                document.removeEventListener('keydown', keydownListener);
-                if (!enterListenerAddedForThisTyping) {
-                    const sendPrompt = document.createElement('p');
-                    sendPrompt.id = 'send-prompt';
-                    sendPrompt.textContent = 'Press Enter to send';
-                    targetElement.parentNode.appendChild(sendPrompt);
-
-                    document.addEventListener('keydown', function sendHandler(event) {
-                        if (event.key === 'Enter') {
-                            event.preventDefault();
-                            document.removeEventListener('keydown', sendHandler);
-                            sendPrompt.remove();
-                            if (onComplete) {
-                                onComplete();
-                            }
-                        }
-                    });
-                    enterListenerAddedForThisTyping = true;
+                if (charIndex >= fullText.length) { // Check if typing just completed in this step
+                    typingCompleted = true;
+                    document.removeEventListener('keydown', keydownListener); // Remove typing listener
+                    if (onComplete) {
+                        onComplete();
+                    }
                 }
             }
         }
 
         // Listener for keystroke-driven typing
         keydownListener = function(event) {
+            console.log(`Key pressed: ${event.key}, typingCompleted: ${typingCompleted}`); // Debug
             // Only type if we haven't finished and it's not a modifier key
-            if (charIndex < fullText.length && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
+            if (!typingCompleted && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
                 event.preventDefault(); // Prevent actual typing in the div
                 typeChar();
             }
