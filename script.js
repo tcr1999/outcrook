@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial welcome email
     const welcomeEmail = {
         id: 'welcome-email',
-        sender: 'HR/People Officer',
+        sender: 'Jane, Director of People',
         subject: 'Welcome to Outcrook - Your Onboarding as a Detective',
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         body: `
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>Your role here will be pivotal in ensuring transparency and uncovering any… anomalies that may arise within our organizational structure. Consider this your first confidential assignment: familiarize yourself with our systems, observe, and report anything that seems out of place.</p>
             <p>Your journey to uncover the truth begins now. We trust you'll uphold our values with the utmost discretion and diligence.</p>
             <p>Best regards,</p>
-            <p>The Outcrook HR/People Officer</p>
+            <p>Jane, Director of People</p>
         `,
         folder: 'inbox',
         read: false
@@ -82,9 +82,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         emailItem.dataset.emailId = email.id; // Store email ID for easy lookup
         emailItem.innerHTML = `
-            <div class="email-sender">${email.sender}</div>
-            <div class="email-subject">${email.subject}</div>
-            <div class="email-date">${email.date}</div>
+            <div class="email-info">
+                <div class="email-sender">${email.sender}</div>
+                <div class="email-subject">${email.subject}</div>
+                <div class="email-date">${email.date}</div>
+            </div>
+            <button class="delete-email-item-btn" data-email-id="${email.id}">Trash</button>
         `;
         emailItem.addEventListener('click', () => {
             displayEmailContent(email);
@@ -98,6 +101,20 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.email-item').forEach(el => el.classList.remove('active'));
             emailItem.classList.add('active');
         });
+
+        const deleteButton = emailItem.querySelector('.delete-email-item-btn');
+        deleteButton.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent the email item click event from firing
+            const emailIdToDelete = event.target.dataset.emailId;
+            const emailIndex = emails.findIndex(email => email.id === emailIdToDelete);
+            if (emailIndex > -1) {
+                emails[emailIndex].folder = 'trash'; // Move to trash
+                emails[emailIndex].read = true; // Mark as read when moved to trash
+                loadEmailsForFolder(currentFolder); // Re-load current folder
+                refreshUnreadCounts();
+            }
+        });
+
         return emailItem;
     }
 
@@ -109,8 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <hr>
             <div>${email.body}</div>
         `;
-        deleteEmailBtn.dataset.emailId = email.id; // Set current email ID for delete button
-        deleteEmailBtn.style.display = 'inline-block'; // Show delete button
 
         const welcomeUserNameSpan = emailContentDiv.querySelector('#welcome-user-name');
         if (welcomeUserNameSpan) {
@@ -121,7 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadEmailsForFolder(folder) {
         emailListDiv.innerHTML = ''; // Clear current emails
         emailContentDiv.innerHTML = '<h3 style="padding: 15px;">Select an email to view its content</h3>';
-        deleteEmailBtn.style.display = 'none'; // Hide delete button
         currentFolder = folder;
         emailListFolderHeader.textContent = folder.charAt(0).toUpperCase() + folder.slice(1); // Capitalize first letter
 
@@ -164,15 +178,15 @@ document.addEventListener('DOMContentLoaded', () => {
     loadEmailsForFolder('inbox');
     refreshUnreadCounts();
 
-    // Delete email functionality
-    deleteEmailBtn.addEventListener('click', () => {
-        const emailIdToDelete = deleteEmailBtn.dataset.emailId;
-        const emailIndex = emails.findIndex(email => email.id === emailIdToDelete);
-        if (emailIndex > -1) {
-            emails[emailIndex].folder = 'trash'; // Move to trash
-            emails[emailIndex].read = true; // Mark as read when moved to trash
-            loadEmailsForFolder(currentFolder); // Re-load current folder
-            refreshUnreadCounts();
-        }
-    });
+    // Remove old delete email functionality
+    // deleteEmailBtn.addEventListener('click', () => {
+    //     const emailIdToDelete = deleteEmailBtn.dataset.emailId;
+    //     const emailIndex = emails.findIndex(email => email.id === emailIdToDelete);
+    //     if (emailIndex > -1) {
+    //         emails[emailIndex].folder = 'trash'; // Move to trash
+    //         emails[emailIndex].read = true; // Mark as read when moved to trash
+    //         loadEmailsForFolder(currentFolder); // Re-load current folder
+    //         refreshUnreadCounts();
+    //     }
+    // });
 });
