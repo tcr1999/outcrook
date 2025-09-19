@@ -293,12 +293,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Reply email functionality
     replyEmailBtn.addEventListener('click', () => {
-        const currentEmailBody = document.getElementById('current-email-body');
-        const originalEmailSubject = currentEmailBody.previousElementSibling.previousElementSibling.previousElementSibling.textContent;
-        const originalEmailSender = currentEmailBody.previousElementSibling.previousElementSibling.textContent.replace('From: ', '');
+        // Capture the currently displayed email's details from emailBodyContentDiv
+        const currentEmailSubject = emailBodyContentDiv.querySelector('h3').textContent;
+        const currentEmailSender = emailBodyContentDiv.querySelector('p:nth-of-type(1)').textContent.replace('From: ', '');
 
         // Find the original email object to get its ID for reply generation
-        const originalEmail = emails.find(email => email.subject === originalEmailSubject && email.sender === originalEmailSender);
+        const originalEmail = emails.find(email => email.subject === currentEmailSubject && email.sender === currentEmailSender);
 
         if (!originalEmail || originalEmail.replied) {
             alert('You have already replied to this email or it\'s not a valid email to reply to.');
@@ -312,6 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <h3>Replying to: ${originalEmail.subject}</h3>
             <div id="reply-typing-area" style="border: 1px solid #ccc; padding: 10px; min-height: 100px; white-space: pre-wrap;"></div>
         `;
+        replyEmailBtn.style.display = 'none'; // Hide reply button while typing
 
         const replyTypingArea = document.getElementById('reply-typing-area');
 
