@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const userProfile = document.getElementById('user-profile');
     const emailListDiv = document.querySelector('.email-list');
     const emailListFolderHeader = document.getElementById('email-list-folder-header');
+    const replyEmailBtn = document.getElementById('reply-email-btn');
+    const emailBodyContentDiv = document.getElementById('email-body-content');
     const deleteEmailBtn = document.getElementById('delete-email-btn');
 
     let emails = [];
@@ -40,7 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>Jane, Director of People</p>
         `,
         folder: 'inbox',
-        read: false
+        read: false,
+        replied: false
     };
     emails.push(welcomeEmail);
 
@@ -161,8 +164,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>From: ${email.sender}</p>
             <p>Date: ${email.date}</p>
             <hr>
-            <div>${email.body}</div>
+            <div id="current-email-body">${email.body}</div>
         `;
+        replyEmailBtn.style.display = 'inline-block'; // Show reply button
 
         const welcomeUserNameSpan = emailContentDiv.querySelector('#welcome-user-name');
         if (welcomeUserNameSpan) {
@@ -170,9 +174,69 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Function to generate a reply body
+    function generateReplyBody(originalEmail, userName) {
+        let replyBodyContent = '';
+        const senderFirstName = originalEmail.sender.split(',')[0].trim();
+
+        if (originalEmail.id === 'welcome-email') {
+            replyBodyContent = `
+                <p>Thanks very much for the incredibly warm welcome, ${senderFirstName}.</p>
+                <p>I'm genuinely excited to dive into this role and contribute to Outcrook's commitment to integrity. I look forward to getting started and familiarizing myself with the intricacies of the company's operations.</p>
+            `;
+        } else {
+            replyBodyContent = `
+                <p>Acknowledged.</p>
+            `;
+        }
+
+        return `
+            Hi ${senderFirstName},
+            ${replyBodyContent}
+            Best, ${userName}, special investigator
+        `;
+    }
+
+    // Function to simulate typing
+    function simulateTyping(targetElement, fullText, charsPerKey = 3, onComplete) {
+        let charIndex = 0;
+        let displayInterval;
+
+        function typeChar() {
+            if (charIndex < fullText.length) {
+                targetElement.textContent += fullText.substring(charIndex, charIndex + charsPerKey);
+                charIndex += charsPerKey;
+            } else {
+                clearInterval(displayInterval);
+                if (onComplete) {
+                    onComplete();
+                }
+            }
+        }
+
+        // Start typing on any key press
+        document.addEventListener('keydown', function handler(event) {
+            if (event.key) { // Check if a key was actually pressed
+                if (!displayInterval) { // Start interval only once
+                    displayInterval = setInterval(typeChar, 50); // Adjust speed as needed
+                }
+                // Prevent default typing behavior
+                event.preventDefault();
+            }
+        }, { once: true }); // Remove listener after first keydown
+
+        // If no key is pressed, start typing after a short delay
+        setTimeout(() => {
+            if (!displayInterval) {
+                displayInterval = setInterval(typeChar, 50);
+            }
+        }, 1000); // Start automatically after 1 second if no user input
+    }
+
     function loadEmailsForFolder(folder) {
         emailListDiv.innerHTML = ''; // Clear current emails
         emailContentDiv.innerHTML = '<h3 style="padding: 15px;">Select an email to view its content</h3>';
+        replyEmailBtn.style.display = 'none'; // Hide reply button
         currentFolder = folder;
         emailListFolderHeader.textContent = folder.charAt(0).toUpperCase() + folder.slice(1); // Capitalize first letter
 
@@ -215,15 +279,47 @@ document.addEventListener('DOMContentLoaded', () => {
     loadEmailsForFolder('inbox');
     refreshUnreadCounts();
 
-    // Remove old delete email functionality
-    // deleteEmailBtn.addEventListener('click', () => {
-    //     const emailIdToDelete = deleteEmailBtn.dataset.emailId;
-    //     const emailIndex = emails.findIndex(email => email.id === emailIdToDelete);
-    //     if (emailIndex > -1) {
-    //         emails[emailIndex].folder = 'trash'; // Move to trash
-    //         emails[emailIndex].read = true; // Mark as read when moved to trash
-    //         loadEmailsForFolder(currentFolder); // Re-load current folder
-    //         refreshUnreadCounts();
-    //     }
-    // });
+    // Reply email functionality
+    replyEmailBtn.addEventListener('click', () => {
+        const currentEmailBody = document.getElementById('current-email-body');
+        const originalEmailSubject = currentEmailBody.previousElementSibling.previousElementSibling.previousElementSibling.textContent;
+        const originalEmailSender = currentEmailBody.previousElementSibling.previousElementSibling.textContent.replace('From: ', '');
+
+        // Find the original email object to get its ID for reply generation
+        const originalEmail = emails.find(email => email.subject === originalEmailSubject && email.sender === originalEmailSender);
+
+        if (!originalEmail || originalEmail.replied) {
+            alert('You have already replied to this email or it\'s not a valid email to reply to.');
+            return;
+        }
+
+        const userName = localStorage.getItem('outcrookUserName') || 'User';
+        const replyText = generateReplyBody(originalEmail, userName);
+
+        emailContentDiv.innerHTML = `
+            <h3>Replying to: ${originalEmail.subject}</h3>
+            <div id="reply-typing-area" style="border: 1px solid #ccc; padding: 10px; min-height: 100px; white-space: pre-wrap;"></div>
+            <p style="margin-top: 10px;">Press any key to start typing your reply...</p>
+        `;
+
+        const replyTypingArea = document.getElementById('reply-typing-area');
+
+        simulateTyping(replyTypingArea, replyText, 3, () => {
+            // On complete, add the reply to sent folder
+            const sentReply = {
+                id: `reply-${originalEmail.id}-${Date.now()}`,
+                sender: `${userName}, special investigator`,
+                subject: `Re: ${originalEmail.subject}`,
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                body: replyText,
+                folder: 'sent',
+                read: true
+            };
+            emails.push(sentReply);
+            originalEmail.replied = true;
+            alert('Reply sent!');
+            loadEmailsForFolder('sent'); // Go to sent folder after replying
+            refreshUnreadCounts();
+        });
+    });
 });
