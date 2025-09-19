@@ -339,7 +339,7 @@ Best, ${userName}, special investigator`;
 
         const startTypingListener = function(event) {
             if (!typingStarted && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
-                typePrompt.style.display = 'none';
+                typePrompt.remove(); // Remove the prompt entirely
                 typingStarted = true;
                 document.removeEventListener('keydown', startTypingListener); // Remove this listener once typing starts
                 
