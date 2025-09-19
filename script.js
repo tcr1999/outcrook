@@ -398,6 +398,7 @@ Best, ${userName}, special investigator`;
                 document.removeEventListener('keydown', startTypingListener); // Remove this listener once typing starts
                 
                 simulateTyping(replyTypingArea, replyText, 8, () => {
+                    console.log('Typing simulation complete. Attempting to show send options.'); // Debugging line
                     sendPromptElement.style.display = 'block'; // Show prompt
                     sendReplyBtn.style.display = 'block'; // Show the Send button
 
