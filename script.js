@@ -23,11 +23,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const customPromptCancelBtn = document.getElementById('custom-prompt-cancel');
 
     function showCustomPrompt(message, type = 'alert', defaultValue = '') {
+        console.log(`showCustomPrompt called with message: ${message}, type: ${type}`); // Debug
         return new Promise((resolve) => {
             customPromptMessage.textContent = message;
             customPromptInput.value = defaultValue;
 
             customPromptOverlay.style.display = 'flex';
+            console.log(`customPromptOverlay display set to flex. Current style: ${customPromptOverlay.style.display}`); // Debug
 
             if (type === 'prompt') {
                 customPromptInput.style.display = 'block';
@@ -42,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const handleOk = () => {
                 customPromptOverlay.style.display = 'none';
+                console.log(`customPromptOverlay display set to none after OK. Current style: ${customPromptOverlay.style.display}`); // Debug
                 customPromptOkBtn.removeEventListener('click', handleOk);
                 customPromptCancelBtn.removeEventListener('click', handleCancel);
                 resolve(type === 'prompt' ? customPromptInput.value : true);
@@ -49,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const handleCancel = () => {
                 customPromptOverlay.style.display = 'none';
+                console.log(`customPromptOverlay display set to none after Cancel. Current style: ${customPromptOverlay.style.display}`); // Debug
                 customPromptOkBtn.removeEventListener('click', handleOk);
                 customPromptCancelBtn.removeEventListener('click', handleCancel);
                 resolve(null); // For prompt, resolve with null on cancel
@@ -71,8 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to get user name
     async function getUserName() { // Made async to use await
+        console.log('getUserName called.'); // Debug
         let userName = localStorage.getItem('outcrookUserName');
         if (!userName) {
+            console.log('No userName in localStorage, showing custom prompt.'); // Debug
             userName = await showCustomPrompt('Welcome to Outcrook! Please enter your name:', 'prompt', 'Detective');
             if (userName) {
                 localStorage.setItem('outcrookUserName', userName);
@@ -81,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         userProfile.textContent = userName;
+        console.log(`User name set to: ${userName}`); // Debug
     }
 
     getUserName(); // Call on page load
@@ -423,7 +430,11 @@ Best, ${userName}, special investigator`;
             };
             emails.push(sentReply);
             originalEmail.replied = true;
+            // Move the original email to the 'sent' folder as well
+            originalEmail.folder = 'sent';
+
             showCustomPrompt('Reply sent!', 'alert'); // Use custom alert
+            // Reload the sent folder to show the new reply and the moved original email
             loadEmailsForFolder('sent');
             refreshUnreadCounts();
         };
