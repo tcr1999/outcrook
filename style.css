@@ -29,30 +29,55 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap; /* Allow items to wrap on smaller screens */
 }
 
 .navbar .logo {
     font-weight: bold;
     font-size: 1.2em;
+    margin-right: 20px; /* Add some space next to the logo */
 }
 
 .navbar .search-bar {
-    width: 40%;
+    flex-grow: 1; /* Allow search bar to take available space */
+    max-width: 400px; /* Limit max width for better aesthetics */
     padding: 8px;
     border: none;
     border-radius: 4px;
     font-size: 0.9em;
+    margin-right: 20px; /* Space between search bar and right section */
 }
 
 .header-right {
     display: flex;
     align-items: center;
     gap: 15px; /* Space between time and user profile */
+    margin-left: auto; /* Push to the right */
 }
 
 .header-right #current-time {
     color: #fff;
     font-size: 0.9em;
+}
+
+/* Styling for the reply button */
+#reply-email-btn {
+    background-color: #0078d4;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-top: 15px; /* Space above the button */
+}
+
+#reply-email-btn:hover {
+    background-color: #005ea6;
+}
+
+.email-actions {
+    margin-top: 20px; /* Add space between email body and actions */
 }
 
 .sidebar {

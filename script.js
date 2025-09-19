@@ -170,16 +170,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayEmailContent(email) {
-        emailContentDiv.innerHTML = `
+        emailBodyContentDiv.innerHTML = `
             <h3>${email.subject}</h3>
             <p>From: ${email.sender}</p>
             <p>Date: ${email.date}</p>
             <hr>
-            <div id="current-email-body">${email.body}</div>
+            <div>${email.body}</div>
         `;
         replyEmailBtn.style.display = 'inline-block'; // Show reply button
 
-        const welcomeUserNameSpan = emailContentDiv.querySelector('#welcome-user-name');
+        const welcomeUserNameSpan = emailBodyContentDiv.querySelector('#welcome-user-name');
         if (welcomeUserNameSpan) {
             welcomeUserNameSpan.textContent = localStorage.getItem('outcrookUserName') || 'User';
         }
@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadEmailsForFolder(folder) {
         emailListDiv.innerHTML = ''; // Clear current emails
-        emailContentDiv.innerHTML = '<h3 style="padding: 15px;">Select an email to view its content</h3>';
+        emailBodyContentDiv.innerHTML = '<h3 style="padding: 15px;">Select an email to view its content</h3>';
         replyEmailBtn.style.display = 'none'; // Hide reply button
         currentFolder = folder;
         emailListFolderHeader.textContent = folder.charAt(0).toUpperCase() + folder.slice(1); // Capitalize first letter
@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const userName = localStorage.getItem('outcrookUserName') || 'User';
         const replyText = generateReplyBody(originalEmail, userName);
 
-        emailContentDiv.innerHTML = `
+        emailBodyContentDiv.innerHTML = `
             <h3>Replying to: ${originalEmail.subject}</h3>
             <div id="reply-typing-area" style="border: 1px solid #ccc; padding: 10px; min-height: 100px; white-space: pre-wrap;"></div>
         `;
