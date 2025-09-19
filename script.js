@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const replyEmailBtn = document.getElementById('reply-email-btn');
     const emailBodyContentDiv = document.getElementById('email-body-content');
     const deleteEmailBtn = document.getElementById('delete-email-btn');
+    const currentTimeSpan = document.getElementById('current-time');
 
     let emails = [];
     let currentFolder = 'inbox';
@@ -25,6 +26,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     getUserName(); // Call on page load
+
+    // Function to display current time
+    function updateCurrentTime() {
+        const now = new Date();
+        const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+        currentTimeSpan.textContent = now.toLocaleTimeString('en-US', options);
+    }
+
+    updateCurrentTime(); // Initial call
+    setInterval(updateCurrentTime, 1000); // Update every second
 
     // Initial welcome email
     const welcomeEmail = {

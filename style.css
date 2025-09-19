@@ -44,6 +44,17 @@ body {
     font-size: 0.9em;
 }
 
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Space between time and user profile */
+}
+
+.header-right #current-time {
+    color: #fff;
+    font-size: 0.9em;
+}
+
 .sidebar {
     grid-row: 2 / 3;
     background-color: #e6e6e6;
