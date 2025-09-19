@@ -344,6 +344,7 @@ Best, ${userName}, special investigator`;
         typePrompt.textContent = 'Press any key to start typing...';
         replyTypingArea.appendChild(typePrompt);
 
+        // Function to handle sending the reply
         const sendReplyHandler = function() {
             sendReplyBtn.removeEventListener('click', sendReplyHandler);
             document.removeEventListener('keydown', enterSendHandler);
@@ -386,7 +387,8 @@ Best, ${userName}, special investigator`;
                     const sendPromptElement = document.createElement('p');
                     sendPromptElement.id = 'send-prompt';
                     sendPromptElement.textContent = 'Press Enter to send';
-                    replyTypingArea.appendChild(sendPromptElement); 
+                    // Append to the main email body content div, not the reply typing area
+                    emailBodyContentDiv.appendChild(sendPromptElement); 
                     sendReplyBtn.style.display = 'block'; 
 
                     sendReplyBtn.addEventListener('click', sendReplyHandler);
