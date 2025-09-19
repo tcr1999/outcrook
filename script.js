@@ -192,35 +192,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (originalEmail.id === 'welcome-email') {
             replyBodyContent = `
-                <p>Thanks very much for the incredibly warm welcome, ${senderFirstName}.</p>
-                <p>I'm genuinely excited to dive into this role and contribute to Outcrook's commitment to integrity. I look forward to getting started and familiarizing myself with the intricacies of the company's operations.</p>
-            `;
+Thanks very much for the incredibly warm welcome, ${senderFirstName}.
+
+I'm absolutely fizzing with excitement to dive into this role and contribute to Outcrook's unwavering commitment to... well, you know, corporate integrity! I'm ready to get my detective hat on and start sniffing out any peculiar pings or peculiar patterns.
+`;
         } else {
             replyBodyContent = `
-                <p>Acknowledged.</p>
-            `;
+Acknowledged.
+`;
         }
 
-        return `
-            Hi ${senderFirstName},
-            ${replyBodyContent}
-            Best, ${userName}, special investigator
-        `;
+        return `Hi ${senderFirstName},
+
+${replyBodyContent}
+Best, ${userName}, special investigator`;
     }
 
     // Function to simulate typing
     function simulateTyping(targetElement, fullText, charsPerKey = 3, onComplete) {
         let charIndex = 0;
-        let displayInterval;
-        let enterListenerAdded = false;
+        let keydownListener;
+        let enterListenerAddedForThisTyping = false; // Local flag for this typing instance
 
         function typeChar() {
             if (charIndex < fullText.length) {
                 targetElement.textContent += fullText.substring(charIndex, charIndex + charsPerKey);
                 charIndex += charsPerKey;
             } else {
-                clearInterval(displayInterval);
-                if (!enterListenerAdded) {
+                document.removeEventListener('keydown', keydownListener);
+                if (!enterListenerAddedForThisTyping) {
                     const sendPrompt = document.createElement('p');
                     sendPrompt.id = 'send-prompt';
                     sendPrompt.textContent = 'Press Enter to send';
@@ -236,13 +236,21 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         }
                     });
-                    enterListenerAdded = true;
+                    enterListenerAddedForThisTyping = true;
                 }
             }
         }
 
-        // Start typing automatically
-        displayInterval = setInterval(typeChar, 50); // Adjust speed as needed
+        // Listener for keystroke-driven typing
+        keydownListener = function(event) {
+            // Only type if we haven't finished and it's not a modifier key
+            if (charIndex < fullText.length && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
+                event.preventDefault(); // Prevent actual typing in the div
+                typeChar();
+            }
+        };
+
+        document.addEventListener('keydown', keydownListener);
     }
 
     function loadEmailsForFolder(folder) {
@@ -335,3 +343,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
