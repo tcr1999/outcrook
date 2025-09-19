@@ -23,13 +23,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const customPromptCancelBtn = document.getElementById('custom-prompt-cancel');
 
     function showCustomPrompt(message, type = 'alert', defaultValue = '') {
-        console.log(`showCustomPrompt called with message: ${message}, type: ${type}`); // Debug
         return new Promise((resolve) => {
             customPromptMessage.textContent = message;
             customPromptInput.value = defaultValue;
 
             customPromptOverlay.style.display = 'flex';
-            console.log(`customPromptOverlay display set to flex. Current style: ${customPromptOverlay.style.display}`); // Debug
 
             if (type === 'prompt') {
                 customPromptInput.style.display = 'block';
@@ -44,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const handleOk = () => {
                 customPromptOverlay.style.display = 'none';
-                console.log(`customPromptOverlay display set to none after OK. Current style: ${customPromptOverlay.style.display}`); // Debug
                 customPromptOkBtn.removeEventListener('click', handleOk);
                 customPromptCancelBtn.removeEventListener('click', handleCancel);
                 resolve(type === 'prompt' ? customPromptInput.value : true);
@@ -52,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const handleCancel = () => {
                 customPromptOverlay.style.display = 'none';
-                console.log(`customPromptOverlay display set to none after Cancel. Current style: ${customPromptOverlay.style.display}`); // Debug
                 customPromptOkBtn.removeEventListener('click', handleOk);
                 customPromptCancelBtn.removeEventListener('click', handleCancel);
                 resolve(null); // For prompt, resolve with null on cancel
@@ -75,10 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to get user name
     async function getUserName() { // Made async to use await
-        console.log('getUserName called.'); // Debug
         let userName = localStorage.getItem('outcrookUserName');
         if (!userName) {
-            console.log('No userName in localStorage, showing custom prompt.'); // Debug
             userName = await showCustomPrompt('Welcome to Outcrook! Please enter your name:', 'prompt', 'Detective');
             if (userName) {
                 localStorage.setItem('outcrookUserName', userName);
@@ -87,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         userProfile.textContent = userName;
-        console.log(`User name set to: ${userName}`); // Debug
     }
 
     getUserName(); // Call on page load
@@ -288,7 +281,6 @@ Best, ${userName}, special investigator`;
         let typingCompleted = false; // Flag to track if typing is fully done
 
         function typeChar() {
-            console.log(`typeChar called. charIndex: ${charIndex}, fullText.length: ${fullText.length}`); // Debug
             if (charIndex < fullText.length) {
                 targetElement.textContent += fullText.substring(charIndex, charIndex + charsPerKey);
                 charIndex += charsPerKey;
@@ -304,7 +296,6 @@ Best, ${userName}, special investigator`;
 
         // Listener for keystroke-driven typing
         keydownListener = function(event) {
-            console.log(`Key pressed: ${event.key}, typingCompleted: ${typingCompleted}`); // Debug
             // Only type if we haven't finished and it's not a modifier key
             if (!typingCompleted && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
                 event.preventDefault(); // Prevent actual typing in the div
@@ -372,7 +363,7 @@ Best, ${userName}, special investigator`;
         const originalEmail = emails.find(email => email.subject === currentEmailSubject && email.sender === currentEmailSender);
 
         if (!originalEmail || originalEmail.replied) {
-            alert('You have already replied to this email or it\'s not a valid email to reply to.');
+            showCustomPrompt('You have already replied to this email or it\'s not a valid email to reply to.', 'alert');
             return;
         }
 
@@ -452,7 +443,7 @@ Best, ${userName}, special investigator`;
                 typingStarted = true;
                 document.removeEventListener('keydown', startTypingListener); // Remove this listener once typing starts
                 
-                simulateTyping(replyTypingArea, replyText, 8, () => {
+                simulateTyping(replyTypingArea, replyText, 15, () => {
                     sendPromptElement.style.display = 'block'; // Show prompt
                     sendReplyBtn.style.display = 'block'; // Show the Send button
 
