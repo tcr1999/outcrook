@@ -68,6 +68,31 @@ document.addEventListener('DOMContentLoaded', () => {
     welcomeItem.classList.add('active'); // Select it by default
     displayEmailContent(welcomeEmail);
 
+    // Handle navigation item clicks
+    const navItems = document.querySelectorAll('.nav-item');
+    const emailListFolderHeader = document.getElementById('email-list-folder-header');
+
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            navItems.forEach(nav => nav.classList.remove('active')); // Remove active from all
+            item.classList.add('active'); // Add active to clicked
+            emailListFolderHeader.textContent = item.textContent; // Update header
+
+            // For now, we only have the welcome email. In the future, this is where you'd load emails for each folder.
+            if (item.id === 'inbox-nav') {
+                // Display inbox emails
+                emailListDiv.innerHTML = ''; // Clear current emails
+                emailListDiv.appendChild(renderEmailItem(welcomeEmail));
+                displayEmailContent(welcomeEmail);
+            } else {
+                // For other folders, clear emails and content for now
+                emailListDiv.innerHTML = '<div style="padding: 15px;">No emails in this folder.</div>';
+                emailContentDiv.innerHTML = '<h3 style="padding: 15px;">Select an email to view its content</h3>';
+            }
+        });
+    });
+
+    // Original email item click handling (now less relevant as emails are dynamic)
     emailItems.forEach(item => {
         item.addEventListener('click', () => {
             // In a real game, this would load dynamic content based on the email.

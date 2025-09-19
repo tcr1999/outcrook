@@ -16,16 +16,16 @@
         <aside class="sidebar">
             <button class="compose-btn">+ Compose</button>
             <ul class="nav-list">
-                <li class="nav-item active">Inbox</li>
-                <li class="nav-item">Sent</li>
-                <li class="nav-item">Drafts</li>
-                <li class="nav-item">Spam</li>
-                <li class="nav-item">Trash</li>
+                <li class="nav-item active" id="inbox-nav">Inbox</li>
+                <li class="nav-item" id="sent-nav">Sent</li>
+                <li class="nav-item" id="drafts-nav">Drafts</li>
+                <li class="nav-item" id="spam-nav">Spam</li>
+                <li class="nav-item" id="trash-nav">Trash</li>
             </ul>
         </aside>
         <main class="email-view">
             <div class="email-list-header">
-                <h3>Inbox</h3>
+                <h3 id="email-list-folder-header">Inbox</h3>
             </div>
             <div class="email-list">
                 <!-- Emails will be loaded here -->
