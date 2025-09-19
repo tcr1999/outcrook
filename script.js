@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let emails = [];
     let currentFolder = 'inbox';
 
+    // Declare sendReplyBtn and sendPromptElement at a higher scope
+    let sendReplyBtn;
+    let sendPromptElement;
+
     // Function to get user name
     function getUserName() {
         let userName = localStorage.getItem('outcrookUserName');
@@ -328,12 +332,10 @@ Best, ${userName}, special investigator`;
         emailBodyContentDiv.innerHTML = `
             <h3>Replying to: ${originalEmail.subject}</h3>
             <div id="reply-typing-area" style="border: 1px solid #ccc; padding: 10px; min-height: 100px; white-space: pre-wrap; position: relative; user-select: none;"></div>
-            <button id="send-reply-btn" style="display: none;">Send</button>
         `;
         replyEmailBtn.style.display = 'none'; // Hide reply button while typing
 
         const replyTypingArea = document.getElementById('reply-typing-area');
-        const sendReplyBtn = document.getElementById('send-reply-btn');
         let typingStarted = false;
 
         // Create and append the type prompt initially
@@ -344,15 +346,27 @@ Best, ${userName}, special investigator`;
         typePrompt.textContent = 'Press any key to start typing...';
         replyTypingArea.appendChild(typePrompt);
 
-        // Function to handle sending the reply
+        // Create send button and prompt, append to emailBodyContentDiv
+        sendReplyBtn = document.createElement('button');
+        sendReplyBtn.id = 'send-reply-btn';
+        sendReplyBtn.textContent = 'Send';
+        sendReplyBtn.style.display = 'none'; // Initially hidden
+        emailBodyContentDiv.appendChild(sendReplyBtn);
+
+        sendPromptElement = document.createElement('p');
+        sendPromptElement.id = 'send-prompt';
+        sendPromptElement.textContent = 'Press Enter to send';
+        sendPromptElement.style.display = 'none'; // Initially hidden
+        emailBodyContentDiv.appendChild(sendPromptElement);
+
+
         const sendReplyHandler = function() {
             sendReplyBtn.removeEventListener('click', sendReplyHandler);
             document.removeEventListener('keydown', enterSendHandler);
-            sendReplyBtn.style.display = 'none';
-            const currentSendPrompt = replyTypingArea.querySelector('#send-prompt');
-            if (currentSendPrompt) {
-                currentSendPrompt.remove();
-            }
+            sendReplyBtn.style.display = 'none'; // Hide button
+            sendPromptElement.style.display = 'none'; // Hide prompt
+            sendReplyBtn.remove(); // Remove button from DOM
+            sendPromptElement.remove(); // Remove prompt from DOM
 
             const sentReply = {
                 id: `reply-${originalEmail.id}-${Date.now()}`,
@@ -384,12 +398,8 @@ Best, ${userName}, special investigator`;
                 document.removeEventListener('keydown', startTypingListener); // Remove this listener once typing starts
                 
                 simulateTyping(replyTypingArea, replyText, 8, () => {
-                    const sendPromptElement = document.createElement('p');
-                    sendPromptElement.id = 'send-prompt';
-                    sendPromptElement.textContent = 'Press Enter to send';
-                    // Append to the main email body content div, not the reply typing area
-                    emailBodyContentDiv.appendChild(sendPromptElement); 
-                    sendReplyBtn.style.display = 'block'; 
+                    sendPromptElement.style.display = 'block'; // Show prompt
+                    sendReplyBtn.style.display = 'block'; // Show the Send button
 
                     sendReplyBtn.addEventListener('click', sendReplyHandler);
                     document.addEventListener('keydown', enterSendHandler);
