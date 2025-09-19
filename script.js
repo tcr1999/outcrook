@@ -326,8 +326,9 @@ Best, ${userName}, special investigator`;
 
         emailBodyContentDiv.innerHTML = `
             <h3>Replying to: ${originalEmail.subject}</h3>
-            <div id="reply-typing-area" style="border: 1px solid #ccc; padding: 10px; min-height: 100px; white-space: pre-wrap;"></div>
-            <p id="type-prompt" class="flashing-text">Press any key to start typing...</p>
+            <div id="reply-typing-area" style="border: 1px solid #ccc; padding: 10px; min-height: 100px; white-space: pre-wrap; position: relative;">
+                <p id="type-prompt" class="flashing-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">Press any key to start typing...</p>
+            </div>
         `;
         replyEmailBtn.style.display = 'none'; // Hide reply button while typing
 

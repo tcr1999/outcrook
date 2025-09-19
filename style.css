@@ -214,3 +214,10 @@ body {
     from { opacity: 1; }
     to { opacity: 0.3; }
 }
+
+#send-prompt {
+    text-align: center;
+    margin-top: 15px;
+    font-weight: bold;
+    color: #0078d4;
+}
