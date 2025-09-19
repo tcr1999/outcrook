@@ -329,13 +329,65 @@ Best, ${userName}, special investigator`;
             <div id="reply-typing-area" style="border: 1px solid #ccc; padding: 10px; min-height: 100px; white-space: pre-wrap; position: relative;">
                 <p id="type-prompt" class="flashing-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">Press any key to start typing...</p>
             </div>
+            <button id="send-reply-btn" style="display: none;">Send</button>
         `;
         replyEmailBtn.style.display = 'none'; // Hide reply button while typing
 
         const replyTypingArea = document.getElementById('reply-typing-area');
         const typePrompt = document.getElementById('type-prompt');
-        
+        const sendReplyBtn = document.getElementById('send-reply-btn');
+
         let typingStarted = false;
+
+        // Function to handle sending the reply
+        function sendReply(originalEmail, replyText, userName) {
+            const sentReply = {
+                id: `reply-${originalEmail.id}-${Date.now()}`,
+                sender: `${userName}, special investigator`,
+                subject: `Re: ${originalEmail.subject}`,
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                body: replyText,
+                folder: 'sent',
+                read: true
+            };
+            emails.push(sentReply);
+            originalEmail.replied = true;
+            alert('Reply sent!');
+            loadEmailsForFolder('sent'); // Go to sent folder after replying
+            refreshUnreadCounts();
+        }
+
+        // Function called when typing is complete
+        function finishTypingAndShowSendOptions(originalEmail, replyText, userName) {
+            sendReplyBtn.style.display = 'block'; // Show the Send button
+
+            const sendPrompt = document.createElement('p');
+            sendPrompt.id = 'send-prompt';
+            sendPrompt.textContent = 'Press Enter to send';
+            emailBodyContentDiv.appendChild(sendPrompt); // Append to the main email body content div
+
+            const sendHandler = function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    document.removeEventListener('keydown', sendHandler);
+                    sendPrompt.remove();
+                    sendReplyBtn.removeEventListener('click', clickSendHandler);
+                    sendReplyBtn.style.display = 'none';
+                    sendReply(originalEmail, replyText, userName);
+                }
+            };
+
+            const clickSendHandler = function() {
+                document.removeEventListener('keydown', sendHandler);
+                sendPrompt.remove();
+                sendReplyBtn.removeEventListener('click', clickSendHandler);
+                sendReplyBtn.style.display = 'none';
+                sendReply(originalEmail, replyText, userName);
+            };
+
+            document.addEventListener('keydown', sendHandler);
+            sendReplyBtn.addEventListener('click', clickSendHandler);
+        }
 
         const startTypingListener = function(event) {
             if (!typingStarted && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
@@ -343,22 +395,14 @@ Best, ${userName}, special investigator`;
                 typingStarted = true;
                 document.removeEventListener('keydown', startTypingListener); // Remove this listener once typing starts
                 
+                const originalEmailSubject = emailBodyContentDiv.querySelector('h3').textContent;
+                const originalEmailSender = emailBodyContentDiv.querySelector('p:nth-of-type(1)').textContent.replace('From: ', '');
+                const originalEmail = emails.find(email => email.subject === originalEmailSubject && email.sender === originalEmailSender);
+                const userName = localStorage.getItem('outcrookUserName') || 'User';
+                const replyText = generateReplyBody(originalEmail, userName);
+
                 simulateTyping(replyTypingArea, replyText, 8, () => {
-                    // On complete, add the reply to sent folder
-                    const sentReply = {
-                        id: `reply-${originalEmail.id}-${Date.now()}`,
-                        sender: `${userName}, special investigator`,
-                        subject: `Re: ${originalEmail.subject}`,
-                        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                        body: replyText,
-                        folder: 'sent',
-                        read: true
-                    };
-                    emails.push(sentReply);
-                    originalEmail.replied = true;
-                    alert('Reply sent!');
-                    loadEmailsForFolder('sent'); // Go to sent folder after replying
-                    refreshUnreadCounts();
+                    finishTypingAndShowSendOptions(originalEmail, replyText, userName);
                 });
             }
         };
