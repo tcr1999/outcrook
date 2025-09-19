@@ -44,6 +44,43 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     emails.push(welcomeEmail);
 
+    // Creative spam emails
+    const spamEmail1 = {
+        id: 'spam-email-1',
+        sender: 'TotallyLegitBank',
+        subject: 'URGENT: Your Account Has Been Compromised - Act NOW!',
+        date: new Date(2025, 8, 10).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        body: `
+            <h3>Attention Valued Customer,</h3>
+            <p>We have detected suspicious activity on your Outcrook bank account. To prevent further unauthorized access, please click the link below to verify your details immediately:</p>
+            <p><a href="#" onclick="alert('Nice try! This is spam.'); return false;">Verify My Account Now</a></p>
+            <p>Failure to do so will result in the permanent suspension of your account.</p>
+            <p>Sincerely,</p>
+            <p>The Totally Legit Bank Security Team</p>
+        `,
+        folder: 'spam',
+        read: false
+    };
+    emails.push(spamEmail1);
+
+    const spamEmail2 = {
+        id: 'spam-email-2',
+        sender: 'Nigerian Prince (via secure channel)',
+        subject: 'A Royal Opportunity Awaits You!',
+        date: new Date(2025, 8, 8).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        body: `
+            <h3>Greetings, Esteemed Friend,</h3>
+            <p>I am Prince Akeem of Zamunda, and I write to you with a matter of utmost urgency and discretion. I require your assistance in transferring a vast fortune (USD 50,000,000) from my country to a secure foreign account.</p>
+            <p>For your kind assistance, I am prepared to offer you 20% of the total sum. All I require is your bank account details and a small processing fee to expedite the transfer.</p>
+            <p>Please respond swiftly to this confidential proposition.</p>
+            <p>Yours in trust,</p>
+            <p>Prince Akeem</p>
+        `,
+        folder: 'spam',
+        read: false
+    };
+    emails.push(spamEmail2);
+
     // Unread counts for navigation badges
     const unreadCounts = {
         inbox: 0,
@@ -87,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="email-subject">${email.subject}</div>
                 <div class="email-date">${email.date}</div>
             </div>
-            <button class="delete-email-item-btn" data-email-id="${email.id}">Trash</button>
+            <button class="delete-email-item-btn" data-email-id="${email.id}">🗑️</button>
         `;
         emailItem.addEventListener('click', () => {
             displayEmailContent(email);
