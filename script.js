@@ -196,6 +196,14 @@ Thanks very much for the incredibly warm welcome, ${senderFirstName}.
 
 I'm absolutely fizzing with excitement to dive into this role and contribute to Outcrook's unwavering commitment to... well, you know, corporate integrity! I'm ready to get my detective hat on and start sniffing out any peculiar pings or peculiar patterns.
 `;
+        } else if (originalEmail.folder === 'spam') {
+            const spamResponses = [
+                `I'm sorry, my pet parrot ate my bank account details. Perhaps next time? Quawk!`, 
+                `My sincere apologies, but my fortune is currently tied up in a very exclusive pigeon racing syndicate. I'll get back to you... maybe.`, 
+                `I appreciate the offer, but I'm already assisting a much wealthier monarch with their urgent financial needs. Their camels are much faster, you see.`, 
+                `Your email has been flagged for excessive enthusiasm. Please dial down the exclamation marks and try again in 3-5 business centuries.`
+            ];
+            replyBodyContent = spamResponses[Math.floor(Math.random() * spamResponses.length)];
         } else {
             replyBodyContent = `
 Acknowledged.
@@ -209,7 +217,7 @@ Best, ${userName}, special investigator`;
     }
 
     // Function to simulate typing
-    function simulateTyping(targetElement, fullText, charsPerKey = 3, onComplete) {
+    function simulateTyping(targetElement, fullText, charsPerKey = 5, onComplete) {
         let charIndex = 0;
         let keydownListener;
         let enterListenerAddedForThisTyping = false; // Local flag for this typing instance
