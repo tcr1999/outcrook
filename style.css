@@ -1,0 +1,136 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #f6f6f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 200px 1fr 2fr; /* Sidebar, Email List, Email Content */
+    grid-template-rows: auto 1fr; /* Navbar, Main Content */
+    width: 90%;
+    max-width: 1200px;
+    height: 90vh;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.navbar {
+    grid-column: 1 / -1; /* Spans all columns */
+    background-color: #0078d4; /* Outlook blue */
+    color: #fff;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navbar .logo {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.navbar .search-bar {
+    width: 40%;
+    padding: 8px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.sidebar {
+    grid-row: 2 / 3;
+    background-color: #e6e6e6;
+    padding: 15px;
+    border-right: 1px solid #ddd;
+}
+
+.sidebar .compose-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.sidebar .nav-list {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar .nav-item {
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.sidebar .nav-item:hover {
+    background-color: #dcdcdc;
+}
+
+.sidebar .nav-item.active {
+    background-color: #0078d4;
+    color: #fff;
+}
+
+.email-view {
+    grid-column: 2 / -1;
+    grid-row: 2 / 3;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    overflow: hidden;
+}
+
+.email-list-header {
+    grid-column: 1 / -1;
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+    background-color: #f9f9f9;
+}
+
+.email-list {
+    overflow-y: auto;
+    border-right: 1px solid #ddd;
+}
+
+.email-item {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.email-item:hover {
+    background-color: #f0f0f0;
+}
+
+.email-item.unread {
+    font-weight: bold;
+}
+
+.email-sender,
+.email-subject {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.email-date {
+    font-size: 0.8em;
+    color: #666;
+}
+
+.email-content {
+    padding: 15px;
+    overflow-y: auto;
+}

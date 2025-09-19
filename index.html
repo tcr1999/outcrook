@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outcrook - Email Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="navbar">
+            <div class="logo">Outcrook</div>
+            <input type="text" placeholder="Search mail..." class="search-bar">
+            <div class="user-profile">User Name</div>
+        </header>
+        <aside class="sidebar">
+            <button class="compose-btn">+ Compose</button>
+            <ul class="nav-list">
+                <li class="nav-item active">Inbox</li>
+                <li class="nav-item">Sent</li>
+                <li class="nav-item">Drafts</li>
+                <li class="nav-item">Spam</li>
+                <li class="nav-item">Trash</li>
+            </ul>
+        </aside>
+        <main class="email-view">
+            <div class="email-list-header">
+                <h3>Inbox</h3>
+            </div>
+            <div class="email-list">
+                <!-- Emails will be loaded here -->
+                <div class="email-item">
+                    <div class="email-sender">Sender Name</div>
+                    <div class="email-subject">Subject of the Email</div>
+                    <div class="email-date">Aug 15</div>
+                </div>
+                <div class="email-item">
+                    <div class="email-sender">Another Sender</div>
+                    <div class="email-subject">Another interesting subject line</div>
+                    <div class="email-date">Aug 14</div>
+                </div>
+            </div>
+            <div class="email-content">
+                <!-- Selected email content will be displayed here -->
+                <h3>Welcome to Outcrook!</h3>
+                <p>This is where your email game will begin. Look out for new emails to progress the story.</p>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
