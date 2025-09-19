@@ -326,21 +326,33 @@ Best, ${userName}, special investigator`;
 
         emailBodyContentDiv.innerHTML = `
             <h3>Replying to: ${originalEmail.subject}</h3>
-            <div id="reply-typing-area" style="border: 1px solid #ccc; padding: 10px; min-height: 100px; white-space: pre-wrap; position: relative;">
-                <p id="type-prompt" class="flashing-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">Press any key to start typing...</p>
-            </div>
+            <div id="reply-typing-area" style="border: 1px solid #ccc; padding: 10px; min-height: 100px; white-space: pre-wrap; position: relative;"></div>
             <button id="send-reply-btn" style="display: none;">Send</button>
         `;
         replyEmailBtn.style.display = 'none'; // Hide reply button while typing
 
         const replyTypingArea = document.getElementById('reply-typing-area');
-        const typePrompt = document.getElementById('type-prompt');
         const sendReplyBtn = document.getElementById('send-reply-btn');
-
         let typingStarted = false;
 
+        // Create and append the type prompt initially
+        const typePrompt = document.createElement('p');
+        typePrompt.id = 'type-prompt';
+        typePrompt.classList.add('flashing-text');
+        typePrompt.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);';
+        typePrompt.textContent = 'Press any key to start typing...';
+        replyTypingArea.appendChild(typePrompt);
+
         // Function to handle sending the reply
-        function sendReply(originalEmail, replyText, userName) {
+        function sendReplyHandler() {
+            sendReplyBtn.removeEventListener('click', sendReplyHandler);
+            document.removeEventListener('keydown', enterSendHandler);
+            sendReplyBtn.style.display = 'none';
+            if (document.getElementById('send-prompt')) {
+                document.getElementById('send-prompt').remove();
+            }
+            // Assuming sendReply function exists elsewhere or define it here if it's local
+            // For now, I'll put the logic directly here to avoid external dependency issues
             const sentReply = {
                 id: `reply-${originalEmail.id}-${Date.now()}`,
                 sender: `${userName}, special investigator`,
@@ -357,37 +369,12 @@ Best, ${userName}, special investigator`;
             refreshUnreadCounts();
         }
 
-        // Function called when typing is complete
-        function finishTypingAndShowSendOptions(originalEmail, replyText, userName) {
-            sendReplyBtn.style.display = 'block'; // Show the Send button
-
-            const sendPrompt = document.createElement('p');
-            sendPrompt.id = 'send-prompt';
-            sendPrompt.textContent = 'Press Enter to send';
-            emailBodyContentDiv.appendChild(sendPrompt); // Append to the main email body content div
-
-            const sendHandler = function(event) {
-                if (event.key === 'Enter') {
-                    event.preventDefault();
-                    document.removeEventListener('keydown', sendHandler);
-                    sendPrompt.remove();
-                    sendReplyBtn.removeEventListener('click', clickSendHandler);
-                    sendReplyBtn.style.display = 'none';
-                    sendReply(originalEmail, replyText, userName);
-                }
-            };
-
-            const clickSendHandler = function() {
-                document.removeEventListener('keydown', sendHandler);
-                sendPrompt.remove();
-                sendReplyBtn.removeEventListener('click', clickSendHandler);
-                sendReplyBtn.style.display = 'none';
-                sendReply(originalEmail, replyText, userName);
-            };
-
-            document.addEventListener('keydown', sendHandler);
-            sendReplyBtn.addEventListener('click', clickSendHandler);
-        }
+        const enterSendHandler = function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendReplyHandler();
+            }
+        };
 
         const startTypingListener = function(event) {
             if (!typingStarted && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
@@ -395,14 +382,16 @@ Best, ${userName}, special investigator`;
                 typingStarted = true;
                 document.removeEventListener('keydown', startTypingListener); // Remove this listener once typing starts
                 
-                const originalEmailSubject = emailBodyContentDiv.querySelector('h3').textContent;
-                const originalEmailSender = emailBodyContentDiv.querySelector('p:nth-of-type(1)').textContent.replace('From: ', '');
-                const originalEmail = emails.find(email => email.subject === originalEmailSubject && email.sender === originalEmailSender);
-                const userName = localStorage.getItem('outcrookUserName') || 'User';
-                const replyText = generateReplyBody(originalEmail, userName);
-
                 simulateTyping(replyTypingArea, replyText, 8, () => {
-                    finishTypingAndShowSendOptions(originalEmail, replyText, userName);
+                    // On complete, show send options
+                    const sendPromptElement = document.createElement('p');
+                    sendPromptElement.id = 'send-prompt';
+                    sendPromptElement.textContent = 'Press Enter to send';
+                    emailBodyContentDiv.appendChild(sendPromptElement); // Append to main email body content
+                    sendReplyBtn.style.display = 'block'; // Show the Send button
+
+                    sendReplyBtn.addEventListener('click', sendReplyHandler);
+                    document.addEventListener('keydown', enterSendHandler);
                 });
             }
         };
