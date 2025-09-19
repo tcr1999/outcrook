@@ -16,11 +16,11 @@
         <aside class="sidebar">
             <button class="compose-btn">+ Compose</button>
             <ul class="nav-list">
-                <li class="nav-item active" id="inbox-nav">Inbox</li>
-                <li class="nav-item" id="sent-nav">Sent</li>
-                <li class="nav-item" id="drafts-nav">Drafts</li>
-                <li class="nav-item" id="spam-nav">Spam</li>
-                <li class="nav-item" id="trash-nav">Trash</li>
+                <li class="nav-item active" id="inbox-nav">Inbox<span class="notification-badge" id="inbox-badge"></span></li>
+                <li class="nav-item" id="sent-nav">Sent<span class="notification-badge" id="sent-badge"></span></li>
+                <li class="nav-item" id="drafts-nav">Drafts<span class="notification-badge" id="drafts-badge"></span></li>
+                <li class="nav-item" id="spam-nav">Spam<span class="notification-badge" id="spam-badge"></span></li>
+                <li class="nav-item" id="trash-nav">Trash<span class="notification-badge" id="trash-badge"></span></li>
             </ul>
         </aside>
         <main class="email-view">
@@ -31,6 +31,7 @@
                 <!-- Emails will be loaded here -->
             </div>
             <div class="email-content">
+                <button id="delete-email-btn" style="display: none;">Move to Trash</button>
                 <!-- Selected email content will be displayed here -->
             </div>
         </main>

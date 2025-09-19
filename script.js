@@ -1,7 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const emailItems = document.querySelectorAll('.email-item');
-    const emailContent = document.querySelector('.email-content');
+    const emailContentDiv = document.querySelector('.email-content');
     const userProfile = document.getElementById('user-profile');
+    const emailListDiv = document.querySelector('.email-list');
+    const emailListFolderHeader = document.getElementById('email-list-folder-header');
+    const deleteEmailBtn = document.getElementById('delete-email-btn');
+
+    let emails = [];
+    let currentFolder = 'inbox';
 
     // Function to get user name
     function getUserName() {
@@ -19,7 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     getUserName(); // Call on page load
 
+    // Initial welcome email
     const welcomeEmail = {
+        id: 'welcome-email',
         sender: 'HR/People Officer',
         subject: 'Welcome to Outcrook - Your Onboarding as a Detective',
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
@@ -31,15 +38,49 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>Your journey to uncover the truth begins now. We trust you'll uphold our values with the utmost discretion and diligence.</p>
             <p>Best regards,</p>
             <p>The Outcrook HR/People Officer</p>
-        `
+        `,
+        folder: 'inbox',
+        read: false
+    };
+    emails.push(welcomeEmail);
+
+    // Unread counts for navigation badges
+    const unreadCounts = {
+        inbox: 0,
+        sent: 0,
+        drafts: 0,
+        spam: 0,
+        trash: 0
     };
 
-    const emailListDiv = document.querySelector('.email-list');
-    const emailContentDiv = document.querySelector('.email-content');
+    // Function to update notification badge
+    function updateNotificationBadge(folderId, count) {
+        const badgeElement = document.getElementById(`${folderId}-badge`);
+        if (badgeElement) {
+            if (count > 0) {
+                badgeElement.textContent = `(${count})`;
+                badgeElement.style.display = 'inline';
+            } else {
+                badgeElement.style.display = 'none';
+            }
+        }
+    }
+
+    // Function to update all badges based on current email states
+    function refreshUnreadCounts() {
+        for (const folder in unreadCounts) {
+            unreadCounts[folder] = emails.filter(email => email.folder === folder && !email.read).length;
+            updateNotificationBadge(folder, unreadCounts[folder]);
+        }
+    }
 
     function renderEmailItem(email) {
         const emailItem = document.createElement('div');
         emailItem.classList.add('email-item');
+        if (!email.read) {
+            emailItem.classList.add('unread');
+        }
+        emailItem.dataset.emailId = email.id; // Store email ID for easy lookup
         emailItem.innerHTML = `
             <div class="email-sender">${email.sender}</div>
             <div class="email-subject">${email.subject}</div>
@@ -47,6 +88,12 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         emailItem.addEventListener('click', () => {
             displayEmailContent(email);
+            // Mark as read and update badge
+            if (!email.read) {
+                email.read = true;
+                emailItem.classList.remove('unread');
+                refreshUnreadCounts();
+            }
             // Remove 'active' class from all email items and add to clicked one
             document.querySelectorAll('.email-item').forEach(el => el.classList.remove('active'));
             emailItem.classList.add('active');
@@ -55,59 +102,77 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayEmailContent(email) {
-        emailContentDiv.innerHTML = email.body;
-        const welcomeUserNameSpan = document.getElementById('welcome-user-name');
+        emailContentDiv.innerHTML = `
+            <h3>${email.subject}</h3>
+            <p>From: ${email.sender}</p>
+            <p>Date: ${email.date}</p>
+            <hr>
+            <div>${email.body}</div>
+        `;
+        deleteEmailBtn.dataset.emailId = email.id; // Set current email ID for delete button
+        deleteEmailBtn.style.display = 'inline-block'; // Show delete button
+
+        const welcomeUserNameSpan = emailContentDiv.querySelector('#welcome-user-name');
         if (welcomeUserNameSpan) {
             welcomeUserNameSpan.textContent = localStorage.getItem('outcrookUserName') || 'User';
         }
     }
 
-    // Initial load: Add welcome email
-    const welcomeItem = renderEmailItem(welcomeEmail);
-    emailListDiv.appendChild(welcomeItem);
-    welcomeItem.classList.add('active'); // Select it by default
-    displayEmailContent(welcomeEmail);
+    function loadEmailsForFolder(folder) {
+        emailListDiv.innerHTML = ''; // Clear current emails
+        emailContentDiv.innerHTML = '<h3 style="padding: 15px;">Select an email to view its content</h3>';
+        deleteEmailBtn.style.display = 'none'; // Hide delete button
+        currentFolder = folder;
+        emailListFolderHeader.textContent = folder.charAt(0).toUpperCase() + folder.slice(1); // Capitalize first letter
+
+        const filteredEmails = emails.filter(email => email.folder === folder);
+        if (filteredEmails.length > 0) {
+            filteredEmails.forEach(email => {
+                emailListDiv.appendChild(renderEmailItem(email));
+            });
+            // Select the first unread email, or the first email if all are read
+            const firstEmailToSelect = filteredEmails.find(email => !email.read) || filteredEmails[0];
+            if (firstEmailToSelect) {
+                displayEmailContent(firstEmailToSelect);
+                const correspondingEmailItem = emailListDiv.querySelector(`[data-email-id="${firstEmailToSelect.id}"]`);
+                if (correspondingEmailItem) {
+                    correspondingEmailItem.classList.add('active');
+                    if (!firstEmailToSelect.read) {
+                        firstEmailToSelect.read = true;
+                        correspondingEmailItem.classList.remove('unread');
+                        refreshUnreadCounts();
+                    }
+                }
+            }
+        } else {
+            emailListDiv.innerHTML = '<div style="padding: 15px;">No emails in this folder.</div>';
+        }
+    }
 
     // Handle navigation item clicks
     const navItems = document.querySelectorAll('.nav-item');
-    const emailListFolderHeader = document.getElementById('email-list-folder-header');
-
     navItems.forEach(item => {
         item.addEventListener('click', () => {
             navItems.forEach(nav => nav.classList.remove('active')); // Remove active from all
             item.classList.add('active'); // Add active to clicked
-            emailListFolderHeader.textContent = item.textContent; // Update header
-
-            // For now, we only have the welcome email. In the future, this is where you'd load emails for each folder.
-            if (item.id === 'inbox-nav') {
-                // Display inbox emails
-                emailListDiv.innerHTML = ''; // Clear current emails
-                emailListDiv.appendChild(renderEmailItem(welcomeEmail));
-                displayEmailContent(welcomeEmail);
-            } else {
-                // For other folders, clear emails and content for now
-                emailListDiv.innerHTML = '<div style="padding: 15px;">No emails in this folder.</div>';
-                emailContentDiv.innerHTML = '<h3 style="padding: 15px;">Select an email to view its content</h3>';
-            }
+            const folder = item.id.replace('-nav', ''); // Get folder name from ID
+            loadEmailsForFolder(folder);
         });
     });
 
-    // Original email item click handling (now less relevant as emails are dynamic)
-    emailItems.forEach(item => {
-        item.addEventListener('click', () => {
-            // In a real game, this would load dynamic content based on the email.
-            // For now, we'll just update with a generic message.
-            emailContent.innerHTML = `
-                <h3>Email Subject (Dynamic)</h3>
-                <p>This is the content of the email you clicked. Imagine exciting game narrative here!</p>
-                <p>From: Sender Name (Dynamic)</p>
-                <p>Date: August 15, 2025</p>
-            `;
+    // Initial load: Display inbox and refresh unread counts
+    loadEmailsForFolder('inbox');
+    refreshUnreadCounts();
 
-            // Remove 'active' class from all email items
-            emailItems.forEach(el => el.classList.remove('active'));
-            // Add 'active' class to the clicked email item
-            item.classList.add('active');
-        });
+    // Delete email functionality
+    deleteEmailBtn.addEventListener('click', () => {
+        const emailIdToDelete = deleteEmailBtn.dataset.emailId;
+        const emailIndex = emails.findIndex(email => email.id === emailIdToDelete);
+        if (emailIndex > -1) {
+            emails[emailIndex].folder = 'trash'; // Move to trash
+            emails[emailIndex].read = true; // Mark as read when moved to trash
+            loadEmailsForFolder(currentFolder); // Re-load current folder
+            refreshUnreadCounts();
+        }
     });
 });
