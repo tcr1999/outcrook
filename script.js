@@ -217,7 +217,7 @@ Best, ${userName}, special investigator`;
     }
 
     // Function to simulate typing
-    function simulateTyping(targetElement, fullText, charsPerKey = 5, onComplete) {
+    function simulateTyping(targetElement, fullText, charsPerKey = 8, onComplete) {
         let charIndex = 0;
         let keydownListener;
         let enterListenerAddedForThisTyping = false; // Local flag for this typing instance
@@ -327,28 +327,42 @@ Best, ${userName}, special investigator`;
         emailBodyContentDiv.innerHTML = `
             <h3>Replying to: ${originalEmail.subject}</h3>
             <div id="reply-typing-area" style="border: 1px solid #ccc; padding: 10px; min-height: 100px; white-space: pre-wrap;"></div>
+            <p id="type-prompt" class="flashing-text">Press any key to start typing...</p>
         `;
         replyEmailBtn.style.display = 'none'; // Hide reply button while typing
 
         const replyTypingArea = document.getElementById('reply-typing-area');
+        const typePrompt = document.getElementById('type-prompt');
+        
+        let typingStarted = false;
 
-        simulateTyping(replyTypingArea, replyText, 3, () => {
-            // On complete, add the reply to sent folder
-            const sentReply = {
-                id: `reply-${originalEmail.id}-${Date.now()}`,
-                sender: `${userName}, special investigator`,
-                subject: `Re: ${originalEmail.subject}`,
-                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                body: replyText,
-                folder: 'sent',
-                read: true
-            };
-            emails.push(sentReply);
-            originalEmail.replied = true;
-            alert('Reply sent!');
-            loadEmailsForFolder('sent'); // Go to sent folder after replying
-            refreshUnreadCounts();
-        });
+        const startTypingListener = function(event) {
+            if (!typingStarted && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
+                typePrompt.style.display = 'none';
+                typingStarted = true;
+                document.removeEventListener('keydown', startTypingListener); // Remove this listener once typing starts
+                
+                simulateTyping(replyTypingArea, replyText, 8, () => {
+                    // On complete, add the reply to sent folder
+                    const sentReply = {
+                        id: `reply-${originalEmail.id}-${Date.now()}`,
+                        sender: `${userName}, special investigator`,
+                        subject: `Re: ${originalEmail.subject}`,
+                        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                        body: replyText,
+                        folder: 'sent',
+                        read: true
+                    };
+                    emails.push(sentReply);
+                    originalEmail.replied = true;
+                    alert('Reply sent!');
+                    loadEmailsForFolder('sent'); // Go to sent folder after replying
+                    refreshUnreadCounts();
+                });
+            }
+        };
+
+        document.addEventListener('keydown', startTypingListener);
     });
 });
 

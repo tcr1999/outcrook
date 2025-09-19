@@ -202,3 +202,15 @@ body {
     font-size: 12px;
     margin-left: 5px;
 }
+
+.flashing-text {
+    animation: flash 1.5s infinite alternate;
+    color: #666;
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+
+@keyframes flash {
+    from { opacity: 1; }
+    to { opacity: 0.3; }
+}
