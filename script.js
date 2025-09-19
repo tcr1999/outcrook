@@ -15,11 +15,65 @@ document.addEventListener('DOMContentLoaded', () => {
     let sendReplyBtn;
     let sendPromptElement;
 
+    // Custom Prompt/Notification Logic
+    const customPromptOverlay = document.getElementById('custom-prompt-overlay');
+    const customPromptMessage = document.getElementById('custom-prompt-message');
+    const customPromptInput = document.getElementById('custom-prompt-input');
+    const customPromptOkBtn = document.getElementById('custom-prompt-ok');
+    const customPromptCancelBtn = document.getElementById('custom-prompt-cancel');
+
+    function showCustomPrompt(message, type = 'alert', defaultValue = '') {
+        return new Promise((resolve) => {
+            customPromptMessage.textContent = message;
+            customPromptInput.value = defaultValue;
+
+            customPromptOverlay.style.display = 'flex';
+
+            if (type === 'prompt') {
+                customPromptInput.style.display = 'block';
+                customPromptOkBtn.style.display = 'inline-block';
+                customPromptCancelBtn.style.display = 'inline-block';
+                customPromptInput.focus();
+            } else { // 'alert'
+                customPromptInput.style.display = 'none';
+                customPromptOkBtn.style.display = 'inline-block';
+                customPromptCancelBtn.style.display = 'none';
+            }
+
+            const handleOk = () => {
+                customPromptOverlay.style.display = 'none';
+                customPromptOkBtn.removeEventListener('click', handleOk);
+                customPromptCancelBtn.removeEventListener('click', handleCancel);
+                resolve(type === 'prompt' ? customPromptInput.value : true);
+            };
+
+            const handleCancel = () => {
+                customPromptOverlay.style.display = 'none';
+                customPromptOkBtn.removeEventListener('click', handleOk);
+                customPromptCancelBtn.removeEventListener('click', handleCancel);
+                resolve(null); // For prompt, resolve with null on cancel
+            };
+
+            customPromptOkBtn.addEventListener('click', handleOk);
+            customPromptCancelBtn.addEventListener('click', handleCancel);
+
+            // Allow 'Enter' key to act as 'OK' for prompts/alerts
+            const keydownListener = (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    handleOk();
+                    document.removeEventListener('keydown', keydownListener);
+                }
+            };
+            document.addEventListener('keydown', keydownListener);
+        });
+    }
+
     // Function to get user name
-    function getUserName() {
+    async function getUserName() { // Made async to use await
         let userName = localStorage.getItem('outcrookUserName');
         if (!userName) {
-            userName = prompt('Welcome to Outcrook! Please enter your name:');
+            userName = await showCustomPrompt('Welcome to Outcrook! Please enter your name:', 'prompt', 'Detective');
             if (userName) {
                 localStorage.setItem('outcrookUserName', userName);
             } else {
@@ -369,7 +423,7 @@ Best, ${userName}, special investigator`;
             };
             emails.push(sentReply);
             originalEmail.replied = true;
-            alert('Reply sent!');
+            showCustomPrompt('Reply sent!', 'alert'); // Use custom alert
             loadEmailsForFolder('sent');
             refreshUnreadCounts();
         };
@@ -388,7 +442,6 @@ Best, ${userName}, special investigator`;
                 document.removeEventListener('keydown', startTypingListener); // Remove this listener once typing starts
                 
                 simulateTyping(replyTypingArea, replyText, 8, () => {
-                    console.log('Typing simulation complete. Attempting to show send options.'); // Debugging line
                     sendPromptElement.style.display = 'block'; // Show prompt
                     sendReplyBtn.style.display = 'block'; // Show the Send button
 
