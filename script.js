@@ -324,9 +324,10 @@ Best, ${userName}, special investigator`;
         const userName = localStorage.getItem('outcrookUserName') || 'User';
         const replyText = generateReplyBody(originalEmail, userName);
 
+        // Clear emailBodyContentDiv and set up reply interface
         emailBodyContentDiv.innerHTML = `
             <h3>Replying to: ${originalEmail.subject}</h3>
-            <div id="reply-typing-area" style="border: 1px solid #ccc; padding: 10px; min-height: 100px; white-space: pre-wrap; position: relative;"></div>
+            <div id="reply-typing-area" style="border: 1px solid #ccc; padding: 10px; min-height: 100px; white-space: pre-wrap; position: relative; user-select: none;"></div>
             <button id="send-reply-btn" style="display: none;">Send</button>
         `;
         replyEmailBtn.style.display = 'none'; // Hide reply button while typing
@@ -343,16 +344,15 @@ Best, ${userName}, special investigator`;
         typePrompt.textContent = 'Press any key to start typing...';
         replyTypingArea.appendChild(typePrompt);
 
-        // Function to handle sending the reply
-        function sendReplyHandler() {
+        const sendReplyHandler = function() {
             sendReplyBtn.removeEventListener('click', sendReplyHandler);
             document.removeEventListener('keydown', enterSendHandler);
             sendReplyBtn.style.display = 'none';
-            if (document.getElementById('send-prompt')) {
-                document.getElementById('send-prompt').remove();
+            const currentSendPrompt = replyTypingArea.querySelector('#send-prompt');
+            if (currentSendPrompt) {
+                currentSendPrompt.remove();
             }
-            // Assuming sendReply function exists elsewhere or define it here if it's local
-            // For now, I'll put the logic directly here to avoid external dependency issues
+
             const sentReply = {
                 id: `reply-${originalEmail.id}-${Date.now()}`,
                 sender: `${userName}, special investigator`,
@@ -365,9 +365,9 @@ Best, ${userName}, special investigator`;
             emails.push(sentReply);
             originalEmail.replied = true;
             alert('Reply sent!');
-            loadEmailsForFolder('sent'); // Go to sent folder after replying
+            loadEmailsForFolder('sent');
             refreshUnreadCounts();
-        }
+        };
 
         const enterSendHandler = function(event) {
             if (event.key === 'Enter') {
@@ -383,12 +383,11 @@ Best, ${userName}, special investigator`;
                 document.removeEventListener('keydown', startTypingListener); // Remove this listener once typing starts
                 
                 simulateTyping(replyTypingArea, replyText, 8, () => {
-                    // On complete, show send options
                     const sendPromptElement = document.createElement('p');
                     sendPromptElement.id = 'send-prompt';
                     sendPromptElement.textContent = 'Press Enter to send';
-                    emailBodyContentDiv.appendChild(sendPromptElement); // Append to main email body content
-                    sendReplyBtn.style.display = 'block'; // Show the Send button
+                    replyTypingArea.appendChild(sendPromptElement); 
+                    sendReplyBtn.style.display = 'block'; 
 
                     sendReplyBtn.addEventListener('click', sendReplyHandler);
                     document.addEventListener('keydown', enterSendHandler);
