@@ -221,7 +221,7 @@ Best, ${userName}, special investigator`;
     }
 
     // Function to simulate typing
-    function simulateTyping(targetElement, fullText, charsPerKey = 8, onComplete) {
+    function simulateTyping(targetElement, fullText, charsPerKey = 15, onComplete) {
         let charIndex = 0;
         let keydownListener;
         let typingCompleted = false; // Flag to track if typing is fully done
@@ -256,7 +256,7 @@ Best, ${userName}, special investigator`;
 
     function loadEmailsForFolder(folder) {
         emailListDiv.innerHTML = ''; // Clear current emails
-        emailBodyContentDiv.innerHTML = '<h3 style="padding: 15px;">Select an email to view its content</h3>';
+        emailBodyContentDiv.innerHTML = '<h3 class="email-content-placeholder">Select an email to view its content</h3>';
         replyEmailBtn.style.display = 'none'; // Hide reply button
         currentFolder = folder;
         emailListFolderHeader.textContent = folder.charAt(0).toUpperCase() + folder.slice(1); // Capitalize first letter
@@ -281,7 +281,8 @@ Best, ${userName}, special investigator`;
                 }
             }
         } else {
-            emailListDiv.innerHTML = '<div style="padding: 15px;">No emails in this folder.</div>';
+            emailListDiv.innerHTML = '<div class="email-list-placeholder">No emails in this folder.</div>';
+            emailBodyContentDiv.innerHTML = '<div class="email-content-placeholder">Select an email to view its content</div>'; // Ensure content placeholder is always there for empty folder
         }
     }
 
