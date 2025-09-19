@@ -1,6 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
     const emailItems = document.querySelectorAll('.email-item');
     const emailContent = document.querySelector('.email-content');
+    const userProfile = document.getElementById('user-profile');
+
+    // Function to get user name
+    function getUserName() {
+        let userName = localStorage.getItem('outcrookUserName');
+        if (!userName) {
+            userName = prompt('Welcome to Outcrook! Please enter your name:');
+            if (userName) {
+                localStorage.setItem('outcrookUserName', userName);
+            } else {
+                userName = 'User'; // Default name if none is provided
+            }
+        }
+        userProfile.textContent = userName;
+    }
+
+    getUserName(); // Call on page load
 
     emailItems.forEach(item => {
         item.addEventListener('click', () => {
