@@ -201,6 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function simulateTyping(targetElement, fullText, charsPerKey = 3, onComplete) {
         let charIndex = 0;
         let displayInterval;
+        let enterListenerAdded = false;
 
         function typeChar() {
             if (charIndex < fullText.length) {
@@ -208,29 +209,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 charIndex += charsPerKey;
             } else {
                 clearInterval(displayInterval);
-                if (onComplete) {
-                    onComplete();
+                if (!enterListenerAdded) {
+                    const sendPrompt = document.createElement('p');
+                    sendPrompt.id = 'send-prompt';
+                    sendPrompt.textContent = 'Press Enter to send';
+                    targetElement.parentNode.appendChild(sendPrompt);
+
+                    document.addEventListener('keydown', function sendHandler(event) {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            document.removeEventListener('keydown', sendHandler);
+                            sendPrompt.remove();
+                            if (onComplete) {
+                                onComplete();
+                            }
+                        }
+                    });
+                    enterListenerAdded = true;
                 }
             }
         }
 
-        // Start typing on any key press
-        document.addEventListener('keydown', function handler(event) {
-            if (event.key) { // Check if a key was actually pressed
-                if (!displayInterval) { // Start interval only once
-                    displayInterval = setInterval(typeChar, 50); // Adjust speed as needed
-                }
-                // Prevent default typing behavior
-                event.preventDefault();
-            }
-        }, { once: true }); // Remove listener after first keydown
-
-        // If no key is pressed, start typing after a short delay
-        setTimeout(() => {
-            if (!displayInterval) {
-                displayInterval = setInterval(typeChar, 50);
-            }
-        }, 1000); // Start automatically after 1 second if no user input
+        // Start typing automatically
+        displayInterval = setInterval(typeChar, 50); // Adjust speed as needed
     }
 
     function loadEmailsForFolder(folder) {
@@ -299,7 +300,6 @@ document.addEventListener('DOMContentLoaded', () => {
         emailContentDiv.innerHTML = `
             <h3>Replying to: ${originalEmail.subject}</h3>
             <div id="reply-typing-area" style="border: 1px solid #ccc; padding: 10px; min-height: 100px; white-space: pre-wrap;"></div>
-            <p style="margin-top: 10px;">Press any key to start typing your reply...</p>
         `;
 
         const replyTypingArea = document.getElementById('reply-typing-area');
