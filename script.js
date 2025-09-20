@@ -654,19 +654,54 @@ Best, ${userName}, Special Investigator`;
     const darkModeToggle = document.getElementById('dark-mode-toggle');
     const body = document.body;
 
-    // Cursor theme elements
-    const cursorThemeSelect = document.getElementById('cursor-theme-select');
+    // Custom cursor elements
+    const cursorOptions = document.querySelectorAll('.cursor-option');
+    const customCursor = document.getElementById('custom-cursor');
+    let currentCursorTheme = 'default';
+
+    // Cursor theme emojis
+    const cursorEmojis = {
+        'default': '🖱️',
+        'magnifying-glass': '🔍',
+        'fingerprint': '🕵️'
+    };
 
     // Function to apply cursor theme
     function applyCursorTheme(theme) {
-        body.classList.remove('cursor-magnifying-glass', 'cursor-fingerprint');
-        if (theme === 'magnifying-glass') {
-            body.classList.add('cursor-magnifying-glass');
-        } else if (theme === 'fingerprint') {
-            body.classList.add('cursor-fingerprint');
+        currentCursorTheme = theme;
+        
+        // Update active state on cursor options
+        cursorOptions.forEach(option => {
+            option.classList.remove('active');
+            if (option.dataset.cursor === theme) {
+                option.classList.add('active');
+            }
+        });
+
+        if (theme === 'default') {
+            // Use default cursor
+            body.classList.remove('custom-cursor-active');
+            customCursor.style.display = 'none';
+        } else {
+            // Use custom cursor
+            body.classList.add('custom-cursor-active');
+            customCursor.style.display = 'block';
+            customCursor.textContent = cursorEmojis[theme];
         }
+        
         localStorage.setItem('cursorTheme', theme);
     }
+
+    // Mouse move handler for custom cursor
+    function handleMouseMove(e) {
+        if (currentCursorTheme !== 'default') {
+            customCursor.style.left = e.clientX + 'px';
+            customCursor.style.top = e.clientY + 'px';
+        }
+    }
+
+    // Add mouse move listener
+    document.addEventListener('mousemove', handleMouseMove);
 
     // Load dark mode preference from localStorage
     if (localStorage.getItem('darkMode') === 'enabled') {
@@ -676,8 +711,14 @@ Best, ${userName}, Special Investigator`;
 
     // Load cursor theme preference from localStorage
     const savedCursorTheme = localStorage.getItem('cursorTheme') || 'default';
-    cursorThemeSelect.value = savedCursorTheme;
     applyCursorTheme(savedCursorTheme);
+
+    // Add click handlers to cursor options
+    cursorOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            applyCursorTheme(option.dataset.cursor);
+        });
+    });
 
     // Open settings menu
     settingsBtn.addEventListener('click', () => {
@@ -700,10 +741,6 @@ Best, ${userName}, Special Investigator`;
         }
     });
 
-    // Change cursor theme
-    cursorThemeSelect.addEventListener('change', (event) => {
-        applyCursorTheme(event.target.value);
-    });
 });
 
 

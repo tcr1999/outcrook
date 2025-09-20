@@ -67,16 +67,19 @@
                     <span class="slider round"></span>
                 </label>
             </div>
-            <div class="setting-item">
+            <div class="setting-item cursor-setting">
                 <span>Cursor Theme</span>
-                <select id="cursor-theme-select">
-                    <option value="default">Default</option>
-                    <option value="magnifying-glass">Magnifying Glass</option>
-                    <option value="fingerprint">Fingerprint</option>
-                </select>
+                <div class="cursor-options">
+                    <div class="cursor-option active" data-cursor="default">🖱️</div>
+                    <div class="cursor-option" data-cursor="magnifying-glass">🔍</div>
+                    <div class="cursor-option" data-cursor="fingerprint">🕵️</div>
+                </div>
             </div>
             <button id="close-settings-btn">Close</button>
         </div>
     </div>
+    
+    <!-- Custom Cursor Element -->
+    <div id="custom-cursor" style="display: none;">🖱️</div>
 </body>
 </html>
