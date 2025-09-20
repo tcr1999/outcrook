@@ -185,6 +185,11 @@ document.addEventListener('DOMContentLoaded', () => {
         `,
         folder: 'spam',
         read: false,
+        emailType: 'multipleChoice',
+        replyOptions: [
+            { text: "Report Junk to IT", consequence: "reportJunk" },
+            { text: "Send my account details!", consequence: "fallForScam" }
+        ],
         receivedTime: new Date(2025, 8, 10, 9, 30).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
 
@@ -202,7 +207,30 @@ document.addEventListener('DOMContentLoaded', () => {
         `,
         folder: 'spam',
         read: false,
+        emailType: 'multipleChoice',
+        replyOptions: [
+            { text: "Report Junk to IT", consequence: "reportJunk" },
+            { text: "Take my money, Your Highness!", consequence: "fallForScam" }
+        ],
         receivedTime: new Date(2025, 8, 8, 14, 0).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    };
+
+    const itSupportEmailTemplate = {
+        id: 'it-support-email',
+        sender: 'IT Support',
+        subject: 'Thank You for Reporting Suspicious Activity!',
+        body: `
+            <h3>Great catch, Detective!</h3>
+            <p>Thanks for reporting that junk email. Vigilance like yours is key to our security. We've analyzed the threat and taken action.</p>
+            <p>To help with your investigation, we've approved the installation of a new "Network Analysis" tool for your terminal. This will grant you elevated privileges to uncover hidden data within our systems.</p>
+            <p>Please click the link below to begin the installation. It should only take a moment.</p>
+            <p><a href="#" id="install-tool-link">Install Network Analysis Tool</a></p>
+            <p>Stay sharp,</p>
+            <p>IT Support</p>
+        `,
+        folder: 'inbox',
+        read: false,
+        emailType: 'readOnly',
     };
 
     // Story emails - Phase 1: Initial Investigation & Departmental Insights - these will be dynamically pushed later
@@ -240,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <h3>Recipe Heist! R&D is a Mess!</h3>
             <p>Attention All! (Especially Detective!)</p>
             <p>Our precious "TasteBlast" formula has vanished into thin air! TasteBuds' new product is proof! We need a full-scale investigation into our lab. Every beaker, every test tube, every… sniff… must be checked!</p>
-            <p>And speaking of sniffs, I recall a certain "Alex" (our junior researcher) grumbling about promotions and secret files. Could it be a clue? Find out who took our delicious secrets!</p>
+            <p>And speaking of sniffs, I recall a certain "<span class="hidden-clue">Alex</span>" (our junior researcher) grumbling about promotions and secret files. Could it be a clue? Find out who took our delicious secrets!</p>
             <p>Panicked but Scientific,</p>
             <p>Dr. Aris Thorne<br>Head of R&D (currently wearing a tin-foil hat)</p>
         `,
@@ -392,44 +420,60 @@ document.addEventListener('DOMContentLoaded', () => {
         if (welcomeUserNameSpan) {
             welcomeUserNameSpan.textContent = localStorage.getItem('outcrookUserName') || 'User';
         }
+
+        // Add click event listener to install link if it exists
+        const installLink = emailBodyContentDiv.querySelector('#install-tool-link');
+        if (installLink) {
+            installLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                simulateInstallation();
+            });
+        }
     }
 
-    function handleMultipleChoiceReply(originalEmail, selectedOption) {
-        const userName = localStorage.getItem('outcrookUserName') || 'User';
-        const senderFirstName = originalEmail.sender.split(',')[0].trim();
+    function simulateInstallation() {
+        const installOverlay = document.getElementById('install-overlay');
+        const progressBar = document.getElementById('progress-bar');
+        const installStatus = document.getElementById('install-status');
+        installOverlay.style.display = 'flex';
 
-        const replyText = `Hi ${senderFirstName},
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.random() * 10;
+            if (progress > 100) {
+                progress = 100;
+            }
+            progressBar.style.width = progress + '%';
 
-${selectedOption.text}
+            if (progress === 100) {
+                clearInterval(interval);
+                installStatus.textContent = 'Installation Complete!';
+                setTimeout(() => {
+                    installOverlay.style.display = 'none';
+                    addMagnifyingGlassIcon();
+                }, 1500);
+            }
+        }, 200);
+    }
 
-Best, ${userName}, Special Investigator`;
-
-        const sentReply = {
-            id: `reply-${originalEmail.id}-${Date.now()}`,
-            sender: `${userName}, Special Investigator`,
-            subject: `Re: ${originalEmail.subject}`,
-            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-            body: `<pre>${replyText}</pre>`,
-            folder: 'sent',
-            read: true,
-            receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-        };
+    function addMagnifyingGlassIcon() {
+        const headerRight = document.querySelector('.header-right');
+        const magnifyingGlass = document.createElement('div');
+        magnifyingGlass.id = 'magnifying-glass-icon';
+        magnifyingGlass.textContent = '🔍';
+        magnifyingGlass.style.fontSize = '1.5em';
+        magnifyingGlass.style.cursor = 'pointer';
         
-        emails.push(sentReply);
-        originalEmail.replied = true;
-        originalEmail.folder = 'trash';
+        // Add click listener to reveal clues
+        magnifyingGlass.addEventListener('click', () => {
+            const hiddenClues = document.querySelectorAll('.hidden-clue');
+            hiddenClues.forEach(clue => {
+                clue.style.backgroundColor = 'yellow';
+                clue.style.color = 'black';
+            });
+        });
 
-        showCustomPrompt('Reply sent!', 'alert');
-        loadEmailsForFolder('inbox');
-        refreshUnreadCounts();
-
-        // Here you can add logic based on selectedOption.consequence
-        console.log(`User chose option with consequence: ${selectedOption.consequence}`);
-
-        // Trigger next story email 3 seconds after replying to Jane's welcome email
-        if (originalEmail.id === 'welcome-email') {
-            setTimeout(deliverNextStoryEmail, 3000);
-        }
+        headerRight.insertBefore(magnifyingGlass, headerRight.firstChild);
     }
 
     // Function to generate a reply body
@@ -600,6 +644,29 @@ Best, ${userName}, Special Investigator`;
                 loadEmailsForFolder('inbox');
             }
             nextStoryEmailIndex++;
+            // After the main story emails, deliver the spam
+            if (nextStoryEmailIndex === storyEmailsQueue.length) {
+                deliverSpamEmails();
+            }
+        }
+    }
+
+    function deliverSpamEmails() {
+        emails.push(spamEmail1Template);
+        emails.push(spamEmail2Template);
+        refreshUnreadCounts();
+        // Note: No need to reload folder view as they go to spam, not inbox
+    }
+
+    function deliverITSupportEmail() {
+        const itEmail = { ...itSupportEmailTemplate };
+        itEmail.date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        itEmail.receivedTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        
+        emails.push(itEmail);
+        refreshUnreadCounts();
+        if (currentFolder === 'inbox') {
+            loadEmailsForFolder('inbox');
         }
     }
 
@@ -748,8 +815,7 @@ Best, ${userName}, Special Investigator`;
     // Cursor theme emojis
     const cursorEmojis = {
         'default': '🖱️',
-        'magnifying-glass': '🔍',
-        'fingerprint': '🕵️'
+        'magnifying-glass': '🔍'
     };
 
     // Function to apply cursor theme
