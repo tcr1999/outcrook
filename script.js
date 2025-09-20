@@ -421,8 +421,8 @@ Best, ${userName}, special investigator`;
             };
             emails.push(sentReply);
             originalEmail.replied = true;
-            // Move the original email to the 'sent' folder as well
-            originalEmail.folder = 'sent';
+            // We no longer move the original email to the 'sent' folder after replying.
+            // originalEmail.folder = 'sent';
 
             showCustomPrompt('Reply sent!', 'alert'); // Use custom alert
             // Reload the sent folder to show the new reply and the moved original email
