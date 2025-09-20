@@ -126,6 +126,7 @@ body {
     display: grid;
     grid-template-columns: 1fr 2fr;
     overflow: hidden;
+    height: 100%; /* Ensure email-view takes full height of its grid cell */
 }
 
 .email-list-header {
@@ -160,6 +161,7 @@ body {
     display: flex; /* Make email-list a flex container */
     flex-direction: column; /* Stack items vertically */
     flex-grow: 1; /* Allow it to grow and fill available space */
+    min-height: 0; /* Allow flex item to shrink if needed */
 }
 
 .email-list-placeholder {
@@ -170,6 +172,7 @@ body {
     display: flex; /* Make placeholder a flex container */
     align-items: center; /* Center content vertically */
     justify-content: center; /* Center content horizontally */
+    height: 100%; /* Explicitly make placeholder take full height */
 }
 
 .email-item {
