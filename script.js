@@ -113,12 +113,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (userName) {
             userProfile.textContent = `Detective ${userName}`;
 
+            // Create dates with a slight offset to ensure consistent sorting
+            const initialDate = new Date();
+            const welcomeDate = new Date(initialDate.getTime() + 1000); // 1 second later
+
             // Jane's welcome email (will be added immediately, trigger will be first click)
             const welcomeEmail = {
                 id: 'welcome-email',
                 sender: 'Jane, Director of People',
                 subject: 'Your Super-Secret Detective Mission Starts NOW!',
-                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                date: welcomeDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
                 body: `
                     <h3>Welcome to the Outcrook Team!</h3>
                     <p>Greetings, Detective <span id="welcome-user-name"></span>!</p>
@@ -132,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 replied: false,
                 storyTriggered: false,
                 emailType: 'interactiveReply', // <-- Add type
-                receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                receivedTime: welcomeDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
             };
             emails.push(welcomeEmail);
 
@@ -170,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to display current time
     function updateCurrentTime() {
         const now = new Date();
-        const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+        const options = { hour: '2-digit', minute: '2-digit', hour12: true };
         currentTimeSpan.textContent = now.toLocaleTimeString('en-US', options);
     }
 
@@ -346,13 +350,13 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.email-item').forEach(el => el.classList.remove('active'));
             emailItem.classList.add('active');
 
-            // Trigger next story email after first click on Jane's welcome email
-            if (email.id === 'welcome-email' && !email.storyTriggered) {
-                email.storyTriggered = true; // Mark as triggered
-                const delay = Math.floor(Math.random() * (15 - 10 + 1) + 10) * 1000; // Random delay between 10 and 15 seconds
-                setTimeout(() => {
-                    deliverNextStoryEmail();
-                }, delay);
+            // Add delete nudge to readOnly emails after they are read, and remove from others
+            document.querySelectorAll('.delete-email-item-btn').forEach(btn => btn.classList.remove('delete-nudge-active'));
+            if (email.emailType === 'readOnly') {
+                const deleteButton = emailItem.querySelector('.delete-email-item-btn');
+                if (deleteButton) {
+                    deleteButton.classList.add('delete-nudge-active');
+                }
             }
         });
 
@@ -682,7 +686,11 @@ Best, ${userName}, Special Investigator`;
                 document.querySelectorAll('.email-item').forEach(el => el.classList.remove('active'));
                 correspondingEmailItem.classList.add('active');
             }
-
+            
+            // Trigger next story email 5 seconds after replying to Jane's welcome email
+            if (originalEmail.id === 'welcome-email') {
+                setTimeout(deliverNextStoryEmail, 5000);
+            }
         };
 
         const enterSendHandler = function(event) {

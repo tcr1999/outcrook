@@ -156,6 +156,16 @@ body {
     border-color: #0078d4;
 }
 
+@keyframes pulse-delete {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+.delete-nudge-active {
+    animation: pulse-delete 1.5s infinite;
+}
+
 @keyframes pulse {
     0% { transform: scale(1); box-shadow: 0 0 0 rgba(0, 120, 212, 0.4); }
     70% { transform: scale(1.12); box-shadow: 0 0 0 30px rgba(0, 120, 212, 0); } /* 4x original obviousness */
