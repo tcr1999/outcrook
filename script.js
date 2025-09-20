@@ -112,40 +112,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (userName) {
             userProfile.textContent = `Detective ${userName}`;
-
-            // Create dates with a slight offset to ensure consistent sorting
-            const initialDate = new Date();
-            const welcomeDate = new Date(initialDate.getTime() + 1000); // 1 second later
-
-            // Jane's welcome email (will be added immediately, trigger will be first click)
-            const welcomeEmail = {
-                id: 'welcome-email',
-                sender: 'Jane, Director of People',
-                subject: 'Your Super-Secret Detective Mission Starts NOW!',
-                date: welcomeDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                body: `
-                    <h3>Welcome to the Outcrook Team!</h3>
-                    <p>Greetings, Detective <span id="welcome-user-name"></span>!</p>
-                    <p>Your super-secret mission at FlavorCo (a division of Outcrook!) officially begins! We're thrilled to have your keen eyes and sharp mind on board. We suspect foul play, whispers of stolen snack secrets... a real whodunit!</p>
-                    <p>Your task: sniff out clues, interrogate suspects (figuratively, of course!), and uncover the truth. Your badge and magnifying glass are waiting (metaphorically, for now!). Good luck, agent!</p>
-                    <p>Best,</p>
-                    <p>Jane, Director of People (and Head of Secret Squirrel Operations)</p>
-                `,
-                folder: 'inbox',
-                read: false,
-                replied: false,
-                storyTriggered: false,
-                emailType: 'interactiveReply', // <-- Add type
-                receivedTime: welcomeDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-            };
-            emails.push(welcomeEmail);
-
-        } else {
-            userProfile.textContent = `Detective ${userName}`;
-            loadEmailsForFolder('inbox');
-            refreshUnreadCounts();
         }
     }
+
+    // --- Email Templates ---
+    const welcomeEmailTemplate = {
+        id: 'welcome-email',
+        sender: 'Jane, Director of People',
+        subject: 'Your Super-Secret Detective Mission Starts NOW!',
+        body: `
+            <h3>Welcome to the Outcrook Team!</h3>
+            <p>Greetings, Detective <span id="welcome-user-name"></span>!</p>
+            <p>Your super-secret mission at FlavorCo (a division of Outcrook!) officially begins! We're thrilled to have your keen eyes and sharp mind on board. We suspect foul play, whispers of stolen snack secrets... a real whodunit!</p>
+            <p>Your task: sniff out clues, interrogate suspects (figuratively, of course!), and uncover the truth. Your badge and magnifying glass are waiting (metaphorically, for now!). Good luck, agent!</p>
+            <p>Best,</p>
+            <p>Jane, Director of People (and Head of Secret Squirrel Operations)</p>
+        `,
+        folder: 'inbox',
+        read: false,
+        replied: false,
+        storyTriggered: false,
+        emailType: 'interactiveReply',
+    };
 
     // Eleanor Vance's email (initial email)
     const initialLegalEmail = {
@@ -370,6 +358,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 emails[emailIndex].read = true; // Mark as read when moved to trash
                 loadEmailsForFolder(currentFolder); // Re-load current folder
                 refreshUnreadCounts();
+
+                // If Eleanor's email is deleted, deliver Jane's email
+                if (emailIdToDelete === 'legal-email') {
+                    deliverWelcomeEmail();
+                }
             }
         });
 
@@ -451,8 +444,10 @@ Best, ${userName}, Special Investigator`;
         // Here you can add logic based on selectedOption.consequence
         console.log(`User chose option with consequence: ${selectedOption.consequence}`);
 
-        // Trigger next story email
-        deliverNextStoryEmail();
+        // Trigger next story email 3 seconds after replying to Jane's welcome email
+        if (originalEmail.id === 'welcome-email') {
+            setTimeout(deliverNextStoryEmail, 3000);
+        }
     }
 
     // Function to generate a reply body
@@ -566,6 +561,19 @@ Best, ${userName}, Special Investigator`;
     // Initial load: Display inbox and refresh unread counts
     loadEmailsForFolder('inbox');
     refreshUnreadCounts();
+
+    // --- Email Delivery Logic ---
+
+    // Function to deliver Jane's welcome email
+    function deliverWelcomeEmail() {
+        const welcomeEmail = { ...welcomeEmailTemplate };
+        welcomeEmail.date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        welcomeEmail.receivedTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        
+        emails.push(welcomeEmail);
+        loadEmailsForFolder('inbox'); // Reload inbox to show the new email on top
+        refreshUnreadCounts();
+    }
 
     // Keep track of the next story email to deliver
     let nextStoryEmailIndex = 0; // Start with the first story email after Jane's
@@ -687,9 +695,9 @@ Best, ${userName}, Special Investigator`;
                 correspondingEmailItem.classList.add('active');
             }
             
-            // Trigger next story email 5 seconds after replying to Jane's welcome email
+            // Trigger next story email 3 seconds after replying to Jane's welcome email
             if (originalEmail.id === 'welcome-email') {
-                setTimeout(deliverNextStoryEmail, 5000);
+                setTimeout(deliverNextStoryEmail, 3000);
             }
         };
 

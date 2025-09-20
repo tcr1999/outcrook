@@ -157,13 +157,14 @@ body {
 }
 
 @keyframes pulse-delete {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.15); }
-    100% { transform: scale(1); }
+    0% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.25); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.7; }
 }
 
 .delete-nudge-active {
-    animation: pulse-delete 1.5s infinite;
+    animation: pulse-delete 1.2s infinite;
+    opacity: 0.7;
 }
 
 @keyframes pulse {
