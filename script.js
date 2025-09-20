@@ -30,12 +30,15 @@ document.addEventListener('DOMContentLoaded', () => {
             customPromptOverlay.style.display = 'flex';
 
             // Define handleOk and keydown listeners here so they can be properly removed.
+            let activeKeydownListener = null; // To keep track of the currently active keydown listener
+
             const handleOk = (value) => {
                 customPromptInput.classList.remove('input-error');
                 customPromptOverlay.style.display = 'none';
                 customPromptOkBtn.removeEventListener('click', okButtonListener);
-                document.removeEventListener('keydown', promptKeydownListener);
-                document.removeEventListener('keydown', alertKeydownListener);
+                if (activeKeydownListener) {
+                    document.removeEventListener('keydown', activeKeydownListener);
+                }
                 resolve(value);
             };
 
@@ -74,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 customPromptOkBtn.addEventListener('click', okButtonListener);
                 document.addEventListener('keydown', promptKeydownListener);
+                activeKeydownListener = promptKeydownListener; // Set the active listener
             } else { // 'alert'
                 customPromptInput.style.display = 'none';
                 customPromptOkBtn.style.display = 'inline-block';
@@ -81,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 customPromptOkBtn.addEventListener('click', okButtonListener);
                 document.addEventListener('keydown', alertKeydownListener);
+                activeKeydownListener = alertKeydownListener; // Set the active listener
             }
         });
     }
