@@ -157,12 +157,19 @@ body {
     border-right: 1px solid #ddd;
     min-width: 250px; /* Ensure a minimum width even if empty */
     height: 100%; /* Ensure email-list takes full height of its grid cell */
+    display: flex; /* Make email-list a flex container */
+    flex-direction: column; /* Stack items vertically */
+    flex-grow: 1; /* Allow it to grow and fill available space */
 }
 
 .email-list-placeholder {
     padding: 15px;
     text-align: center;
     color: #666;
+    flex-grow: 1; /* Allow placeholder to grow and fill available space */
+    display: flex; /* Make placeholder a flex container */
+    align-items: center; /* Center content vertically */
+    justify-content: center; /* Center content horizontally */
 }
 
 .email-item {
