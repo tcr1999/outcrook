@@ -453,14 +453,8 @@ Best, ${userName}, Special Investigator`;
         emailBodyContentDiv.innerHTML = '<h3 class="email-content-placeholder">Select an email to view its content</h3>';
         replyEmailBtn.style.display = 'none'; // Hide reply button
         currentFolder = folder;
-        // Update folder header, preserving trash icon if applicable
-        if (folder === 'trash') {
-            const trashBadge = document.getElementById('trash-badge');
-            const trashCount = emails.filter(email => email.folder === 'trash' && !email.read).length;
-            emailListFolderHeader.innerHTML = `🗑️ Trash${trashCount > 0 ? `<span class="trash-notification-badge" id="trash-badge">(${trashCount})</span>` : ''}`; // Always include trash icon, conditionally badge
-        } else {
-            emailListFolderHeader.textContent = folder.charAt(0).toUpperCase() + folder.slice(1); // Capitalize first letter
-        }
+        // Update folder header
+        emailListFolderHeader.textContent = folder.charAt(0).toUpperCase() + folder.slice(1); // Capitalize first letter
 
         const filteredEmails = emails.filter(email => email.folder === folder);
         if (filteredEmails.length > 0) {
