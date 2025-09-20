@@ -17,8 +17,8 @@ body {
     max-width: 1200px;
     height: 90vh;
     background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2); /* More pronounced shadow */
+    border-radius: 10px; /* Slightly softer corners */
     overflow: hidden;
 }
 
@@ -66,15 +66,18 @@ body {
     background-color: #0078d4;
     color: #fff;
     border: none;
-    border-radius: 4px;
-    padding: 8px 15px;
+    border-radius: 6px; /* Slightly more rounded */
+    padding: 10px 18px; /* Slightly more padded */
     cursor: pointer;
-    font-size: 0.9em;
+    font-size: 0.95em; /* Slightly larger font */
     margin-top: 15px; /* Space above the button */
+    transition: all 0.2s ease; /* Smooth transitions */
 }
 
 #reply-email-btn:hover {
     background-color: #005ea6;
+    transform: translateY(-1px); /* Subtle lift on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
 }
 
 .email-actions {
@@ -99,6 +102,13 @@ body {
     font-size: 1em;
     cursor: pointer;
     margin: 15px auto 20px auto; /* Added top margin and used auto for horizontal centering */
+    transition: all 0.2s ease; /* Smooth transitions */
+}
+
+.sidebar .compose-btn:hover {
+    background-color: #218838; /* Darker green on hover */
+    transform: translateY(-1px); /* Subtle lift on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
 }
 
 .sidebar .nav-list {
@@ -116,11 +126,13 @@ body {
 
 .sidebar .nav-item:hover {
     background-color: #dcdcdc;
+    transform: translateX(2px); /* Slight shift on hover */
 }
 
 .sidebar .nav-item.active {
     background-color: #0078d4;
     color: #fff;
+    box-shadow: inset 3px 0 6px rgba(0, 0, 0, 0.3); /* More pronounced inner shadow */
 }
 
 .settings-btn {
@@ -133,10 +145,13 @@ body {
     font-size: 1em;
     cursor: pointer;
     margin-top: auto; /* Push to the bottom of the sidebar */
+    transition: all 0.2s ease; /* Smooth transitions */
 }
 
 .settings-btn:hover {
     background-color: #5a6268;
+    transform: translateY(-1px); /* Subtle lift on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
 }
 
 .email-view {
@@ -154,7 +169,7 @@ body {
     grid-column: 1 / -1; /* Ensure header spans both columns in email-view */
     padding: 10px 15px;
     border-bottom: 1px solid #ddd;
-    background-color: #f9f9f9;
+    background-color: #e9ecef; /* Slightly darker header */
     height: 50px; /* Fixed height for the header */
     display: flex; /* Use flexbox for centering */
     align-items: center; /* Vertically center content */
@@ -176,6 +191,7 @@ body {
     flex-grow: 1; /* Allow it to grow and fill available space */
     min-height: 0; /* Allow flex item to shrink if needed */
     margin-top: 0; /* Ensure no top margin pushes it down */
+    background-color: #f0f2f5; /* Slightly darker email list background */
 }
 
 .email-list-placeholder {
@@ -196,6 +212,18 @@ body {
     padding: 10px 15px;
     border-bottom: 1px solid #eee;
     cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease; /* Smooth transitions */
+}
+
+.email-item:hover {
+    background-color: #e0e0e0; /* Lighter hover effect for email items */
+    transform: translateX(2px); /* Subtle shift on hover */
+}
+
+.email-item.active {
+    background-color: #cce0ff; /* A distinct background for active email */
+    border-left: 4px solid #0078d4; /* Highlight with a left border */
+    padding-left: 11px; /* Adjust padding due to border */
 }
 
 .email-info {
@@ -218,10 +246,6 @@ body {
     background-color: #f0f0f0; /* Lighter hover effect */
 }
 
-.email-item:hover {
-    background-color: #f0f0f0;
-}
-
 .email-item.unread {
     font-weight: bold;
 }
@@ -236,6 +260,12 @@ body {
 .email-date {
     font-size: 0.8em;
     color: #666;
+}
+
+.email-time {
+    font-size: 0.85em; /* Slightly smaller than subject */
+    color: #888; /* Muted color */
+    margin-left: 8px; /* Space from subject */
 }
 
 .email-content {
@@ -317,11 +347,13 @@ body {
     margin: 0 12px; /* More spacing between buttons */
     cursor: pointer;
     font-size: 1em; /* Consistent font size */
-    transition: background-color 0.2s ease; /* Smooth hover effect */
+    transition: all 0.2s ease; /* Smooth hover effect */
 }
 
 #custom-prompt-buttons button:hover {
     background-color: #005ea6;
+    transform: translateY(-1px); /* Subtle lift on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
 }
 
 #custom-prompt-buttons #custom-prompt-cancel {
@@ -330,6 +362,8 @@ body {
 
 #custom-prompt-buttons #custom-prompt-cancel:hover {
     background-color: #5a6268;
+    transform: translateY(-1px); /* Subtle lift on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Add shadow on hover */
 }
 
 .notification-badge {
@@ -376,10 +410,13 @@ body {
     display: block; /* Make it a block element to center with margin auto */
     margin-left: auto;
     margin-right: auto;
+    transition: all 0.2s ease; /* Smooth transitions */
 }
 
 #send-reply-btn:hover {
     background-color: #218838;
+    transform: translateY(-1px); /* Subtle lift on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
 }
 
 /* Settings Menu Styles */
@@ -477,11 +514,13 @@ input:checked + .slider:before {
     margin-top: 25px;
     cursor: pointer;
     font-size: 1em;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease; /* Smooth transitions */
 }
 
 #close-settings-btn:hover {
     background-color: #5a6268;
+    transform: translateY(-1px); /* Subtle lift on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Add shadow on hover */
 }
 
 /* Dark Mode Styles */
@@ -518,6 +557,7 @@ body.dark-mode .sidebar .nav-item:hover {
 
 body.dark-mode .sidebar .nav-item.active {
     background-color: #005ea6;
+    box-shadow: inset 2px 0 5px rgba(0, 0, 0, 0.3); /* Subtle inner shadow for active state */
 }
 
 body.dark-mode .email-list-header {
@@ -527,6 +567,7 @@ body.dark-mode .email-list-header {
 
 body.dark-mode .email-list {
     border-right-color: #4a4a4a;
+    background-color: #333333; /* Darker email list background */
 }
 
 body.dark-mode .email-item {
@@ -534,7 +575,7 @@ body.dark-mode .email-item {
 }
 
 body.dark-mode .email-item:hover {
-    background-color: #3a3a3a;
+    background-color: #4a4a4a; /* Darker hover for email items */
 }
 
 body.dark-mode .email-item.unread {
@@ -548,6 +589,10 @@ body.dark-mode .email-subject {
 
 body.dark-mode .email-date {
     color: #b0b0b0;
+}
+
+body.dark-mode .email-time {
+    color: #a0a0a0; /* Adjust dark mode time color */
 }
 
 body.dark-mode .email-content-placeholder,
@@ -582,6 +627,8 @@ body.dark-mode #close-settings-btn {
 body.dark-mode #custom-prompt-buttons button:hover,
 body.dark-mode #close-settings-btn:hover {
     background-color: #004a8c;
+    transform: translateY(-1px); /* Subtle lift on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Add shadow on hover */
 }
 
 body.dark-mode #custom-prompt-buttons #custom-prompt-cancel {
@@ -590,6 +637,8 @@ body.dark-mode #custom-prompt-buttons #custom-prompt-cancel {
 
 body.dark-mode #custom-prompt-buttons #custom-prompt-cancel:hover {
     background-color: #4a5056;
+    transform: translateY(-1px); /* Subtle lift on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Add shadow on hover */
 }
 
 .input-error {
