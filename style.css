@@ -289,7 +289,6 @@ body {
 
 #email-body-content {
     flex-grow: 1; /* Allow content to fill available space */
-    overflow-y: hidden; /* Prevent nested scrollbars, let .email-content handle it */
 }
 
 .email-content-placeholder {
