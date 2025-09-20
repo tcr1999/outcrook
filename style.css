@@ -311,7 +311,6 @@ body {
 #reply-interface-container {
     padding-top: 20px;
     border-top: 1px solid #eee;
-    margin-top: 20px;
     flex-shrink: 0; /* Prevent it from shrinking */
 }
 
@@ -407,6 +406,7 @@ body {
 
 #reply-typing-area {
     user-select: none; /* Prevent selection and blue highlight */
+    box-sizing: border-box; /* Include padding in element's total width and height */
 }
 
 #send-prompt {
