@@ -281,15 +281,15 @@ body {
 
 .email-content {
     padding: 15px;
-    overflow-y: auto;
+    overflow-y: auto; /* Allow scrolling for the entire content area */
     display: flex;
     flex-direction: column;
-    height: 100%; /* Ensure email-content takes full height of its grid cell */
+    height: 100%;
 }
 
 #email-body-content {
     flex-grow: 1; /* Allow content to fill available space */
-    overflow-y: auto; /* Allow scrolling if content is too long */
+    overflow-y: hidden; /* Prevent nested scrollbars, let .email-content handle it */
 }
 
 .email-content-placeholder {
@@ -306,6 +306,12 @@ body {
     margin-top: auto; /* Push actions to the bottom */
     padding-top: 20px;
     border-top: 1px solid #eee;
+}
+
+#reply-interface-container {
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    margin-top: 20px;
 }
 
 /* Custom Prompt/Notification Styles */

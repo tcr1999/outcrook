@@ -582,17 +582,23 @@ Best, ${userName}, Special Investigator`;
         const userName = localStorage.getItem('outcrookUserName') || 'User';
         const replyText = generateReplyBody(originalEmail, userName);
 
-        // Clear emailBodyContentDiv and set up reply interface
+        // Create a new container for the reply interface elements
+        const replyInterfaceContainer = document.createElement('div');
+        replyInterfaceContainer.id = 'reply-interface-container';
+        replyInterfaceContainer.style.display = 'flex'; // Use flex for layout of its children
+        replyInterfaceContainer.style.flexDirection = 'column';
+
+        // Clear emailBodyContentDiv and prepare for reply interface
         emailBodyContentDiv.innerHTML = `
             <h3>Replying to: ${originalEmail.subject}</h3>
             <div id="reply-typing-area" style="border: 1px solid #ccc; padding: 10px; min-height: 100px; white-space: pre-wrap; position: relative; user-select: none;"></div>
         `;
-        replyEmailBtn.style.display = 'none'; // Hide reply button while typing
+        replyEmailBtn.style.display = 'none'; // Hide original reply button
 
         const replyTypingArea = document.getElementById('reply-typing-area');
         let typingStarted = false;
 
-        // Create and append the type prompt initially
+        // Create and append the type prompt initially to replyTypingArea
         const typePrompt = document.createElement('p');
         typePrompt.id = 'type-prompt';
         typePrompt.classList.add('flashing-text');
@@ -600,27 +606,29 @@ Best, ${userName}, Special Investigator`;
         typePrompt.textContent = 'Press any key to start typing...';
         replyTypingArea.appendChild(typePrompt);
 
-        // Create send button and prompt, append to emailBodyContentDiv
-        sendReplyBtn = document.createElement('button');
-        sendReplyBtn.id = 'send-reply-btn';
-        sendReplyBtn.textContent = 'Send';
-        sendReplyBtn.style.display = 'none'; // Initially hidden
-        emailBodyContentDiv.appendChild(sendReplyBtn);
-
+        // Create send button and prompt, append to replyInterfaceContainer
         sendPromptElement = document.createElement('p');
         sendPromptElement.id = 'send-prompt';
         sendPromptElement.textContent = 'Press Enter to send';
         sendPromptElement.style.display = 'none'; // Initially hidden
-        emailBodyContentDiv.appendChild(sendPromptElement);
+        replyInterfaceContainer.appendChild(sendPromptElement);
+        
+        sendReplyBtn = document.createElement('button');
+        sendReplyBtn.id = 'send-reply-btn';
+        sendReplyBtn.textContent = 'Send';
+        sendReplyBtn.style.display = 'none'; // Initially hidden
+        replyInterfaceContainer.appendChild(sendReplyBtn);
+
+        // Append the new reply interface container to emailContentDiv, AFTER emailBodyContentDiv
+        emailContentDiv.appendChild(replyInterfaceContainer);
 
 
         const sendReplyHandler = function() {
             sendReplyBtn.removeEventListener('click', sendReplyHandler);
             document.removeEventListener('keydown', enterSendHandler);
-            sendReplyBtn.style.display = 'none'; // Hide button
-            sendPromptElement.style.display = 'none'; // Hide prompt
-            sendReplyBtn.remove(); // Remove button from DOM
-            sendPromptElement.remove(); // Remove prompt from DOM
+            
+            replyInterfaceContainer.style.display = 'none'; // Hide the entire reply interface
+            replyInterfaceContainer.remove(); // Remove from DOM after use
 
             const sentReply = {
                 id: `reply-${originalEmail.id}-${Date.now()}`,
