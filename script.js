@@ -366,8 +366,8 @@ document.addEventListener('DOMContentLoaded', () => {
         emailItem.innerHTML = `
             <div class="email-info">
                 <div class="email-sender">${email.sender}</div>
-                <div class="email-subject">${email.subject} <span class="email-time">${email.receivedTime}</span></div>
-                <div class="email-date">${email.date}</div>
+                <div class="email-subject">${email.subject}</div>
+                <div class="email-date">${email.date} <span class="email-time">${email.receivedTime}</span></div>
             </div>
             <button class="delete-email-item-btn" data-email-id="${email.id}">🗑️</button>
         `;
@@ -540,7 +540,7 @@ Best, ${userName}, Special Investigator`;
     // Function to deliver the next story email after a random delay
     function deliverNextStoryEmail() {
         if (nextStoryEmailIndex < storyEmailsQueue.length) {
-            const delay = Math.floor(Math.random() * (15 - 3 + 1) + 3) * 1000; // Random delay between 3 and 15 seconds
+            const delay = Math.floor(Math.random() * (15 - 10 + 1) + 10) * 1000; // Random delay between 10 and 15 seconds
             setTimeout(() => {
                 const nextEmail = { ...storyEmailsQueue[nextStoryEmailIndex] }; // Create a copy
                 nextEmail.receivedTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
@@ -551,6 +551,8 @@ Best, ${userName}, Special Investigator`;
         }
     }
 
+    // This will track if a special 'story' email is currently displayed and requires a reply.
+    // let currentStoryEmailRequiresReply = null; 
 
     // Reply email functionality
     replyEmailBtn.addEventListener('click', () => {
@@ -621,8 +623,8 @@ Best, ${userName}, Special Investigator`;
             };
             emails.push(sentReply);
             originalEmail.replied = true;
-            // We no longer move the original email to the 'sent' folder after replying.
-            // originalEmail.folder = 'sent';
+            // Move the original email to trash after replying.
+            originalEmail.folder = 'trash'; 
 
             showCustomPrompt('Reply sent!', 'alert'); // Use custom alert
             // Reload the inbox folder to show the original email, not sent
