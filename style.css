@@ -133,6 +133,29 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
 }
 
+.reply-options-container {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.reply-option-btn {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+}
+
+.reply-option-btn:hover {
+    background-color: #e0e0e0;
+    border-color: #0078d4;
+}
+
 @keyframes pulse {
     0% { transform: scale(1); box-shadow: 0 0 0 rgba(0, 120, 212, 0.4); }
     70% { transform: scale(1.12); box-shadow: 0 0 0 30px rgba(0, 120, 212, 0); } /* 4x original obviousness */

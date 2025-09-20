@@ -131,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 read: false,
                 replied: false,
                 storyTriggered: false,
+                emailType: 'interactiveReply', // <-- Add type
                 receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
             };
             emails.push(welcomeEmail);
@@ -159,6 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
         folder: 'inbox',
         read: false,
         replied: false,
+        emailType: 'readOnly', // <-- Add type
         receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
     emails.push(initialLegalEmail);
@@ -228,6 +230,12 @@ document.addEventListener('DOMContentLoaded', () => {
         folder: 'inbox',
         read: false,
         replied: false,
+        emailType: 'multipleChoice', // <-- Set type
+        replyOptions: [             // <-- Add reply options
+            { text: "Focus on the recipe leak first.", consequence: "logic" },
+            { text: "Let's dig into their marketing strategy.", consequence: "creative" },
+            { text: "I suspect a mole. Let's watch internally.", consequence: "suspicion" }
+        ],
         receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
 
@@ -373,23 +381,74 @@ document.addEventListener('DOMContentLoaded', () => {
             <div>${email.body}</div>
         `;
         
-        // Use the globally declared replyEmailBtn
         const replyButton = document.getElementById('reply-email-btn');
-        if (replyButton) {
-            replyButton.style.display = email.replied ? 'none' : 'inline-block';
 
-            // Add nudge for important emails (Jane's welcome email)
-            if (email.id === 'welcome-email' && !email.replied) {
-                replyButton.classList.add('reply-nudge-active');
-            } else {
-                replyButton.classList.remove('reply-nudge-active');
-            }
+        // Handle button visibility based on email type
+        if (email.emailType === 'readOnly' || email.replied) {
+            replyButton.style.display = 'none';
+        } else if (email.emailType === 'multipleChoice') {
+            replyButton.style.display = 'none'; // Hide main reply button
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'reply-options-container';
+            email.replyOptions.forEach(option => {
+                const optionButton = document.createElement('button');
+                optionButton.className = 'reply-option-btn';
+                optionButton.textContent = option.text;
+                optionButton.addEventListener('click', () => handleMultipleChoiceReply(email, option));
+                optionsContainer.appendChild(optionButton);
+            });
+            emailBodyContentDiv.appendChild(optionsContainer);
+        } else {
+            replyButton.style.display = 'inline-block';
+        }
+
+        // Add nudge for important emails (Jane's welcome email)
+        if (email.id === 'welcome-email' && !email.replied) {
+            replyButton.classList.add('reply-nudge-active');
+        } else {
+            replyButton.classList.remove('reply-nudge-active');
         }
 
         const welcomeUserNameSpan = emailBodyContentDiv.querySelector('#welcome-user-name');
         if (welcomeUserNameSpan) {
             welcomeUserNameSpan.textContent = localStorage.getItem('outcrookUserName') || 'User';
         }
+    }
+
+    function handleMultipleChoiceReply(originalEmail, selectedOption) {
+        const userName = localStorage.getItem('outcrookUserName') || 'User';
+        const senderFirstName = originalEmail.sender.split(',')[0].trim();
+
+        const replyText = `Hi ${senderFirstName},
+
+${selectedOption.text}
+
+Best, ${userName}, Special Investigator`;
+
+        const sentReply = {
+            id: `reply-${originalEmail.id}-${Date.now()}`,
+            sender: `${userName}, Special Investigator`,
+            subject: `Re: ${originalEmail.subject}`,
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            body: `<pre>${replyText}</pre>`,
+            folder: 'sent',
+            read: true,
+            receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+        };
+        
+        emails.push(sentReply);
+        originalEmail.replied = true;
+        originalEmail.folder = 'trash';
+
+        showCustomPrompt('Reply sent!', 'alert');
+        loadEmailsForFolder('inbox');
+        refreshUnreadCounts();
+
+        // Here you can add logic based on selectedOption.consequence
+        console.log(`User chose option with consequence: ${selectedOption.consequence}`);
+
+        // Trigger next story email
+        deliverNextStoryEmail();
     }
 
     // Function to generate a reply body
