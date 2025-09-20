@@ -112,6 +112,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (userName) {
             userProfile.textContent = `Detective ${userName}`;
+
+            // Introduce 10-second delay for the welcome email after user name is set
+            setTimeout(() => {
+                const welcomeEmail = {
+                    id: 'welcome-email',
+                    sender: 'Jane, Director of People',
+                    subject: 'Welcome to Outcrook - Your Onboarding as a Detective',
+                    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                    body: `
+                        <h3>Welcome to the Outcrook Team!</h3>
+                        <p>Dear Detective <span id="welcome-user-name"></span>,</p>
+                        <p>A warm welcome to Outcrook! We're thrilled to have you join our esteemed team. Your unique skills and perspective are highly valued as we embark on a new era of corporate integrity.</p>
+                        <p>Your role here will be pivotal in ensuring transparency and uncovering any… anomalies that may arise within our organizational structure. Consider this your first confidential assignment: familiarize yourself with our systems, observe, and report anything that seems out of place.</p>
+                        <p>Your journey to uncover the truth begins now. We trust you'll uphold our values with the utmost discretion and diligence.</p>
+                        <p>Best regards,</p>
+                        <p>Jane, Director of People</p>
+                    `,
+                    folder: 'inbox',
+                    read: false,
+                    replied: false
+                };
+                emails.push(welcomeEmail); // Add the welcome email to the array
+                loadEmailsForFolder('inbox'); // Load inbox to display the new email
+                refreshUnreadCounts(); // Update notification badges
+            }, 10000); // 10 seconds
+
         } else {
             userProfile.textContent = 'Detective'; // Fallback if no name provided (shouldn't happen with validation)
         }
@@ -148,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
         read: false,
         replied: false
     };
-    emails.push(welcomeEmail);
+    // emails.push(welcomeEmail); // Removed: now pushed after a delay
 
     // Creative spam emails
     const spamEmail1 = {
