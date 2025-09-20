@@ -130,27 +130,13 @@ body {
 }
 
 .email-list-header {
-    grid-column: 1 / -1;
-    padding: 10px 15px;
-    border-bottom: 1px solid #ddd;
-    background-color: #f9f9f9;
-}
-
-.email-list {
-    overflow-y: auto;
-    border-right: 1px solid #ddd;
-    min-width: 250px; /* Ensure a minimum width even if empty */
-}
-
-.email-list:empty + .email-content {
-    grid-column: 1 / -1; /* If email-list is empty, email-content spans full width */
-}
-
-.email-list-header {
-    padding: 10px 15px;
-    border-bottom: 1px solid #ddd;
-    background-color: #f9f9f9;
     grid-column: 1 / -1; /* Ensure header spans both columns in email-view */
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+    background-color: #f9f9f9;
+    height: 50px; /* Fixed height for the header */
+    display: flex; /* Use flexbox for centering */
+    align-items: center; /* Vertically center content */
 }
 
 .email-list {
