@@ -645,3 +645,18 @@ body.dark-mode #custom-prompt-buttons #custom-prompt-cancel:hover {
     border: 1px solid red !important;
     box-shadow: 0 0 5px rgba(255, 0, 0, 0.5); /* Optional: add a glow */
 }
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.email-item.slide-in {
+    animation: slideInRight 0.5s ease-out forwards; /* 0.5s duration, ease-out timing, keeps final state */
+}

@@ -356,6 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!email.read) {
             emailItem.classList.add('unread');
         }
+        emailItem.classList.add('slide-in'); // Add slide-in animation class
         emailItem.dataset.emailId = email.id; // Store email ID for easy lookup
         emailItem.innerHTML = `
             <div class="email-info">
