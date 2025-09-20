@@ -453,7 +453,12 @@ Best, ${userName}, Special Investigator`;
         emailBodyContentDiv.innerHTML = '<h3 class="email-content-placeholder">Select an email to view its content</h3>';
         replyEmailBtn.style.display = 'none'; // Hide reply button
         currentFolder = folder;
-        emailListFolderHeader.textContent = folder.charAt(0).toUpperCase() + folder.slice(1); // Capitalize first letter
+        // Update folder header, preserving trash icon if applicable
+        if (folder === 'trash') {
+            emailListFolderHeader.innerHTML = `🗑️ Trash<span class="trash-notification-badge" id="trash-badge"></span>`;
+        } else {
+            emailListFolderHeader.textContent = folder.charAt(0).toUpperCase() + folder.slice(1); // Capitalize first letter
+        }
 
         const filteredEmails = emails.filter(email => email.folder === folder);
         if (filteredEmails.length > 0) {
