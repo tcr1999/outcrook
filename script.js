@@ -370,20 +370,25 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>From: ${email.sender}</p>
             <p>Date: ${email.date}</p>
             <hr>
-            <div>${email.body}</div>
+            <div style="margin-bottom: 20px;">${email.body}</div>
+            <button id="reply-email-btn" style="display: ${email.replied ? 'none' : 'inline-block'};">Reply</button>
         `;
-        replyEmailBtn.style.display = 'inline-block'; // Show reply button
 
         const welcomeUserNameSpan = emailBodyContentDiv.querySelector('#welcome-user-name');
         if (welcomeUserNameSpan) {
             welcomeUserNameSpan.textContent = localStorage.getItem('outcrookUserName') || 'User';
         }
 
-        // Add nudge for important emails (Jane's welcome email)
-        if (email.id === 'welcome-email' && !email.replied) {
-            replyEmailBtn.classList.add('reply-nudge-active');
-        } else {
-            replyEmailBtn.classList.remove('reply-nudge-active');
+        // Get the new reply button and add event listener
+        const newReplyBtn = document.getElementById('reply-email-btn');
+        if (newReplyBtn) {
+            // Add nudge for important emails (Jane's welcome email)
+            if (email.id === 'welcome-email' && !email.replied) {
+                newReplyBtn.classList.add('reply-nudge-active');
+            }
+
+            // Add click event listener
+            newReplyBtn.addEventListener('click', () => handleReplyClick(email));
         }
     }
 
@@ -524,14 +529,8 @@ Best, ${userName}, Special Investigator`;
     // This will track if a special 'story' email is currently displayed and requires a reply.
     // let currentStoryEmailRequiresReply = null; 
 
-    // Reply email functionality
-    replyEmailBtn.addEventListener('click', () => {
-        // Capture the currently displayed email's details from emailBodyContentDiv
-        const currentEmailSubject = emailBodyContentDiv.querySelector('h3').textContent;
-        const currentEmailSender = emailBodyContentDiv.querySelector('p:nth-of-type(1)').textContent.replace('From: ', '');
-
-        // Find the original email object to get its ID for reply generation
-        const originalEmail = emails.find(email => email.subject === currentEmailSubject && email.sender === currentEmailSender);
+    // Handle reply button click
+    function handleReplyClick(originalEmail) {
 
         if (!originalEmail || originalEmail.replied) {
             showCustomPrompt('You have already replied to this email or it\'s not a valid email to reply to.', 'alert');
@@ -541,111 +540,34 @@ Best, ${userName}, Special Investigator`;
         const userName = localStorage.getItem('outcrookUserName') || 'User';
         const replyText = generateReplyBody(originalEmail, userName);
 
-        // Create a new container for the reply interface elements
-        const replyInterfaceContainer = document.createElement('div');
-        replyInterfaceContainer.id = 'reply-interface-container';
-        replyInterfaceContainer.style.display = 'flex'; // Use flex for layout of its children
-        replyInterfaceContainer.style.flexDirection = 'column';
-
-        // Clear emailBodyContentDiv and prepare for reply interface
-        emailBodyContentDiv.innerHTML = `
-            <h3>Replying to: ${originalEmail.subject}</h3>
-            <div id="reply-typing-area" style="border: 1px solid #ccc; padding: 10px; min-height: 100px; white-space: pre-wrap; position: relative; user-select: none;"></div>
-        `;
-        replyEmailBtn.style.display = 'none'; // Hide original reply button
-
-        const replyTypingArea = document.getElementById('reply-typing-area');
-        let typingStarted = false;
-
-        // Create and append the type prompt initially to replyTypingArea
-        const typePrompt = document.createElement('p');
-        typePrompt.id = 'type-prompt';
-        typePrompt.classList.add('flashing-text');
-        typePrompt.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);';
-        typePrompt.textContent = 'Press any key to start typing...';
-        replyTypingArea.appendChild(typePrompt);
-
-        // Create send button and prompt, append to replyInterfaceContainer
-        sendPromptElement = document.createElement('p');
-        sendPromptElement.id = 'send-prompt';
-        sendPromptElement.textContent = 'Press Enter to send';
-        sendPromptElement.style.display = 'none'; // Initially hidden
-        replyInterfaceContainer.appendChild(sendPromptElement);
+        // Simple reply - just send it immediately
+        const sentReply = {
+            id: `reply-${originalEmail.id}-${Date.now()}`,
+            sender: `${userName}, Special Investigator`,
+            subject: `Re: ${originalEmail.subject}`,
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            body: `<pre>${replyText}</pre>`,
+            folder: 'sent',
+            read: true,
+            receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+        };
         
-        sendReplyBtn = document.createElement('button');
-        sendReplyBtn.id = 'send-reply-btn';
-        sendReplyBtn.textContent = 'Send';
-        sendReplyBtn.style.display = 'none'; // Initially hidden
-        replyInterfaceContainer.appendChild(sendReplyBtn);
+        emails.push(sentReply);
+        originalEmail.replied = true;
+        originalEmail.folder = 'trash'; // Move to trash after replying
 
-        // Append the new reply interface container to emailContentDiv, AFTER emailBodyContentDiv
-        emailContentDiv.appendChild(replyInterfaceContainer);
+        showCustomPrompt('Reply sent!', 'alert');
+        loadEmailsForFolder('inbox');
+        refreshUnreadCounts();
 
-
-        const sendReplyHandler = function() {
-            sendReplyBtn.removeEventListener('click', sendReplyHandler);
-            document.removeEventListener('keydown', enterSendHandler);
-            
-            replyInterfaceContainer.style.display = 'none'; // Hide the entire reply interface
-            replyInterfaceContainer.remove(); // Remove from DOM after use
-
-            const sentReply = {
-                id: `reply-${originalEmail.id}-${Date.now()}`,
-                sender: `${userName}, Special Investigator`,
-                subject: `Re: ${originalEmail.subject}`,
-                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                body: `<pre>${replyText}</pre>`,
-                folder: 'sent',
-                read: true,
-                receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-            };
-            emails.push(sentReply);
-            originalEmail.replied = true;
-            // Move the original email to trash after replying.
-            originalEmail.folder = 'trash'; 
-
-            showCustomPrompt('Reply sent!', 'alert'); // Use custom alert
-            // Reload the inbox folder to show the original email, not sent
-            loadEmailsForFolder('inbox');
-            refreshUnreadCounts();
-
-            // Remove nudge after replying
-            replyEmailBtn.classList.remove('reply-nudge-active');
-
-            // Re-select the original email item in the inbox to keep it highlighted
-            const correspondingEmailItem = emailListDiv.querySelector(`[data-email-id="${originalEmail.id}"]`);
-            if (correspondingEmailItem) {
-                document.querySelectorAll('.email-item').forEach(el => el.classList.remove('active'));
-                correspondingEmailItem.classList.add('active');
-            }
-
-        };
-
-        const enterSendHandler = function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                sendReplyHandler();
-            }
-        };
-
-        const startTypingListener = function(event) {
-            if (!typingStarted && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
-                typePrompt.remove(); // Remove the prompt entirely
-                typingStarted = true;
-                document.removeEventListener('keydown', startTypingListener); // Remove this listener once typing starts
-                
-                simulateTyping(replyTypingArea, replyText, 15, () => {
-                    sendPromptElement.style.display = 'block'; // Show prompt
-                    sendReplyBtn.style.display = 'block'; // Show the Send button
-
-                    sendReplyBtn.addEventListener('click', sendReplyHandler);
-                    document.addEventListener('keydown', enterSendHandler);
-                });
-            }
-        };
-
-        document.addEventListener('keydown', startTypingListener);
-    });
+        // Trigger next story email if this was Jane's welcome email
+        if (originalEmail.id === 'welcome-email') {
+            const delay = Math.floor(Math.random() * (15 - 10 + 1) + 10) * 1000; // Random delay between 10 and 15 seconds
+            setTimeout(() => {
+                deliverNextStoryEmail();
+            }, delay);
+        }
+    }
 
     // Settings menu and Dark Mode functionality
     const settingsBtn = document.getElementById('settings-btn');

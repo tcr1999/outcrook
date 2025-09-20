@@ -63,7 +63,7 @@ body {
     grid-template-rows: 60px 1fr; /* Navbar, Main Content */
     width: 90%;
     max-width: 1200px;
-    min-height: 90vh;
+    height: 90vh;
     background-color: #fff;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2); /* More pronounced shadow */
     border-radius: 10px; /* Slightly softer corners */
@@ -139,9 +139,6 @@ body {
     box-shadow: 0 0 15px rgba(0, 120, 212, 1); /* 4x original initial shadow */
 }
 
-.email-actions {
-    margin-top: 20px; /* Add space between email body and actions */
-}
 
 .sidebar {
     grid-row: 2 / 3;
@@ -331,8 +328,8 @@ body {
     grid-column: 2 / 3; /* Position in the second column */
     grid-row: 2 / 3; /* Position in the second row */
     padding: 15px;
-    padding-bottom: 200px; /* Massively increased padding at the bottom */
-    overflow-y: auto; /* Allow scrolling for the entire content area */
+    padding-bottom: 15px; /* Normal padding */
+    overflow-y: hidden; /* Remove scrolling - everything should fit neatly */
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -353,16 +350,12 @@ body {
     justify-content: center;
 }
 
-.email-actions {
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-}
 
 #reply-interface-container {
     padding-top: 20px;
     border-top: 1px solid #eee;
     flex-shrink: 0; /* Prevent it from shrinking */
-    margin-bottom: 50px; /* Add significant margin to push it away from the bottom */
+    margin-bottom: 0px; /* No extra margin needed */
 }
 
 /* Custom Prompt/Notification Styles */
