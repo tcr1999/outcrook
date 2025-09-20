@@ -289,12 +289,15 @@ body {
 }
 
 .email-content {
+    grid-column: 2 / 3; /* Position in the second column */
+    grid-row: 2 / 3; /* Position in the second row */
     padding: 15px;
     padding-bottom: 120px; /* Significantly increased padding at the bottom */
     overflow-y: auto; /* Allow scrolling for the entire content area */
     display: flex;
     flex-direction: column;
     height: 100%;
+    min-height: 0; /* Allow flex item to shrink */
 }
 
 #email-body-content {
