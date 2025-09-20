@@ -117,28 +117,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const welcomeEmail = {
                 id: 'welcome-email',
                 sender: 'Jane, Director of People',
-                subject: 'Welcome to Outcrook - Your Onboarding as a Detective',
+                subject: 'Your Super-Secret Detective Mission Starts NOW!',
                 date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
                 body: `
                     <h3>Welcome to the Outcrook Team!</h3>
-                    <p>Dear Detective <span id="welcome-user-name"></span>,</p>
-                    <p>A warm welcome to Outcrook! We're thrilled to have you join our esteemed team. Your unique skills and perspective are highly valued as we embark on a new era of corporate integrity.</p>
-                    <p>Your role here will be pivotal in ensuring transparency and uncovering any… anomalies that may arise within our organizational structure. Consider this your first confidential assignment: familiarize yourself with our systems, observe, and report anything that seems out of place.</p>
-                    <p>Your journey to uncover the truth begins now. We trust you'll uphold our values with the utmost discretion and diligence.</p>
-                    <p>Best regards,</p>
-                    <p>Jane, Director of People</p>
+                    <p>Greetings, Detective <span id="welcome-user-name"></span>!</p>
+                    <p>Your super-secret mission at FlavorCo (a division of Outcrook!) officially begins! We're thrilled to have your keen eyes and sharp mind on board. We suspect foul play, whispers of stolen snack secrets... a real whodunit!</p>
+                    <p>Your task: sniff out clues, interrogate suspects (figuratively, of course!), and uncover the truth. Your badge and magnifying glass are waiting (metaphorically, for now!). Good luck, agent!</p>
+                    <p>Best,</p>
+                    <p>Jane, Director of People (and Head of Secret Squirrel Operations)</p>
                 `,
                 folder: 'inbox',
                 read: false,
                 replied: false,
-                storyTriggered: false, // New flag for story progression
+                storyTriggered: false,
                 receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
             };
-            emails.push(welcomeEmail); // Add the welcome email immediately
+            emails.push(welcomeEmail);
 
         } else {
             userProfile.textContent = `Detective ${userName}`;
-            // If user already has a name, ensure inbox is loaded with correct emails and counts are refreshed.
             loadEmailsForFolder('inbox');
             refreshUnreadCounts();
         }
@@ -148,24 +146,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const initialLegalEmail = {
         id: 'legal-email',
         sender: 'Eleanor Vance, Chief Legal Officer',
-        subject: 'Confidential: Potential Intellectual Property Breach - Next Steps',
+        subject: 'Uh-oh! TasteBuds Stole Our Yummy Secret!',
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         body: `
-            <h3>Legal Strategy for "TasteBlast" Leak</h3>
-            <p>To the Special Investigator,</p>
-            <p>This email is to formally engage your services regarding the egregious intellectual property breach concerning our "TasteBlast" product. The evidence strongly suggests internal malfeasance, and we are preparing for potential litigation against TasteBuds.</p>
-            <p>However, for any legal action to be successful, we require concrete, irrefutable evidence. Hearsay and suspicion, while compelling, will not suffice in a court of law. Your investigation must yield actionable intelligence: identify the individual(s) responsible, their method of data exfiltration, and any accomplice networks.</p>
-            <p>I understand this is a delicate matter, and discretion is paramount. Keep me updated on any significant breakthroughs. The future of FlavorCo's market position hinges on your findings.</p>
-            <p>Eleanor Vance<br>Chief Legal Officer</p>
+            <h3>Emergency! Our Secret Recipe is Out!</h3>
+            <p>Dear Detective,</p>
+            <p>CODE RED! Our top-secret "TasteBlast" recipe has been SWIPED by those sneaky TasteBuds! They launched an identical product, and we're not happy campers. We need a super sleuth like you to find out WHO, WHAT, and HOW!</p>
+            <p>Your mission, should you choose to accept it, is to gather rock-solid evidence. No flimsy theories! We need facts to take them down in court. The fate of FlavorCo's snacks rests on your investigative shoulders!</p>
+            <p>Keep your ear to the ground and your magnifying glass handy. Report back with juicy findings!</p>
+            <p>Eleanor Vance<br>Chief Legal Officer (and Head of Snack Protection)</p>
         `,
         folder: 'inbox',
         read: false,
         replied: false,
         receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
-    emails.push(initialLegalEmail); // Add Eleanor's email immediately
+    emails.push(initialLegalEmail);
 
-    getUserName(); // Call on page load
+    getUserName();
 
     // Function to display current time
     function updateCurrentTime() {
@@ -174,151 +172,103 @@ document.addEventListener('DOMContentLoaded', () => {
         currentTimeSpan.textContent = now.toLocaleTimeString('en-US', options);
     }
 
-    updateCurrentTime(); // Initial call
-    setInterval(updateCurrentTime, 1000); // Update every second
-
-    // Initial welcome email
-    // const welcomeEmail = { // Moved to be created dynamically after user name input
-    //     id: 'welcome-email',
-    //     sender: 'Jane, Director of People',
-    //     subject: 'Welcome to Outcrook - Your Onboarding as a Detective',
-    //     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    //     body: `
-    //         <h3>Welcome to the Outcrook Team!</h3>
-    //         <p>Dear Detective <span id="welcome-user-name"></span>,</p>
-    //         <p>A warm welcome to Outcrook! We're thrilled to have you join our esteemed team. Your unique skills and perspective are highly valued as we embark on a new era of corporate integrity.</p>
-    //         <p>Your role here will be pivotal in ensuring transparency and uncovering any… anomalies that may arise within our organizational structure. Consider this your first confidential assignment: familiarize yourself with our systems, observe, and report anything that seems out of place.</p>
-    //         <p>Your journey to uncover the truth begins now. We trust you'll uphold our values with the utmost discretion and diligence.</p>
-    //         <p>Best regards,</p>
-    //         <p>Jane, Director of People</p>
-    //     `,
-    //     folder: 'inbox',
-    //     read: false,
-    //     replied: false
-    // };
-    // emails.push(welcomeEmail); // Removed: now pushed after a delay
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 1000);
 
     // Creative spam emails - these will be dynamically pushed later based on story progression, not on initial load
     const spamEmail1Template = {
         id: 'spam-email-1',
         sender: 'TotallyLegitBank',
-        subject: 'URGENT: Your Account Has Been Compromised - Act NOW!',
+        subject: 'Your Bank Account is Doing the Macarena! Fix it NOW!',
         date: new Date(2025, 8, 10).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         body: `
-            <h3>Attention Valued Customer,</h3>
-            <p>We have detected suspicious activity on your Outcrook bank account. To prevent further unauthorized access, please click the link below to verify your details immediately:</p>
-            <p><a href="#" onclick="alert('Nice try! This is spam.'); return false;">Verify My Account Now</a></p>
-            <p>Failure to do so will result in the permanent suspension of your account.</p>
+            <h3>URGENT! Your Money is on the Loose!</h3>
+            <p>Oh no! We've detected your bank account doing the Macarena with some suspicious characters! To stop it from dancing away with all your coins, click this super safe (pinky swear!) link IMMEDIATELY:</p>
+            <p><a href="#" onclick="alert('Nice try! This is spam.'); return false;">Bring My Money Home!</a></p>
+            <p>If you don't, your account will be turned into a pumpkin. Don't say we didn't warn you!</p>
             <p>Sincerely,</p>
-            <p>The Totally Legit Bank Security Team</p>
+            <p>The Totally Legit Bank (we're totally not a bunch of squirrels in a trench coat)</p>
         `,
         folder: 'spam',
         read: false,
         receivedTime: new Date(2025, 8, 10, 9, 30).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
-    // emails.push(spamEmail1); // Removed from initial load
 
     const spamEmail2Template = {
         id: 'spam-email-2',
         sender: 'Nigerian Prince (via secure channel)',
-        subject: 'A Royal Opportunity Awaits You!',
+        subject: 'Prince Needs YOUR Help (and Your Gold Coins!)',
         date: new Date(2025, 8, 8).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         body: `
-            <h3>Greetings, Esteemed Friend,</h3>
-            <p>I am Prince Akeem of Zamunda, and I write to you with a matter of utmost urgency and discretion. I require your assistance in transferring a vast fortune (USD 50,000,000) from my country to a secure foreign account.</p>
-            <p>For your kind assistance, I am prepared to offer you 20% of the total sum. All I require is your bank account details and a small processing fee to expedite the transfer.</p>
-            <p>Please respond swiftly to this confidential proposition.</p>
-            <p>Yours in trust,</p>
-            <p>Prince Akeem</p>
+            <h3>Royal Plea from Prince Akeem!</h3>
+            <p>Hark, noble friend! Prince Akeem of the Sparkling Sands needs your mighty assistance! I have a colossal pile of shiny gold coins (like, 50 MILLION of them!) that need a new comfy home. And YOU, my friend, are the chosen one!</p>
+            <p>Just a teeny-tiny fee (for royal paperwork, you understand) and your bank details, and BAM! You'll be swimming in riches! Don't miss this once-in-a-lifetime chance to be best friends with a prince!</p>
+            <p>Your Royal Buddy,</p>
+            <p>Prince Akeem (I also have a really fast camel)</p>
         `,
         folder: 'spam',
         read: false,
         receivedTime: new Date(2025, 8, 8, 14, 0).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
-    // emails.push(spamEmail2); // Removed from initial load
 
     // Story emails - Phase 1: Initial Investigation & Departmental Insights - these will be dynamically pushed later
     const marketingEmailTemplate = {
         id: 'marketing-email',
         sender: 'Sarah Chen, Head of Marketing',
-        subject: 'URGENT: TasteBuds\' New Product Launch - Identical to Ours!',
+        subject: 'Panic! TasteBuds Cloned Our Snack!',
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         body: `
-            <h3>Crisis Meeting Follow-Up: TasteBuds' "FlavorFusion"</h3>
-            <p>Team,</p>
-            <p>As discussed, the launch of TasteBuds' "FlavorFusion" is an absolute nightmare. It's not just similar; it's virtually *identical* to our flagship product, "TasteBlast"! This is a catastrophic blow, especially after all the R&D and market testing we poured into it.</p>
-            <p>I'm particularly concerned given the recent, shall we say, *anomalies* in our internal data systems. We had some minor glitches with file access a few weeks back, remember? Coincidence? I'm not so sure. We need to explore every angle to understand how this could have happened.</p>
-            <p>Please prepare a comprehensive competitive analysis report by end of day. We need to identify any potential vulnerabilities in our launch strategy and, more importantly, figure out if this was an inside job.</p>
-            <p>Regards,</p>
-            <p>Sarah Chen<br>Head of Marketing</p>
+            <h3>Our "TasteBlast" is a Double!</h3>
+            <p>Team (and especially you, Detective!),</p>
+            <p>This is NOT a drill! TasteBuds just launched "FlavorFusion" and it's basically our "TasteBlast" in a different wrapper! I'm talking identical! My marketing plans are toast!</p>
+            <p>Remember those weird computer hiccups last month? Was it a coincidence? Or did someone spill the beans (or the secret spices)? We need to figure out how they copied us! Find the mole, find the truth!</p>
+            <p>Frantically yours,</p>
+            <p>Sarah Chen<br>Head of Marketing (currently pulling her hair out)</p>
         `,
         folder: 'inbox',
         read: false,
         replied: false,
         receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
-    // emails.push(marketingEmail);
 
     const rdEmailTemplate = {
         id: 'rd-email',
         sender: 'Dr. Aris Thorne, Head of R&D',
-        subject: 'Internal Review: TasteBlast Formula Integrity',
+        subject: 'Our Secret Recipe is GONE! Lab on Lockdown!',
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         body: `
-            <h3>Urgent: Review of "TasteBlast" Development Protocols</h3>
-            <p>Team,</p>
-            <p>In light of recent… *developments*… it is imperative that we conduct an immediate, stringent internal review of all "TasteBlast" formula protocols and access logs. The proprietary nature of this product cannot be overstated, and its replication by TasteBuds is deeply troubling.</p>
-            <p>I recall a few weeks prior to the leak, we had that scheduled external vendor visit. While everything appeared routine, I'd appreciate it if everyone could re-verify all sign-in/sign-out procedures and any unusual observations from that period. Also, I'm aware of some dissatisfaction from a junior researcher, Alex, regarding his promotion timeline and restricted access to certain advanced project files. While likely unrelated, all data points are critical now.</p>
-            <p>Please forward any relevant security audit reports or access anomalies from the last three months directly to my secure terminal.</p>
-            <p>Dr. Aris Thorne<br>Head of R&D</p>
+            <h3>Recipe Heist! R&D is a Mess!</h3>
+            <p>Attention All! (Especially Detective!)</p>
+            <p>Our precious "TasteBlast" formula has vanished into thin air! TasteBuds' new product is proof! We need a full-scale investigation into our lab. Every beaker, every test tube, every… sniff… must be checked!</p>
+            <p>And speaking of sniffs, I recall a certain "Alex" (our junior researcher) grumbling about promotions and secret files. Could it be a clue? Find out who took our delicious secrets!</p>
+            <p>Panicked but Scientific,</p>
+            <p>Dr. Aris Thorne<br>Head of R&D (currently wearing a tin-foil hat)</p>
         `,
         folder: 'inbox',
         read: false,
         replied: false,
         receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
-    // emails.push(rdEmail);
 
     const itSecurityEmailTemplate = {
         id: 'it-security-email',
         sender: 'IT Security Automated Alert',
-        subject: 'SECURITY ALERT: Unusual File Access Detected (Project TasteBlast)',
+        subject: 'RED ALERT! Our Data Took a Midnight Sneak-Out!',
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         body: `
-            <h3>Automated Security Report - High Alert</h3>
-            <p><strong>System:</strong> FlavorCo Internal Network</p>
-            <p><strong>Severity:</strong> HIGH</p>
-            <p><strong>Incident:</strong> Multiple unauthorized access attempts detected on Project TasteBlast's secure repository. Anomalous data transfer patterns observed from an internal IP address (192.168.1.107) to an external, unverified server during off-hours (approximately 02:30 AM PST).</p>
-            <p><strong>Status:</strong> Initial breach contained. Further investigation required to identify source and impact. All relevant logs have been flagged for review by authorized personnel.</p>
-            <p><strong>Action Required:</strong> Immediate review by a Special Investigator is recommended to determine the nature of the data transfer and user associated with IP 192.168.1.107.</p>
-            <p>Automated System Message</p>
+            <h3>Unauthorized Data Fun!</h3>
+            <p><strong>System Alert:</strong> FlavorCo Network</p>
+            <p><strong>DANGER Level:</strong> HIGH (like, really high!)</p>
+            <p><strong>Incident:</strong> Our super-secret "TasteBlast" files went on an unauthorized midnight stroll! Data zoomed out from IP (192.168.1.107) to some shady server during prime dreaming hours (02:30 AM PST)!</p>
+            <p><strong>Status:</strong> We've locked the digital doors, but the cat's out of the bag (and the data's out of the server!). Detective, we need you to find the cyber-culprit behind this digital heist!</p>
+            <p>Bleep-bloop,</p>
+            <p>Automated System Message (and a very worried server rack)</p>
         `,
         folder: 'inbox',
         read: false,
         replied: false,
         receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
-    // emails.push(itSecurityEmail);
-
-    const legalEmailTemplate = {
-        id: 'legal-email',
-        sender: 'Eleanor Vance, Chief Legal Officer',
-        subject: 'Confidential: Potential Intellectual Property Breach - Next Steps',
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        body: `
-            <h3>Legal Strategy for "TasteBlast" Leak</h3>
-            <p>To the Special Investigator,</p>
-            <p>This email is to formally engage your services regarding the egregious intellectual property breach concerning our "TasteBlast" product. The evidence strongly suggests internal malfeasance, and we are preparing for potential litigation against TasteBuds.</p>
-            <p>However, for any legal action to be successful, we require concrete, irrefutable evidence. Hearsay and suspicion, while compelling, will not suffice in a court of law. Your investigation must yield actionable intelligence: identify the individual(s) responsible, their method of data exfiltration, and any accomplice networks.</p>
-            <p>I understand this is a delicate matter, and discretion is paramount. Keep me updated on any significant breakthroughs. The future of FlavorCo's market position hinges on your findings.</p>
-            <p>Eleanor Vance<br>Chief Legal Officer</p>
-        `,
-        folder: 'inbox',
-        read: false,
-        replied: false,
-        receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-    };
-    // emails.push(legalEmail);
 
     // Unread counts for navigation badges
     const unreadCounts = {
@@ -444,21 +394,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (originalEmail.id === 'welcome-email') {
             replyBodyContent = `
-Thanks very much for the incredibly warm welcome, ${senderFirstName}.
-
-I'm absolutely fizzing with excitement to dive into this role and contribute to Outcrook's unwavering commitment to... well, you know, corporate integrity! I'm ready to get my detective hat on and start sniffing out any peculiar pings or peculiar patterns.
+Wow, thanks for the super-secret welcome, ${senderFirstName}! I'm SO ready to put on my detective hat and dive into this mystery. Consider this case... ON!
 `;
         } else if (originalEmail.folder === 'spam') {
             const spamResponses = [
-                `I'm sorry, my pet parrot ate my bank account details. Perhaps next time? Quawk!`, 
-                `My sincere apologies, but my fortune is currently tied up in a very exclusive pigeon racing syndicate. I'll get back to you... maybe.`, 
-                `I appreciate the offer, but I'm already assisting a much wealthier monarch with their urgent financial needs. Their camels are much faster, you see.`, 
-                `Your email has been flagged for excessive enthusiasm. Please dial down the exclamation marks and try again in 3-5 business centuries.`
+                `My pet squirrel, Nutsy, handles all my banking. He says "Nuts to you!"`,
+                `Sorry, I'm currently on a mission to find the world's largest rubber duck. Priorities, you know!`,
+                `My fortune is tied up in a cheese-of-the-month club. Top secret stuff, can't discuss!`,
+                `Your email caused my teacup pig to faint from excitement. Please send a less enthusiastic email next time.`,
             ];
             replyBodyContent = spamResponses[Math.floor(Math.random() * spamResponses.length)];
         } else {
             replyBodyContent = `
-Acknowledged.
+Got it! On the case!
 `;
         }
 
