@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (userName) {
             userProfile.textContent = `Detective ${userName}`;
 
-            // Only add Jane's welcome email after a delay, not all emails at once
+            // Jane's welcome email arrives 10 seconds after login (after Eleanor's is loaded)
             setTimeout(() => {
                 const welcomeEmail = {
                     id: 'welcome-email',
@@ -134,40 +134,42 @@ document.addEventListener('DOMContentLoaded', () => {
                     replied: false,
                     receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
                 };
-                emails.push(welcomeEmail); // Add the welcome email to the array
-                refreshUnreadCounts(); // Update notification badges
+                emails.push(welcomeEmail);
+                refreshUnreadCounts();
+                // If the user is currently in the inbox, reload it to display Jane's email
+                if (currentFolder === 'inbox') {
+                    loadEmailsForFolder('inbox');
+                }
             }, 10000); // 10 seconds after login, Jane's email arrives
-
-            // Initial setup: Add Eleanor Vance's email immediately upon login
-            const initialLegalEmail = {
-                id: 'legal-email',
-                sender: 'Eleanor Vance, Chief Legal Officer',
-                subject: 'Confidential: Potential Intellectual Property Breach - Next Steps',
-                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                body: `
-                    <h3>Legal Strategy for "TasteBlast" Leak</h3>
-                    <p>To the Special Investigator,</p>
-                    <p>This email is to formally engage your services regarding the egregious intellectual property breach concerning our "TasteBlast" product. The evidence strongly suggests internal malfeasance, and we are preparing for potential litigation against TasteBuds.</p>
-                    <p>However, for any legal action to be successful, we require concrete, irrefutable evidence. Hearsay and suspicion, while compelling, will not suffice in a court of law. Your investigation must yield actionable intelligence: identify the individual(s) responsible, their method of data exfiltration, and any accomplice networks.</p>
-                    <p>I understand this is a delicate matter, and discretion is paramount. Keep me updated on any significant breakthroughs. The future of FlavorCo's market position hinges on your findings.</p>
-                    <p>Eleanor Vance<br>Chief Legal Officer</p>
-                `,
-                folder: 'inbox',
-                read: false,
-                replied: false,
-                receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-            };
-            emails.push(initialLegalEmail);
-            loadEmailsForFolder('inbox'); // Load inbox immediately with Eleanor's email
-            refreshUnreadCounts(); // Update notification badges
 
         } else {
             userProfile.textContent = 'Detective'; // Fallback if no name provided (shouldn't happen with validation)
-            // If user already has a name, still load inbox and refresh counts (potentially from previous session)
+            // If user already has a name, ensure inbox is loaded with correct emails and counts are refreshed.
             loadEmailsForFolder('inbox');
             refreshUnreadCounts();
         }
     }
+
+    // Eleanor Vance's email (initial email)
+    const initialLegalEmail = {
+        id: 'legal-email',
+        sender: 'Eleanor Vance, Chief Legal Officer',
+        subject: 'Confidential: Potential Intellectual Property Breach - Next Steps',
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        body: `
+            <h3>Legal Strategy for "TasteBlast" Leak</h3>
+            <p>To the Special Investigator,</p>
+            <p>This email is to formally engage your services regarding the egregious intellectual property breach concerning our "TasteBlast" product. The evidence strongly suggests internal malfeasance, and we are preparing for potential litigation against TasteBuds.</p>
+            <p>However, for any legal action to be successful, we require concrete, irrefutable evidence. Hearsay and suspicion, while compelling, will not suffice in a court of law. Your investigation must yield actionable intelligence: identify the individual(s) responsible, their method of data exfiltration, and any accomplice networks.</p>
+            <p>I understand this is a delicate matter, and discretion is paramount. Keep me updated on any significant breakthroughs. The future of FlavorCo's market position hinges on your findings.</p>
+            <p>Eleanor Vance<br>Chief Legal Officer</p>
+        `,
+        folder: 'inbox',
+        read: false,
+        replied: false,
+        receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    };
+    emails.push(initialLegalEmail); // Add Eleanor's email immediately
 
     getUserName(); // Call on page load
 
@@ -627,7 +629,9 @@ Best, ${userName}, Special Investigator`;
             loadEmailsForFolder('inbox');
             refreshUnreadCounts();
 
-            deliverNextStoryEmail(); // Trigger the next story email after replying
+            if (originalEmail.id === 'welcome-email') { // Only deliver next story email if replying to Jane's email
+                deliverNextStoryEmail(); // Trigger the next story email after replying
+            }
             
             // Re-select the original email item in the inbox to keep it highlighted
             const correspondingEmailItem = emailListDiv.querySelector(`[data-email-id="${originalEmail.id}"]`);
