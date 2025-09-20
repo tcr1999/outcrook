@@ -80,6 +80,17 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
 }
 
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 rgba(0, 120, 212, 0.4); }
+    70% { transform: scale(1.03); box-shadow: 0 0 0 10px rgba(0, 120, 212, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 rgba(0, 120, 212, 0); }
+}
+
+.reply-nudge-active {
+    animation: pulse 1.5s infinite;
+    box-shadow: 0 0 5px rgba(0, 120, 212, 0.7);
+}
+
 .email-actions {
     margin-top: 20px; /* Add space between email body and actions */
 }

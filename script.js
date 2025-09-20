@@ -418,6 +418,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (welcomeUserNameSpan) {
             welcomeUserNameSpan.textContent = localStorage.getItem('outcrookUserName') || 'User';
         }
+
+        // Add nudge for important emails (Jane's welcome email)
+        if (email.id === 'welcome-email' && !email.replied) {
+            replyEmailBtn.classList.add('reply-nudge-active');
+        } else {
+            replyEmailBtn.classList.remove('reply-nudge-active');
+        }
     }
 
     // Function to generate a reply body
@@ -634,6 +641,9 @@ Best, ${userName}, Special Investigator`;
             // Reload the inbox folder to show the original email, not sent
             loadEmailsForFolder('inbox');
             refreshUnreadCounts();
+
+            // Remove nudge after replying
+            replyEmailBtn.classList.remove('reply-nudge-active');
 
             // Re-select the original email item in the inbox to keep it highlighted
             const correspondingEmailItem = emailListDiv.querySelector(`[data-email-id="${originalEmail.id}"]`);
