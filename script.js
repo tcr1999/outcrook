@@ -547,8 +547,12 @@ Best, ${userName}, Special Investigator`;
 
         const filteredEmails = emails.filter(email => email.folder === folder);
         if (filteredEmails.length > 0) {
-            // Sort emails by receivedTime in descending order (latest on top)
-            filteredEmails.sort((a, b) => new Date(`2000/01/01 ${b.receivedTime}`) - new Date(`2000/01/01 ${a.receivedTime}`));
+            // Sort emails by receivedTime in descending order (latest on top) for all folders
+            filteredEmails.sort((a, b) => {
+                const timeA = new Date(`2000/01/01 ${a.receivedTime}`);
+                const timeB = new Date(`2000/01/01 ${b.receivedTime}`);
+                return timeB - timeA;
+            });
 
             filteredEmails.forEach(email => {
                 emailListDiv.appendChild(renderEmailItem(email));
@@ -646,7 +650,8 @@ Best, ${userName}, Special Investigator`;
             nextStoryEmailIndex++;
             // After the main story emails, deliver the spam
             if (nextStoryEmailIndex === storyEmailsQueue.length) {
-                deliverSpamEmails();
+                // Now that the main story path has continued, deliver the spam emails
+                setTimeout(deliverSpamEmails, 3000); // 3 seconds after the last main email
             }
         }
     }
