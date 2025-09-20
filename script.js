@@ -327,28 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <button class="delete-email-item-btn" data-email-id="${email.id}">🗑️</button>
         `;
         emailItem.addEventListener('click', () => {
-            displayEmailContent(email);
-            // Mark as read and update badge
-            if (!email.read) {
-                email.read = true;
-                emailItem.classList.remove('unread');
-                refreshUnreadCounts();
-            }
-            // Remove 'active' class from all email items and add to clicked one
-            document.querySelectorAll('.email-item').forEach(el => el.classList.remove('active'));
-            emailItem.classList.add('active');
-
-            // Add delete nudge to readOnly emails after they are read, and remove from others
-            document.querySelectorAll('.delete-email-item-btn').forEach(btn => btn.classList.remove('delete-nudge-active'));
-            if (email.emailType === 'readOnly') {
-                const deleteButton = emailItem.querySelector('.delete-email-item-btn');
-                // Start pulsing after 5 seconds of the email being visible
-                if (deleteButton && !email.read) { // Only trigger the first time it's read
-                    setTimeout(() => {
-                        deleteButton.classList.add('delete-nudge-active');
-                    }, 5000);
-                }
-            }
+            handleEmailDisplay(email, emailItem);
         });
 
         const deleteButton = emailItem.querySelector('.delete-email-item-btn');
@@ -533,20 +512,39 @@ Best, ${userName}, Special Investigator`;
             // Select the first unread email, or the first email if all are read
             const firstEmailToSelect = filteredEmails.find(email => !email.read) || filteredEmails[0];
             if (firstEmailToSelect) {
-                displayEmailContent(firstEmailToSelect);
-                const correspondingEmailItem = emailListDiv.querySelector(`[data-email-id="${firstEmailToSelect.id}"]`);
-                if (correspondingEmailItem) {
-                    correspondingEmailItem.classList.add('active');
-                    if (!firstEmailToSelect.read) {
-                        firstEmailToSelect.read = true;
-                        correspondingEmailItem.classList.remove('unread');
-                        refreshUnreadCounts();
-                    }
-                }
+                handleEmailDisplay(firstEmailToSelect, emailListDiv.querySelector(`[data-email-id="${firstEmailToSelect.id}"]`));
             }
         } else {
             emailListDiv.innerHTML = '<div class="email-list-placeholder">No emails in this folder.</div>';
             emailBodyContentDiv.innerHTML = '<div class="email-content-placeholder">Select an email to view its content</div>'; // Ensure content placeholder is always there for empty folder
+        }
+    }
+
+    function handleEmailDisplay(email, emailItem) {
+        // Stop any existing pulses when a new email is selected
+        document.querySelectorAll('.delete-email-item-btn').forEach(btn => btn.classList.remove('delete-nudge-active'));
+
+        displayEmailContent(email);
+
+        // Remove 'active' class from all email items and add to clicked one
+        document.querySelectorAll('.email-item').forEach(el => el.classList.remove('active'));
+        emailItem.classList.add('active');
+
+        // Start pulsation timer on the first time a read-only email is displayed
+        if (email.emailType === 'readOnly' && !email.read) {
+            const deleteButton = emailItem.querySelector('.delete-email-item-btn');
+            if (deleteButton) {
+                setTimeout(() => {
+                    deleteButton.classList.add('delete-nudge-active');
+                }, 5000);
+            }
+        }
+
+        // Mark as read and update badge (will only run once thanks to the check)
+        if (!email.read) {
+            email.read = true;
+            emailItem.classList.remove('unread');
+            refreshUnreadCounts();
         }
     }
 
