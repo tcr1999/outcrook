@@ -218,6 +218,7 @@ body {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    height: 100%; /* Ensure email-content takes full height of its grid cell */
 }
 
 #email-body-content {
