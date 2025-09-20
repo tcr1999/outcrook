@@ -342,8 +342,11 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.delete-email-item-btn').forEach(btn => btn.classList.remove('delete-nudge-active'));
             if (email.emailType === 'readOnly') {
                 const deleteButton = emailItem.querySelector('.delete-email-item-btn');
-                if (deleteButton) {
-                    deleteButton.classList.add('delete-nudge-active');
+                // Start pulsing after 5 seconds of the email being visible
+                if (deleteButton && !email.read) { // Only trigger the first time it's read
+                    setTimeout(() => {
+                        deleteButton.classList.add('delete-nudge-active');
+                    }, 5000);
                 }
             }
         });
@@ -359,9 +362,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadEmailsForFolder(currentFolder); // Re-load current folder
                 refreshUnreadCounts();
 
-                // If Eleanor's email is deleted, deliver Jane's email
+                // If Eleanor's email is deleted, deliver Jane's email after 3 seconds
                 if (emailIdToDelete === 'legal-email') {
-                    deliverWelcomeEmail();
+                    setTimeout(deliverWelcomeEmail, 3000);
                 }
             }
         });
@@ -571,8 +574,11 @@ Best, ${userName}, Special Investigator`;
         welcomeEmail.receivedTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         
         emails.push(welcomeEmail);
-        loadEmailsForFolder('inbox'); // Reload inbox to show the new email on top
         refreshUnreadCounts();
+        // If user is currently in the inbox, refresh the view to show the new email
+        if (currentFolder === 'inbox') {
+            loadEmailsForFolder('inbox');
+        }
     }
 
     // Keep track of the next story email to deliver
@@ -586,14 +592,16 @@ Best, ${userName}, Special Investigator`;
     // Function to deliver the next story email after a random delay
     function deliverNextStoryEmail() {
         if (nextStoryEmailIndex < storyEmailsQueue.length) {
-            const delay = Math.floor(Math.random() * (15 - 10 + 1) + 10) * 1000; // Random delay between 10 and 15 seconds
-            setTimeout(() => {
-                const nextEmail = { ...storyEmailsQueue[nextStoryEmailIndex] }; // Create a copy
-                nextEmail.receivedTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                emails.push(nextEmail);
-                refreshUnreadCounts(); // Update notification badge without changing folder
-                nextStoryEmailIndex++;
-            }, delay);
+            const nextEmail = { ...storyEmailsQueue[nextStoryEmailIndex] }; // Create a copy
+            nextEmail.date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            nextEmail.receivedTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            emails.push(nextEmail);
+            refreshUnreadCounts(); // Update notification badge without changing folder
+            // If user is currently in the inbox, refresh the view to show the new email
+            if (currentFolder === 'inbox') {
+                loadEmailsForFolder('inbox');
+            }
+            nextStoryEmailIndex++;
         }
     }
 
