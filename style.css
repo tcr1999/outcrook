@@ -125,6 +125,8 @@ body {
     grid-row: 2 / 3;
     display: grid;
     grid-template-columns: 1fr 2fr;
+    /* Fix: Explicitly set header row height to 50px instead of 'auto' */
+    grid-template-rows: 50px 1fr;
     overflow: hidden;
     height: 100%; /* Ensure email-view takes full height of its grid cell */
 }
@@ -137,6 +139,11 @@ body {
     height: 50px; /* Fixed height for the header */
     display: flex; /* Use flexbox for centering */
     align-items: center; /* Vertically center content */
+    flex-shrink: 0; /* Prevent the header from shrinking */
+}
+
+.email-list-header h3 {
+    margin: 0; /* Remove default margin from h3 */
 }
 
 .email-list {
