@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (userName) {
             userProfile.textContent = `Detective ${userName}`;
 
-            // Introduce 10-second delay for the welcome email after user name is set
+            // Introduce 7-second delay for the welcome email after user name is set
             setTimeout(() => {
                 const welcomeEmail = {
                     id: 'welcome-email',
@@ -135,9 +135,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
                 };
                 emails.push(welcomeEmail); // Add the welcome email to the array
-                loadEmailsForFolder('inbox'); // Load inbox to display the new email
+                // Only refresh unread counts, do not change current folder
                 refreshUnreadCounts(); // Update notification badges
-            }, 10000); // 10 seconds
+            }, 7000); // 7 seconds
 
         } else {
             userProfile.textContent = 'Detective'; // Fallback if no name provided (shouldn't happen with validation)
@@ -256,8 +256,8 @@ document.addEventListener('DOMContentLoaded', () => {
         emailItem.innerHTML = `
             <div class="email-info">
                 <div class="email-sender">${email.sender}</div>
-                <div class="email-subject">${email.subject}</div>
-                <div class="email-date">${email.date} ${email.receivedTime}</div>
+                <div class="email-subject">${email.subject} <span class="email-time">${email.receivedTime}</span></div>
+                <div class="email-date">${email.date}</div>
             </div>
             <button class="delete-email-item-btn" data-email-id="${email.id}">🗑️</button>
         `;
@@ -334,7 +334,7 @@ Acknowledged.
         return `Hi ${senderFirstName},
 
 ${replyBodyContent}
-Best, ${userName}, special investigator`;
+Best, ${userName}, Special Investigator`;
     }
 
     // Function to simulate typing
@@ -475,12 +475,13 @@ Best, ${userName}, special investigator`;
 
             const sentReply = {
                 id: `reply-${originalEmail.id}-${Date.now()}`,
-                sender: `${userName}, special investigator`,
+                sender: `${userName}, Special Investigator`,
                 subject: `Re: ${originalEmail.subject}`,
                 date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                body: replyText,
+                body: `<pre>${replyText}</pre>`,
                 folder: 'sent',
-                read: true
+                read: true,
+                receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
             };
             emails.push(sentReply);
             originalEmail.replied = true;
