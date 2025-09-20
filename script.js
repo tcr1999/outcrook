@@ -31,8 +31,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (type === 'prompt') {
                 customPromptInput.style.display = 'block';
+                customPromptInput.placeholder = 'type here'; /* Added placeholder */
                 customPromptOkBtn.style.display = 'inline-block';
-                customPromptCancelBtn.style.display = 'inline-block';
+                customPromptCancelBtn.style.display = 'none'; /* Removed cancel button */
                 customPromptInput.focus();
             } else { // 'alert'
                 customPromptInput.style.display = 'none';
@@ -41,31 +42,35 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const handleOk = () => {
+                customPromptInput.classList.remove('input-error'); /* Remove error style on submit */
                 customPromptOverlay.style.display = 'none';
                 customPromptOkBtn.removeEventListener('click', handleOk);
-                customPromptCancelBtn.removeEventListener('click', handleCancel);
-                resolve(type === 'prompt' ? customPromptInput.value : true);
+                customPromptInput.removeEventListener('keydown', handleInputKeydown);
+                resolve(customPromptInput.value);
             };
 
-            const handleCancel = () => {
-                customPromptOverlay.style.display = 'none';
-                customPromptOkBtn.removeEventListener('click', handleOk);
-                customPromptCancelBtn.removeEventListener('click', handleCancel);
-                resolve(null); // For prompt, resolve with null on cancel
-            };
+            // Removed handleCancel function as cancel button is removed
 
-            customPromptOkBtn.addEventListener('click', handleOk);
-            customPromptCancelBtn.addEventListener('click', handleCancel);
-
-            // Allow 'Enter' key to act as 'OK' for prompts/alerts
-            const keydownListener = (event) => {
+            const handleInputKeydown = (event) => {
                 if (event.key === 'Enter') {
                     event.preventDefault();
-                    handleOk();
-                    document.removeEventListener('keydown', keydownListener);
+                    if (customPromptInput.value.trim().length > 0) {
+                        handleOk();
+                    } else {
+                        customPromptInput.classList.add('input-error'); /* Add error style */
+                    }
                 }
             };
-            document.addEventListener('keydown', keydownListener);
+            
+            customPromptOkBtn.addEventListener('click', () => {
+                if (customPromptInput.value.trim().length > 0) {
+                    handleOk();
+                } else {
+                    customPromptInput.classList.add('input-error'); /* Add error style */
+                }
+            });
+            // Removed customPromptCancelBtn.addEventListener
+            document.addEventListener('keydown', handleInputKeydown); // Listen for Enter key
         });
     }
 
@@ -75,19 +80,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!userName) {
             let isValidName = false;
             while (!isValidName) {
-                userName = await showCustomPrompt('Welcome to Outcrook! Please enter your name (at least 1 character):', 'prompt', 'Detective');
+                userName = await showCustomPrompt('Welcome to Outcrook! Please input your preferred name', 'prompt', ''); // Removed default 'Detective' and 'at least 1 character' from message
                 if (userName && userName.trim().length > 0) {
                     isValidName = true;
                     // Convert to title case
                     userName = userName.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
                     localStorage.setItem('outcrookUserName', userName);
-                } else if (userName === null) { // User clicked cancel
-                    // Handle cancellation by setting a default detective name
-                    userName = 'Sherlock'; // Or any other default if you prefer
-                    isValidName = true;
-                    localStorage.setItem('outcrookUserName', userName);
-                } else {
-                    await showCustomPrompt('Name cannot be empty. Please enter at least 1 character.', 'alert');
+                } else { // If user provides empty name (after trim) or cancels
+                    // This branch should now only be hit if user hits OK with empty string.
+                    // The showCustomPrompt loop handles re-prompting for empty input
+                    // For explicit clarity, though, we won't allow progression with empty.
+                    await showCustomPrompt('Name cannot be empty. Please input your preferred name.', 'alert');
                 }
             }
         }

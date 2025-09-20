@@ -159,6 +159,7 @@ body {
     display: flex; /* Use flexbox for centering */
     align-items: center; /* Vertically center content */
     flex-shrink: 0; /* Prevent the header from shrinking */
+    box-sizing: border-box; /* Ensure padding/border are included in height */
 }
 
 .email-list-header h3 {
@@ -174,6 +175,7 @@ body {
     flex-direction: column; /* Stack items vertically */
     flex-grow: 1; /* Allow it to grow and fill available space */
     min-height: 0; /* Allow flex item to shrink if needed */
+    margin-top: 0; /* Ensure no top margin pushes it down */
 }
 
 .email-list-placeholder {
@@ -588,4 +590,9 @@ body.dark-mode #custom-prompt-buttons #custom-prompt-cancel {
 
 body.dark-mode #custom-prompt-buttons #custom-prompt-cancel:hover {
     background-color: #4a5056;
+}
+
+.input-error {
+    border: 1px solid red !important;
+    box-shadow: 0 0 5px rgba(255, 0, 0, 0.5); /* Optional: add a glow */
 }
