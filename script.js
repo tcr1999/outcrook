@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (type === 'prompt') {
                 customPromptInput.style.display = 'block';
-                customPromptInput.placeholder = 'type here'; /* Added placeholder */
+                customPromptInput.placeholder = 'Type Here'; /* Changed placeholder to title case */
                 customPromptOkBtn.style.display = 'inline-block';
                 customPromptCancelBtn.style.display = 'none'; /* Removed cancel button */
                 customPromptInput.focus();
@@ -39,6 +39,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 customPromptInput.style.display = 'none';
                 customPromptOkBtn.style.display = 'inline-block';
                 customPromptCancelBtn.style.display = 'none';
+                // For alert types, the OK button should dismiss the prompt without requiring input validation.
+                customPromptOkBtn.addEventListener('click', handleOk, { once: true }); // Ensure it's only called once
+                const keydownListener = (event) => {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        handleOk();
+                        document.removeEventListener('keydown', keydownListener);
+                    }
+                };
+                document.addEventListener('keydown', keydownListener, { once: true });
             }
 
             const handleOk = () => {
@@ -70,7 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
             // Removed customPromptCancelBtn.addEventListener
-            document.addEventListener('keydown', handleInputKeydown); // Listen for Enter key
+            // document.addEventListener('keydown', handleInputKeydown); // Listen for Enter key, for prompt only.
+            // The keydown listener should be specific to the prompt type or managed differently for alerts.
+            // For alerts, the handleOk is directly attached to OK button or Enter key already within the else block.
+
         });
     }
 
