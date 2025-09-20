@@ -25,6 +25,7 @@
                 <li class="nav-item" id="spam-nav">Spam<span class="notification-badge" id="spam-badge"></span></li>
                 <li class="nav-item" id="trash-nav">🗑️<span class="notification-badge" id="trash-badge"></span></li>
             </ul>
+            <button class="settings-btn" id="settings-btn">Settings</button>
         </aside>
         <main class="email-view">
             <div class="email-list-header">
@@ -52,6 +53,21 @@
                 <button id="custom-prompt-ok" style="display: none;">OK</button>
                 <button id="custom-prompt-cancel" style="display: none;">Cancel</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Settings Menu HTML -->
+    <div id="settings-menu" style="display: none;">
+        <div id="settings-box">
+            <h2 class="settings-title">Settings</h2>
+            <div class="setting-item">
+                <span>Dark Mode</span>
+                <label class="switch">
+                    <input type="checkbox" id="dark-mode-toggle">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <button id="close-settings-btn">Close</button>
         </div>
     </div>
 </body>

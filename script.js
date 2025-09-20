@@ -73,14 +73,29 @@ document.addEventListener('DOMContentLoaded', () => {
     async function getUserName() { // Made async to use await
         let userName = localStorage.getItem('outcrookUserName');
         if (!userName) {
-            userName = await showCustomPrompt('Welcome to Outcrook! Please enter your name:', 'prompt', 'Detective');
-            if (userName) {
-                localStorage.setItem('outcrookUserName', userName);
-            } else {
-                userName = 'User'; // Default name if none is provided
+            let isValidName = false;
+            while (!isValidName) {
+                userName = await showCustomPrompt('Welcome to Outcrook! Please enter your name (at least 1 character):', 'prompt', 'Detective');
+                if (userName && userName.trim().length > 0) {
+                    isValidName = true;
+                    // Convert to title case
+                    userName = userName.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+                    localStorage.setItem('outcrookUserName', userName);
+                } else if (userName === null) { // User clicked cancel
+                    // Handle cancellation by setting a default detective name
+                    userName = 'Sherlock'; // Or any other default if you prefer
+                    isValidName = true;
+                    localStorage.setItem('outcrookUserName', userName);
+                } else {
+                    await showCustomPrompt('Name cannot be empty. Please enter at least 1 character.', 'alert');
+                }
             }
         }
-        userProfile.textContent = userName;
+        if (userName) {
+            userProfile.textContent = `Detective ${userName}`;
+        } else {
+            userProfile.textContent = 'Detective'; // Fallback if no name provided (shouldn't happen with validation)
+        }
     }
 
     getUserName(); // Call on page load
@@ -463,5 +478,40 @@ Best, ${userName}, special investigator`;
 
         document.addEventListener('keydown', startTypingListener);
     });
+
+    // Settings menu and Dark Mode functionality
+    const settingsBtn = document.getElementById('settings-btn');
+    const settingsMenu = document.getElementById('settings-menu');
+    const closeSettingsBtn = document.getElementById('close-settings-btn');
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const body = document.body;
+
+    // Load dark mode preference from localStorage
+    if (localStorage.getItem('darkMode') === 'enabled') {
+        body.classList.add('dark-mode');
+        darkModeToggle.checked = true;
+    }
+
+    // Open settings menu
+    settingsBtn.addEventListener('click', () => {
+        settingsMenu.style.display = 'flex';
+    });
+
+    // Close settings menu
+    closeSettingsBtn.addEventListener('click', () => {
+        settingsMenu.style.display = 'none';
+    });
+
+    // Toggle dark mode
+    darkModeToggle.addEventListener('change', () => {
+        if (darkModeToggle.checked) {
+            body.classList.add('dark-mode');
+            localStorage.setItem('darkMode', 'enabled');
+        } else {
+            body.classList.remove('dark-mode');
+            localStorage.setItem('darkMode', 'disabled');
+        }
+    });
 });
+
 

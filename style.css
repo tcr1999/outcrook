@@ -11,7 +11,8 @@ body {
 .container {
     display: grid;
     grid-template-columns: 200px 1fr 2fr; /* Sidebar, Email List, Email Content */
-    grid-template-rows: auto 1fr; /* Navbar, Main Content */
+    /* Changed to fixed height for navbar row */
+    grid-template-rows: 60px 1fr; /* Navbar, Main Content */
     width: 90%;
     max-width: 1200px;
     height: 90vh;
@@ -83,7 +84,8 @@ body {
 .sidebar {
     grid-row: 2 / 3;
     background-color: #e6e6e6;
-    padding: 15px;
+    /* Adjusted padding to remove gap with fixed navbar height */
+    padding: 0 15px 15px 15px;
     border-right: 1px solid #ddd;
 }
 
@@ -102,6 +104,7 @@ body {
 .sidebar .nav-list {
     list-style: none;
     padding: 0;
+    flex-grow: 1; /* Allow nav-list to grow and push settings button down */
 }
 
 .sidebar .nav-item {
@@ -120,12 +123,28 @@ body {
     color: #fff;
 }
 
+.settings-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #6c757d; /* A neutral gray */
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    cursor: pointer;
+    margin-top: auto; /* Push to the bottom of the sidebar */
+}
+
+.settings-btn:hover {
+    background-color: #5a6268;
+}
+
 .email-view {
     grid-column: 2 / -1;
     grid-row: 2 / 3;
     display: grid;
     grid-template-columns: 1fr 2fr;
-    /* Fix: Explicitly set header row height to 50px instead of 'auto' */
+    /* Explicitly set header row height to 50px instead of 'auto' */
     grid-template-rows: 50px 1fr;
     overflow: hidden;
     height: 100%; /* Ensure email-view takes full height of its grid cell */
@@ -359,4 +378,214 @@ body {
 
 #send-reply-btn:hover {
     background-color: #218838;
+}
+
+/* Settings Menu Styles */
+#settings-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); /* Slightly darker overlay for settings */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001; /* Higher z-index than custom prompt */
+}
+
+#settings-box {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.settings-title {
+    font-size: 1.8em;
+    margin-bottom: 25px;
+    color: #333;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+    color: #555;
+}
+
+/* Dark Mode Toggle Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 28px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #0078d4;
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+/* Close Settings Button */
+#close-settings-btn {
+    background-color: #6c757d;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    margin-top: 25px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease;
+}
+
+#close-settings-btn:hover {
+    background-color: #5a6268;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+}
+
+body.dark-mode .container {
+    background-color: #2c2c2c;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .navbar {
+    background-color: #005ea6;
+}
+
+body.dark-mode .sidebar {
+    background-color: #3a3a3a;
+    border-right-color: #4a4a4a;
+}
+
+body.dark-mode .sidebar .compose-btn {
+    background-color: #1e7e34;
+}
+
+body.dark-mode .sidebar .compose-btn:hover {
+    background-color: #155d28;
+}
+
+body.dark-mode .sidebar .nav-item:hover {
+    background-color: #4a4a4a;
+}
+
+body.dark-mode .sidebar .nav-item.active {
+    background-color: #005ea6;
+}
+
+body.dark-mode .email-list-header {
+    background-color: #3a3a3a;
+    border-bottom-color: #4a4a4a;
+}
+
+body.dark-mode .email-list {
+    border-right-color: #4a4a4a;
+}
+
+body.dark-mode .email-item {
+    border-bottom-color: #3a3a3a;
+}
+
+body.dark-mode .email-item:hover {
+    background-color: #3a3a3a;
+}
+
+body.dark-mode .email-item.unread {
+    font-weight: bold;
+}
+
+body.dark-mode .email-sender,
+body.dark-mode .email-subject {
+    color: #f0f0f0;
+}
+
+body.dark-mode .email-date {
+    color: #b0b0b0;
+}
+
+body.dark-mode .email-content-placeholder,
+body.dark-mode .email-list-placeholder {
+    color: #b0b0b0;
+}
+
+body.dark-mode #custom-prompt-box,
+body.dark-mode #settings-box {
+    background-color: #2c2c2c;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    border-color: #4a4a4a;
+}
+
+body.dark-mode #custom-prompt-message,
+body.dark-mode .settings-title,
+body.dark-mode .setting-item {
+    color: #e0e0e0;
+}
+
+body.dark-mode #custom-prompt-input {
+    background-color: #3a3a3a;
+    border-color: #555;
+    color: #f0f0f0;
+}
+
+body.dark-mode #custom-prompt-buttons button,
+body.dark-mode #close-settings-btn {
+    background-color: #005ea6;
+}
+
+body.dark-mode #custom-prompt-buttons button:hover,
+body.dark-mode #close-settings-btn:hover {
+    background-color: #004a8c;
+}
+
+body.dark-mode #custom-prompt-buttons #custom-prompt-cancel {
+    background-color: #5a6268;
+}
+
+body.dark-mode #custom-prompt-buttons #custom-prompt-cancel:hover {
+    background-color: #4a5056;
 }
