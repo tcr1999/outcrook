@@ -319,6 +319,7 @@ body {
     padding-top: 20px;
     border-top: 1px solid #eee;
     flex-shrink: 0; /* Prevent it from shrinking */
+    margin-bottom: 20px; /* Add margin to push it away from the bottom */
 }
 
 /* Custom Prompt/Notification Styles */
