@@ -156,6 +156,7 @@ body {
     overflow-y: auto;
     border-right: 1px solid #ddd;
     min-width: 250px; /* Ensure a minimum width even if empty */
+    height: 100%; /* Ensure email-list takes full height of its grid cell */
 }
 
 .email-list-placeholder {
