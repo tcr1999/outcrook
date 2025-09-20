@@ -63,7 +63,7 @@ body {
     grid-template-rows: 60px 1fr; /* Navbar, Main Content */
     width: 90%;
     max-width: 1200px;
-    height: 90vh;
+    min-height: 90vh;
     background-color: #fff;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2); /* More pronounced shadow */
     border-radius: 10px; /* Slightly softer corners */
@@ -331,7 +331,7 @@ body {
     grid-column: 2 / 3; /* Position in the second column */
     grid-row: 2 / 3; /* Position in the second row */
     padding: 15px;
-    padding-bottom: 120px; /* Significantly increased padding at the bottom */
+    padding-bottom: 200px; /* Massively increased padding at the bottom */
     overflow-y: auto; /* Allow scrolling for the entire content area */
     display: flex;
     flex-direction: column;
@@ -362,7 +362,7 @@ body {
     padding-top: 20px;
     border-top: 1px solid #eee;
     flex-shrink: 0; /* Prevent it from shrinking */
-    margin-bottom: 20px; /* Add margin to push it away from the bottom */
+    margin-bottom: 50px; /* Add significant margin to push it away from the bottom */
 }
 
 /* Custom Prompt/Notification Styles */
