@@ -290,7 +290,7 @@ body {
 
 .email-content {
     padding: 15px;
-    padding-bottom: 30px; /* Add more padding at the bottom */
+    padding-bottom: 60px; /* Increased padding at the bottom */
     overflow-y: auto; /* Allow scrolling for the entire content area */
     display: flex;
     flex-direction: column;
