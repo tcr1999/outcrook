@@ -113,37 +113,31 @@ document.addEventListener('DOMContentLoaded', () => {
         if (userName) {
             userProfile.textContent = `Detective ${userName}`;
 
-            // Jane's welcome email arrives 10 seconds after login (after Eleanor's is loaded)
-            setTimeout(() => {
-                const welcomeEmail = {
-                    id: 'welcome-email',
-                    sender: 'Jane, Director of People',
-                    subject: 'Welcome to Outcrook - Your Onboarding as a Detective',
-                    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                    body: `
-                        <h3>Welcome to the Outcrook Team!</h3>
-                        <p>Dear Detective <span id="welcome-user-name"></span>,</p>
-                        <p>A warm welcome to Outcrook! We're thrilled to have you join our esteemed team. Your unique skills and perspective are highly valued as we embark on a new era of corporate integrity.</p>
-                        <p>Your role here will be pivotal in ensuring transparency and uncovering any… anomalies that may arise within our organizational structure. Consider this your first confidential assignment: familiarize yourself with our systems, observe, and report anything that seems out of place.</p>
-                        <p>Your journey to uncover the truth begins now. We trust you'll uphold our values with the utmost discretion and diligence.</p>
-                        <p>Best regards,</p>
-                        <p>Jane, Director of People</p>
-                    `,
-                    folder: 'inbox',
-                    read: false,
-                    replied: false,
-                    receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-                };
-                emails.push(welcomeEmail);
-                refreshUnreadCounts();
-                // If the user is currently in the inbox, reload it to display Jane's email
-                if (currentFolder === 'inbox') {
-                    loadEmailsForFolder('inbox');
-                }
-            }, 10000); // 10 seconds after login, Jane's email arrives
+            // Jane's welcome email (will be added immediately, trigger will be first click)
+            const welcomeEmail = {
+                id: 'welcome-email',
+                sender: 'Jane, Director of People',
+                subject: 'Welcome to Outcrook - Your Onboarding as a Detective',
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                body: `
+                    <h3>Welcome to the Outcrook Team!</h3>
+                    <p>Dear Detective <span id="welcome-user-name"></span>,</p>
+                    <p>A warm welcome to Outcrook! We're thrilled to have you join our esteemed team. Your unique skills and perspective are highly valued as we embark on a new era of corporate integrity.</p>
+                    <p>Your role here will be pivotal in ensuring transparency and uncovering any… anomalies that may arise within our organizational structure. Consider this your first confidential assignment: familiarize yourself with our systems, observe, and report anything that seems out of place.</p>
+                    <p>Your journey to uncover the truth begins now. We trust you'll uphold our values with the utmost discretion and diligence.</p>
+                    <p>Best regards,</p>
+                    <p>Jane, Director of People</p>
+                `,
+                folder: 'inbox',
+                read: false,
+                replied: false,
+                storyTriggered: false, // New flag for story progression
+                receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+            };
+            emails.push(welcomeEmail); // Add the welcome email immediately
 
         } else {
-            userProfile.textContent = 'Detective'; // Fallback if no name provided (shouldn't happen with validation)
+            userProfile.textContent = `Detective ${userName}`;
             // If user already has a name, ensure inbox is loaded with correct emails and counts are refreshed.
             loadEmailsForFolder('inbox');
             refreshUnreadCounts();
@@ -367,7 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="email-info">
                 <div class="email-sender">${email.sender}</div>
                 <div class="email-subject">${email.subject}</div>
-                <div class="email-date">${email.date} <span class="email-time">${email.receivedTime}</span></div>
+                <div class="email-date">${email.date} ${email.receivedTime}</div>
             </div>
             <button class="delete-email-item-btn" data-email-id="${email.id}">🗑️</button>
         `;
@@ -382,6 +376,15 @@ document.addEventListener('DOMContentLoaded', () => {
             // Remove 'active' class from all email items and add to clicked one
             document.querySelectorAll('.email-item').forEach(el => el.classList.remove('active'));
             emailItem.classList.add('active');
+
+            // Trigger next story email after first click on Jane's welcome email
+            if (email.id === 'welcome-email' && !email.storyTriggered) {
+                email.storyTriggered = true; // Mark as triggered
+                const delay = Math.floor(Math.random() * (15 - 10 + 1) + 10) * 1000; // Random delay between 10 and 15 seconds
+                setTimeout(() => {
+                    deliverNextStoryEmail();
+                }, delay);
+            }
         });
 
         const deleteButton = emailItem.querySelector('.delete-email-item-btn');
@@ -631,10 +634,6 @@ Best, ${userName}, Special Investigator`;
             loadEmailsForFolder('inbox');
             refreshUnreadCounts();
 
-            if (originalEmail.id === 'welcome-email') { // Only deliver next story email if replying to Jane's email
-                deliverNextStoryEmail(); // Trigger the next story email after replying
-            }
-            
             // Re-select the original email item in the inbox to keep it highlighted
             const correspondingEmailItem = emailListDiv.querySelector(`[data-email-id="${originalEmail.id}"]`);
             if (correspondingEmailItem) {
