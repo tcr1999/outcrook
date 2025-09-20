@@ -335,9 +335,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (badgeElement) {
             if (count > 0) {
                 badgeElement.textContent = `(${count})`;
+                // Apply different class for trash notification
+                if (folderId === 'trash') {
+                    badgeElement.classList.add('trash-notification-badge');
+                    badgeElement.classList.remove('notification-badge');
+                } else {
+                    badgeElement.classList.add('notification-badge');
+                    badgeElement.classList.remove('trash-notification-badge');
+                }
                 badgeElement.style.display = 'inline';
             } else {
                 badgeElement.style.display = 'none';
+                badgeElement.classList.remove('notification-badge');
+                badgeElement.classList.remove('trash-notification-badge');
             }
         }
     }
