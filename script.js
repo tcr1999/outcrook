@@ -131,7 +131,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     `,
                     folder: 'inbox',
                     read: false,
-                    replied: false
+                    replied: false,
+                    receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
                 };
                 emails.push(welcomeEmail); // Add the welcome email to the array
                 loadEmailsForFolder('inbox'); // Load inbox to display the new email
@@ -156,24 +157,24 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(updateCurrentTime, 1000); // Update every second
 
     // Initial welcome email
-    const welcomeEmail = {
-        id: 'welcome-email',
-        sender: 'Jane, Director of People',
-        subject: 'Welcome to Outcrook - Your Onboarding as a Detective',
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        body: `
-            <h3>Welcome to the Outcrook Team!</h3>
-            <p>Dear Detective <span id="welcome-user-name"></span>,</p>
-            <p>A warm welcome to Outcrook! We're thrilled to have you join our esteemed team. Your unique skills and perspective are highly valued as we embark on a new era of corporate integrity.</p>
-            <p>Your role here will be pivotal in ensuring transparency and uncovering any… anomalies that may arise within our organizational structure. Consider this your first confidential assignment: familiarize yourself with our systems, observe, and report anything that seems out of place.</p>
-            <p>Your journey to uncover the truth begins now. We trust you'll uphold our values with the utmost discretion and diligence.</p>
-            <p>Best regards,</p>
-            <p>Jane, Director of People</p>
-        `,
-        folder: 'inbox',
-        read: false,
-        replied: false
-    };
+    // const welcomeEmail = { // Moved to be created dynamically after user name input
+    //     id: 'welcome-email',
+    //     sender: 'Jane, Director of People',
+    //     subject: 'Welcome to Outcrook - Your Onboarding as a Detective',
+    //     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    //     body: `
+    //         <h3>Welcome to the Outcrook Team!</h3>
+    //         <p>Dear Detective <span id="welcome-user-name"></span>,</p>
+    //         <p>A warm welcome to Outcrook! We're thrilled to have you join our esteemed team. Your unique skills and perspective are highly valued as we embark on a new era of corporate integrity.</p>
+    //         <p>Your role here will be pivotal in ensuring transparency and uncovering any… anomalies that may arise within our organizational structure. Consider this your first confidential assignment: familiarize yourself with our systems, observe, and report anything that seems out of place.</p>
+    //         <p>Your journey to uncover the truth begins now. We trust you'll uphold our values with the utmost discretion and diligence.</p>
+    //         <p>Best regards,</p>
+    //         <p>Jane, Director of People</p>
+    //     `,
+    //     folder: 'inbox',
+    //     read: false,
+    //     replied: false
+    // };
     // emails.push(welcomeEmail); // Removed: now pushed after a delay
 
     // Creative spam emails
@@ -191,7 +192,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>The Totally Legit Bank Security Team</p>
         `,
         folder: 'spam',
-        read: false
+        read: false,
+        receivedTime: new Date(2025, 8, 10, 9, 30).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
     emails.push(spamEmail1);
 
@@ -209,7 +211,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>Prince Akeem</p>
         `,
         folder: 'spam',
-        read: false
+        read: false,
+        receivedTime: new Date(2025, 8, 8, 14, 0).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
     emails.push(spamEmail2);
 
@@ -254,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="email-info">
                 <div class="email-sender">${email.sender}</div>
                 <div class="email-subject">${email.subject}</div>
-                <div class="email-date">${email.date}</div>
+                <div class="email-date">${email.date} ${email.receivedTime}</div>
             </div>
             <button class="delete-email-item-btn" data-email-id="${email.id}">🗑️</button>
         `;
