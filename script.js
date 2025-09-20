@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (userName) {
             userProfile.textContent = `Detective ${userName}`;
 
-            // Introduce 7-second delay for the welcome email after user name is set
+            // Only add Jane's welcome email after a delay, not all emails at once
             setTimeout(() => {
                 const welcomeEmail = {
                     id: 'welcome-email',
@@ -135,12 +135,37 @@ document.addEventListener('DOMContentLoaded', () => {
                     receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
                 };
                 emails.push(welcomeEmail); // Add the welcome email to the array
-                // Only refresh unread counts, do not change current folder
                 refreshUnreadCounts(); // Update notification badges
-            }, 7000); // 7 seconds
+            }, 10000); // 10 seconds after login, Jane's email arrives
+
+            // Initial setup: Add Eleanor Vance's email immediately upon login
+            const initialLegalEmail = {
+                id: 'legal-email',
+                sender: 'Eleanor Vance, Chief Legal Officer',
+                subject: 'Confidential: Potential Intellectual Property Breach - Next Steps',
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                body: `
+                    <h3>Legal Strategy for "TasteBlast" Leak</h3>
+                    <p>To the Special Investigator,</p>
+                    <p>This email is to formally engage your services regarding the egregious intellectual property breach concerning our "TasteBlast" product. The evidence strongly suggests internal malfeasance, and we are preparing for potential litigation against TasteBuds.</p>
+                    <p>However, for any legal action to be successful, we require concrete, irrefutable evidence. Hearsay and suspicion, while compelling, will not suffice in a court of law. Your investigation must yield actionable intelligence: identify the individual(s) responsible, their method of data exfiltration, and any accomplice networks.</p>
+                    <p>I understand this is a delicate matter, and discretion is paramount. Keep me updated on any significant breakthroughs. The future of FlavorCo's market position hinges on your findings.</p>
+                    <p>Eleanor Vance<br>Chief Legal Officer</p>
+                `,
+                folder: 'inbox',
+                read: false,
+                replied: false,
+                receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+            };
+            emails.push(initialLegalEmail);
+            loadEmailsForFolder('inbox'); // Load inbox immediately with Eleanor's email
+            refreshUnreadCounts(); // Update notification badges
 
         } else {
             userProfile.textContent = 'Detective'; // Fallback if no name provided (shouldn't happen with validation)
+            // If user already has a name, still load inbox and refresh counts (potentially from previous session)
+            loadEmailsForFolder('inbox');
+            refreshUnreadCounts();
         }
     }
 
@@ -177,8 +202,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // };
     // emails.push(welcomeEmail); // Removed: now pushed after a delay
 
-    // Creative spam emails
-    const spamEmail1 = {
+    // Creative spam emails - these will be dynamically pushed later based on story progression, not on initial load
+    const spamEmail1Template = {
         id: 'spam-email-1',
         sender: 'TotallyLegitBank',
         subject: 'URGENT: Your Account Has Been Compromised - Act NOW!',
@@ -195,9 +220,9 @@ document.addEventListener('DOMContentLoaded', () => {
         read: false,
         receivedTime: new Date(2025, 8, 10, 9, 30).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
-    emails.push(spamEmail1);
+    // emails.push(spamEmail1); // Removed from initial load
 
-    const spamEmail2 = {
+    const spamEmail2Template = {
         id: 'spam-email-2',
         sender: 'Nigerian Prince (via secure channel)',
         subject: 'A Royal Opportunity Awaits You!',
@@ -214,10 +239,10 @@ document.addEventListener('DOMContentLoaded', () => {
         read: false,
         receivedTime: new Date(2025, 8, 8, 14, 0).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
-    emails.push(spamEmail2);
+    // emails.push(spamEmail2); // Removed from initial load
 
-    // Story emails - Phase 1: Initial Investigation & Departmental Insights
-    const marketingEmail = {
+    // Story emails - Phase 1: Initial Investigation & Departmental Insights - these will be dynamically pushed later
+    const marketingEmailTemplate = {
         id: 'marketing-email',
         sender: 'Sarah Chen, Head of Marketing',
         subject: 'URGENT: TasteBuds\' New Product Launch - Identical to Ours!',
@@ -236,9 +261,9 @@ document.addEventListener('DOMContentLoaded', () => {
         replied: false,
         receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
-    emails.push(marketingEmail);
+    // emails.push(marketingEmail);
 
-    const rdEmail = {
+    const rdEmailTemplate = {
         id: 'rd-email',
         sender: 'Dr. Aris Thorne, Head of R&D',
         subject: 'Internal Review: TasteBlast Formula Integrity',
@@ -256,9 +281,9 @@ document.addEventListener('DOMContentLoaded', () => {
         replied: false,
         receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
-    emails.push(rdEmail);
+    // emails.push(rdEmail);
 
-    const itSecurityEmail = {
+    const itSecurityEmailTemplate = {
         id: 'it-security-email',
         sender: 'IT Security Automated Alert',
         subject: 'SECURITY ALERT: Unusual File Access Detected (Project TasteBlast)',
@@ -277,9 +302,9 @@ document.addEventListener('DOMContentLoaded', () => {
         replied: false,
         receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
-    emails.push(itSecurityEmail);
+    // emails.push(itSecurityEmail);
 
-    const legalEmail = {
+    const legalEmailTemplate = {
         id: 'legal-email',
         sender: 'Eleanor Vance, Chief Legal Officer',
         subject: 'Confidential: Potential Intellectual Property Breach - Next Steps',
@@ -297,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
         replied: false,
         receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
-    emails.push(legalEmail);
+    // emails.push(legalEmail);
 
     // Unread counts for navigation badges
     const unreadCounts = {
@@ -461,6 +486,9 @@ Best, ${userName}, Special Investigator`;
 
         const filteredEmails = emails.filter(email => email.folder === folder);
         if (filteredEmails.length > 0) {
+            // Sort emails by receivedTime in descending order (latest on top)
+            filteredEmails.sort((a, b) => new Date(`2000/01/01 ${b.receivedTime}`) - new Date(`2000/01/01 ${a.receivedTime}`));
+
             filteredEmails.forEach(email => {
                 emailListDiv.appendChild(renderEmailItem(email));
             });
@@ -498,6 +526,29 @@ Best, ${userName}, Special Investigator`;
     // Initial load: Display inbox and refresh unread counts
     loadEmailsForFolder('inbox');
     refreshUnreadCounts();
+
+    // Keep track of the next story email to deliver
+    let nextStoryEmailIndex = 0; // Start with the first story email after Jane's
+    const storyEmailsQueue = [
+        marketingEmailTemplate,
+        rdEmailTemplate,
+        itSecurityEmailTemplate
+    ];
+
+    // Function to deliver the next story email after a random delay
+    function deliverNextStoryEmail() {
+        if (nextStoryEmailIndex < storyEmailsQueue.length) {
+            const delay = Math.floor(Math.random() * (15 - 3 + 1) + 3) * 1000; // Random delay between 3 and 15 seconds
+            setTimeout(() => {
+                const nextEmail = { ...storyEmailsQueue[nextStoryEmailIndex] }; // Create a copy
+                nextEmail.receivedTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                emails.push(nextEmail);
+                refreshUnreadCounts(); // Update notification badge without changing folder
+                nextStoryEmailIndex++;
+            }, delay);
+        }
+    }
+
 
     // Reply email functionality
     replyEmailBtn.addEventListener('click', () => {
@@ -575,6 +626,8 @@ Best, ${userName}, Special Investigator`;
             // Reload the inbox folder to show the original email, not sent
             loadEmailsForFolder('inbox');
             refreshUnreadCounts();
+
+            deliverNextStoryEmail(); // Trigger the next story email after replying
             
             // Re-select the original email item in the inbox to keep it highlighted
             const correspondingEmailItem = emailListDiv.querySelector(`[data-email-id="${originalEmail.id}"]`);
