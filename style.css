@@ -181,7 +181,6 @@ body {
     grid-template-columns: 1fr 2fr;
     /* Explicitly set header row height to 50px instead of 'auto' */
     grid-template-rows: 50px 1fr;
-    overflow: hidden;
     height: 100%; /* Ensure email-view takes full height of its grid cell */
 }
 
