@@ -216,6 +216,89 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     emails.push(spamEmail2);
 
+    // Story emails - Phase 1: Initial Investigation & Departmental Insights
+    const marketingEmail = {
+        id: 'marketing-email',
+        sender: 'Sarah Chen, Head of Marketing',
+        subject: 'URGENT: TasteBuds\' New Product Launch - Identical to Ours!',
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        body: `
+            <h3>Crisis Meeting Follow-Up: TasteBuds' "FlavorFusion"</h3>
+            <p>Team,</p>
+            <p>As discussed, the launch of TasteBuds' "FlavorFusion" is an absolute nightmare. It's not just similar; it's virtually *identical* to our flagship product, "TasteBlast"! This is a catastrophic blow, especially after all the R&D and market testing we poured into it.</p>
+            <p>I'm particularly concerned given the recent, shall we say, *anomalies* in our internal data systems. We had some minor glitches with file access a few weeks back, remember? Coincidence? I'm not so sure. We need to explore every angle to understand how this could have happened.</p>
+            <p>Please prepare a comprehensive competitive analysis report by end of day. We need to identify any potential vulnerabilities in our launch strategy and, more importantly, figure out if this was an inside job.</p>
+            <p>Regards,</p>
+            <p>Sarah Chen<br>Head of Marketing</p>
+        `,
+        folder: 'inbox',
+        read: false,
+        replied: false,
+        receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    };
+    emails.push(marketingEmail);
+
+    const rdEmail = {
+        id: 'rd-email',
+        sender: 'Dr. Aris Thorne, Head of R&D',
+        subject: 'Internal Review: TasteBlast Formula Integrity',
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        body: `
+            <h3>Urgent: Review of "TasteBlast" Development Protocols</h3>
+            <p>Team,</p>
+            <p>In light of recent… *developments*… it is imperative that we conduct an immediate, stringent internal review of all "TasteBlast" formula protocols and access logs. The proprietary nature of this product cannot be overstated, and its replication by TasteBuds is deeply troubling.</p>
+            <p>I recall a few weeks prior to the leak, we had that scheduled external vendor visit. While everything appeared routine, I'd appreciate it if everyone could re-verify all sign-in/sign-out procedures and any unusual observations from that period. Also, I'm aware of some dissatisfaction from a junior researcher, Alex, regarding his promotion timeline and restricted access to certain advanced project files. While likely unrelated, all data points are critical now.</p>
+            <p>Please forward any relevant security audit reports or access anomalies from the last three months directly to my secure terminal.</p>
+            <p>Dr. Aris Thorne<br>Head of R&D</p>
+        `,
+        folder: 'inbox',
+        read: false,
+        replied: false,
+        receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    };
+    emails.push(rdEmail);
+
+    const itSecurityEmail = {
+        id: 'it-security-email',
+        sender: 'IT Security Automated Alert',
+        subject: 'SECURITY ALERT: Unusual File Access Detected (Project TasteBlast)',
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        body: `
+            <h3>Automated Security Report - High Alert</h3>
+            <p><strong>System:</strong> FlavorCo Internal Network</p>
+            <p><strong>Severity:</strong> HIGH</p>
+            <p><strong>Incident:</strong> Multiple unauthorized access attempts detected on Project TasteBlast's secure repository. Anomalous data transfer patterns observed from an internal IP address (192.168.1.107) to an external, unverified server during off-hours (approximately 02:30 AM PST).</p>
+            <p><strong>Status:</strong> Initial breach contained. Further investigation required to identify source and impact. All relevant logs have been flagged for review by authorized personnel.</p>
+            <p><strong>Action Required:</strong> Immediate review by a Special Investigator is recommended to determine the nature of the data transfer and user associated with IP 192.168.1.107.</p>
+            <p>Automated System Message</p>
+        `,
+        folder: 'inbox',
+        read: false,
+        replied: false,
+        receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    };
+    emails.push(itSecurityEmail);
+
+    const legalEmail = {
+        id: 'legal-email',
+        sender: 'Eleanor Vance, Chief Legal Officer',
+        subject: 'Confidential: Potential Intellectual Property Breach - Next Steps',
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        body: `
+            <h3>Legal Strategy for "TasteBlast" Leak</h3>
+            <p>To the Special Investigator,</p>
+            <p>This email is to formally engage your services regarding the egregious intellectual property breach concerning our "TasteBlast" product. The evidence strongly suggests internal malfeasance, and we are preparing for potential litigation against TasteBuds.</p>
+            <p>However, for any legal action to be successful, we require concrete, irrefutable evidence. Hearsay and suspicion, while compelling, will not suffice in a court of law. Your investigation must yield actionable intelligence: identify the individual(s) responsible, their method of data exfiltration, and any accomplice networks.</p>
+            <p>I understand this is a delicate matter, and discretion is paramount. Keep me updated on any significant breakthroughs. The future of FlavorCo's market position hinges on your findings.</p>
+            <p>Eleanor Vance<br>Chief Legal Officer</p>
+        `,
+        folder: 'inbox',
+        read: false,
+        replied: false,
+        receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    };
+    emails.push(legalEmail);
+
     // Unread counts for navigation badges
     const unreadCounts = {
         inbox: 0,
