@@ -425,9 +425,17 @@ Best, ${userName}, special investigator`;
             // originalEmail.folder = 'sent';
 
             showCustomPrompt('Reply sent!', 'alert'); // Use custom alert
-            // Reload the sent folder to show the new reply and the moved original email
-            loadEmailsForFolder('sent');
+            // Reload the inbox folder to show the original email, not sent
+            loadEmailsForFolder('inbox');
             refreshUnreadCounts();
+            
+            // Re-select the original email item in the inbox to keep it highlighted
+            const correspondingEmailItem = emailListDiv.querySelector(`[data-email-id="${originalEmail.id}"]`);
+            if (correspondingEmailItem) {
+                document.querySelectorAll('.email-item').forEach(el => el.classList.remove('active'));
+                correspondingEmailItem.classList.add('active');
+            }
+
         };
 
         const enterSendHandler = function(event) {

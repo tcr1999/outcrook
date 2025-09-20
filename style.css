@@ -220,6 +220,11 @@ body {
     flex-direction: column;
 }
 
+#email-body-content {
+    flex-grow: 1; /* Allow content to fill available space */
+    overflow-y: auto; /* Allow scrolling if content is too long */
+}
+
 .email-content-placeholder {
     padding: 15px;
     text-align: center;
