@@ -705,11 +705,30 @@ Best, ${userName}, Special Investigator`;
     const darkModeToggle = document.getElementById('dark-mode-toggle');
     const body = document.body;
 
+    // Cursor theme elements
+    const cursorThemeSelect = document.getElementById('cursor-theme-select');
+
+    // Function to apply cursor theme
+    function applyCursorTheme(theme) {
+        body.classList.remove('cursor-magnifying-glass', 'cursor-fingerprint');
+        if (theme === 'magnifying-glass') {
+            body.classList.add('cursor-magnifying-glass');
+        } else if (theme === 'fingerprint') {
+            body.classList.add('cursor-fingerprint');
+        }
+        localStorage.setItem('cursorTheme', theme);
+    }
+
     // Load dark mode preference from localStorage
     if (localStorage.getItem('darkMode') === 'enabled') {
         body.classList.add('dark-mode');
         darkModeToggle.checked = true;
     }
+
+    // Load cursor theme preference from localStorage
+    const savedCursorTheme = localStorage.getItem('cursorTheme') || 'default';
+    cursorThemeSelect.value = savedCursorTheme;
+    applyCursorTheme(savedCursorTheme);
 
     // Open settings menu
     settingsBtn.addEventListener('click', () => {
@@ -730,6 +749,11 @@ Best, ${userName}, Special Investigator`;
             body.classList.remove('dark-mode');
             localStorage.setItem('darkMode', 'disabled');
         }
+    });
+
+    // Change cursor theme
+    cursorThemeSelect.addEventListener('change', (event) => {
+        applyCursorTheme(event.target.value);
     });
 });
 

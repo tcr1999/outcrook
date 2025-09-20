@@ -8,6 +8,15 @@ body {
     min-height: 100vh;
 }
 
+/* Custom Cursors */
+.cursor-magnifying-glass {
+    cursor: url('images/magnifying_glass.cur'), auto; /* Placeholder for magnifying glass cursor */
+}
+
+.cursor-fingerprint {
+    cursor: url('images/fingerprint.cur'), auto; /* Placeholder for fingerprint cursor */
+}
+
 .container {
     display: grid;
     grid-template-columns: 200px 1fr 2fr; /* Sidebar, Email List, Email Content */
