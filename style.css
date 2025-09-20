@@ -82,13 +82,13 @@ body {
 
 @keyframes pulse {
     0% { transform: scale(1); box-shadow: 0 0 0 rgba(0, 120, 212, 0.4); }
-    70% { transform: scale(1.06); box-shadow: 0 0 0 20px rgba(0, 120, 212, 0); } /* Twice as obvious */
+    70% { transform: scale(1.12); box-shadow: 0 0 0 30px rgba(0, 120, 212, 0); } /* 4x original obviousness */
     100% { transform: scale(1); box-shadow: 0 0 0 rgba(0, 120, 212, 0); }
 }
 
 .reply-nudge-active {
     animation: pulse 1.5s infinite;
-    box-shadow: 0 0 10px rgba(0, 120, 212, 1); /* Twice as obvious initial shadow */
+    box-shadow: 0 0 15px rgba(0, 120, 212, 1); /* 4x original initial shadow */
 }
 
 .email-actions {
@@ -669,5 +669,5 @@ body.dark-mode #custom-prompt-buttons #custom-prompt-cancel:hover {
 }
 
 .email-item.slide-in {
-    animation: slideInRight 0.25s ease-out forwards; /* 0.25s duration (halved) */
+    animation: slideInRight 0.125s ease-out forwards; /* 0.125s duration (halved again) */
 }
