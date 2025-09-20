@@ -29,61 +29,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
             customPromptOverlay.style.display = 'flex';
 
+            // Define handleOk and keydown listeners here so they can be properly removed.
+            const handleOk = (value) => {
+                customPromptInput.classList.remove('input-error');
+                customPromptOverlay.style.display = 'none';
+                customPromptOkBtn.removeEventListener('click', okButtonListener);
+                document.removeEventListener('keydown', promptKeydownListener);
+                document.removeEventListener('keydown', alertKeydownListener);
+                resolve(value);
+            };
+
+            const promptKeydownListener = (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    if (customPromptInput.value.trim().length > 0) {
+                        handleOk(customPromptInput.value);
+                    } else {
+                        customPromptInput.classList.add('input-error');
+                    }
+                }
+            };
+
+            const okButtonListener = () => {
+                if (type === 'prompt' && customPromptInput.value.trim().length === 0) {
+                    customPromptInput.classList.add('input-error');
+                } else {
+                    handleOk(customPromptInput.value);
+                }
+            };
+            
+            const alertKeydownListener = (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    handleOk(customPromptInput.value);
+                }
+            };
+
             if (type === 'prompt') {
                 customPromptInput.style.display = 'block';
-                customPromptInput.placeholder = 'Type Here'; /* Changed placeholder to title case */
+                customPromptInput.placeholder = 'Type Here';
                 customPromptOkBtn.style.display = 'inline-block';
-                customPromptCancelBtn.style.display = 'none'; /* Removed cancel button */
+                customPromptCancelBtn.style.display = 'none';
                 customPromptInput.focus();
+                
+                customPromptOkBtn.addEventListener('click', okButtonListener);
+                document.addEventListener('keydown', promptKeydownListener);
             } else { // 'alert'
                 customPromptInput.style.display = 'none';
                 customPromptOkBtn.style.display = 'inline-block';
                 customPromptCancelBtn.style.display = 'none';
-                // For alert types, the OK button should dismiss the prompt without requiring input validation.
-                customPromptOkBtn.addEventListener('click', handleOk, { once: true }); // Ensure it's only called once
-                const keydownListener = (event) => {
-                    if (event.key === 'Enter') {
-                        event.preventDefault();
-                        handleOk();
-                        document.removeEventListener('keydown', keydownListener);
-                    }
-                };
-                document.addEventListener('keydown', keydownListener, { once: true });
+                
+                customPromptOkBtn.addEventListener('click', okButtonListener);
+                document.addEventListener('keydown', alertKeydownListener);
             }
-
-            const handleOk = () => {
-                customPromptInput.classList.remove('input-error'); /* Remove error style on submit */
-                customPromptOverlay.style.display = 'none';
-                customPromptOkBtn.removeEventListener('click', handleOk);
-                customPromptInput.removeEventListener('keydown', handleInputKeydown);
-                resolve(customPromptInput.value);
-            };
-
-            // Removed handleCancel function as cancel button is removed
-
-            const handleInputKeydown = (event) => {
-                if (event.key === 'Enter') {
-                    event.preventDefault();
-                    if (customPromptInput.value.trim().length > 0) {
-                        handleOk();
-                    } else {
-                        customPromptInput.classList.add('input-error'); /* Add error style */
-                    }
-                }
-            };
-            
-            customPromptOkBtn.addEventListener('click', () => {
-                if (customPromptInput.value.trim().length > 0) {
-                    handleOk();
-                } else {
-                    customPromptInput.classList.add('input-error'); /* Add error style */
-                }
-            });
-            // Removed customPromptCancelBtn.addEventListener
-            // document.addEventListener('keydown', handleInputKeydown); // Listen for Enter key, for prompt only.
-            // The keydown listener should be specific to the prompt type or managed differently for alerts.
-            // For alerts, the handleOk is directly attached to OK button or Enter key already within the else block.
-
         });
     }
 
