@@ -98,7 +98,7 @@ body {
     border-radius: 4px;
     font-size: 1em;
     cursor: pointer;
-    margin-bottom: 20px;
+    margin: 15px auto 20px auto; /* Added top margin and used auto for horizontal centering */
 }
 
 .sidebar .nav-list {
