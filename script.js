@@ -563,8 +563,13 @@ Best, ${userName}, Special Investigator`;
 
             if (magnifyingGlass.classList.contains('active')) {
                 showCustomPrompt('Digital Microscope is now ACTIVE. Hover over scrambled text to reveal clues.', 'alert');
+                // Force custom cursor on
+                body.classList.add('custom-cursor-active');
+                customCursor.style.display = 'block';
             } else {
                 showCustomPrompt('Digital Microscope is now OFF.', 'alert');
+                // Revert to user's chosen cursor theme
+                applyCursorTheme(localStorage.getItem('cursorTheme') || 'default');
             }
         });
 
@@ -573,20 +578,44 @@ Best, ${userName}, Special Investigator`;
 
     // New function to handle jumbling the clue text
     function jumbleClueText() {
-        const clueElement = document.querySelector('.jumbled-clue');
-        if (clueElement && !clueElement.hasChildNodes()) { // Only jumble if it's not already done
+        document.querySelectorAll('.jumbled-clue').forEach(clueElement => {
+            if (clueElement.hasChildNodes()) return; // Already jumbled
+
             const clue = clueElement.dataset.clue;
             const letters = clue.split('');
+            const jumbleChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=';
+
             clueElement.innerHTML = ''; // Clear it
-            letters.forEach(letter => {
+
+            letters.forEach(originalChar => {
                 const span = document.createElement('span');
-                span.textContent = letter;
+                const randomChar = jumbleChars[Math.floor(Math.random() * jumbleChars.length)];
+                span.textContent = randomChar;
+                span.dataset.char = originalChar; // Store the original character
                 span.style.setProperty('--rot', `${Math.random() * 40 - 20}deg`);
                 span.style.setProperty('--x', `${Math.random() * 6 - 3}px`);
                 span.style.setProperty('--y', `${Math.random() * 6 - 3}px`);
                 clueElement.appendChild(span);
             });
-        }
+
+            // Add hover listeners for revealing
+            clueElement.addEventListener('mouseenter', () => {
+                if (document.body.classList.contains('microscope-active')) {
+                    clueElement.querySelectorAll('span').forEach(span => {
+                        span.textContent = span.dataset.char;
+                    });
+                }
+            });
+
+            clueElement.addEventListener('mouseleave', () => {
+                if (document.body.classList.contains('microscope-active')) {
+                    clueElement.querySelectorAll('span').forEach(span => {
+                        const jumbleChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=';
+                        span.textContent = jumbleChars[Math.floor(Math.random() * jumbleChars.length)];
+                    });
+                }
+            });
+        });
     }
 
     // Function to generate a reply body
