@@ -97,9 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
         body: `
             <h3>Great catch, Detective!</h3>
             <p>Thanks for reporting that junk email. Vigilance like yours is key to our security. We've analyzed the threat and taken action.</p>
-            <p>To help with your investigation, we've approved the installation of a new "Network Analysis" tool for your terminal. This will grant you elevated privileges to uncover hidden data within our systems.</p>
+            <p>To help with your investigation, we've approved the installation of a new "Digital Microscope Tool" for your terminal. This will grant you elevated privileges to uncover hidden data within our systems.</p>
             <p>Please click the button below to begin the installation. It should only take a moment.</p>
-            <button id="install-tool-btn" class="install-btn-pulsate">Install Network Analysis Tool</button>
+            <button id="install-tool-btn" class="install-btn-pulsate">Install Digital Microscope Tool</button>
             <p>Stay sharp,</p>
             <p>IT Support</p>
         `,
@@ -799,9 +799,9 @@ Best, ${userName}, Special Investigator`;
             return `
                 <h3>Great catch, Detective!</h3>
                 <p>Thanks for reporting that junk email. Vigilance like yours is key to our security. We've analyzed the threat and taken action.</p>
-                <p>To help with your investigation, we've approved the installation of a new "Network Analysis" tool for your terminal. This will grant you elevated privileges to uncover hidden data within our systems.</p>
+                <p>To help with your investigation, we've approved the installation of a new "Digital Microscope Tool" for your terminal. This will grant you elevated privileges to uncover hidden data within our systems.</p>
                 <p>Please click the button below to begin the installation. It should only take a moment.</p>
-                <button id="install-tool-btn" class="install-btn">Install Network Analysis Tool</button>
+                <button id="install-tool-btn" class="install-btn-pulsate">Install Digital Microscope Tool</button>
                 <p>Stay sharp,</p>
                 <p>IT Support</p>
             `;
@@ -810,7 +810,7 @@ Best, ${userName}, Special Investigator`;
                 <h3>Action Required: Security Training Mandated</h3>
                 <p>Detective,</p>
                 <p>We noticed you responded to a recent phishing attempt. While your prompt reporting is appreciated, interacting with such emails is extremely risky and against company policy.</p>
-                <p>To prevent future incidents, we are mandating a security refresher course. We have also installed a "Network Analysis" tool on your terminal to help you better identify hidden threats in the future. Please use it wisely.</p>
+                <p>To prevent future incidents, we are mandating a security refresher course. We have also installed a "Digital Microscope Tool" on your terminal to help you better identify hidden threats in the future. Please use it wisely.</p>
                 <p>The installation will begin automatically.</p>
                 <p>Be more careful,</p>
                 <p>IT Support</p>

@@ -163,6 +163,12 @@ body {
     transition: all 0.5s ease;
 }
 
+#install-icon {
+    font-size: 3em;
+    margin-bottom: 15px;
+    animation: pulse-magnify 1.5s infinite;
+}
+
 /* Installation Progress Bar Styles */
 #install-overlay {
     position: fixed;
