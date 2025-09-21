@@ -442,14 +442,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (installBtn) {
             installBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                // More robust check: if the tool is already installed, don't do it again.
-                if (document.getElementById('magnifying-glass-icon')) {
-                    showCustomPrompt('Network Analysis Tool is already installed.', 'alert');
+                // Check if the tool is already installed by looking for the visible class
+                const microscopeWrapper = document.getElementById('microscope-wrapper');
+                if (microscopeWrapper && microscopeWrapper.classList.contains('visible')) {
+                    showCustomPrompt('Digital Microscope Tool is already installed.', 'alert');
                     installBtn.textContent = 'Tool Already Installed';
                     installBtn.disabled = true;
                     return;
                 }
-                installBtn.textContent = 'Tool Already Installed';
+                installBtn.textContent = 'Installing...';
                 installBtn.disabled = true;
                 installBtn.classList.remove('install-btn-pulsate');
                 email.replied = true; 
