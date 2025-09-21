@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         body: `
             <h3>Recipe Heist! R&D is a Mess!</h3>
-            <p>Attention All! (Especially Detective!)</p>
+            <p>Detective <span id="rd-user-name"></span>,</p>
             <p>Our precious "TasteBlast" formula has vanished into thin air! TasteBuds' new product is proof! We need a full-scale investigation into our lab. Every beaker, every test tube, every… sniff… must be checked!</p>
             <p>And speaking of sniffs, I recall a certain "<span class="jumbled-clue" data-clue="Alex"></span>" (our junior researcher) grumbling about promotions and secret files. Could it be a clue? Find out who took our delicious secrets!</p>
             <p>Panicked but Scientific,</p>
@@ -440,6 +440,16 @@ document.addEventListener('DOMContentLoaded', () => {
             welcomeUserNameSpan.textContent = localStorage.getItem('outcrookUserName') || 'User';
         }
 
+        const rdUserNameSpan = emailBodyContentDiv.querySelector('#rd-user-name');
+        if (rdUserNameSpan) {
+            rdUserNameSpan.textContent = localStorage.getItem('outcrookUserName') || 'User';
+        }
+
+        const ceoUserNameSpan = emailBodyContentDiv.querySelector('#ceo-user-name');
+        if (ceoUserNameSpan) {
+            ceoUserNameSpan.textContent = localStorage.getItem('outcrookUserName') || 'User';
+        }
+
         // Add click event listener to install link if it exists
         const installBtn = emailBodyContentDiv.querySelector('#install-tool-btn');
         if (installBtn) {
@@ -493,6 +503,9 @@ Best, ${userName}, Special Investigator`;
 
         // If it's a spam email, handle consequences
         if (originalEmail.id.startsWith('spam-')) {
+            // Always move spam emails to trash after any interaction
+            originalEmail.folder = 'trash';
+            
             if (spamCascadeInterval) { // Stop spam cascade if active
                 clearInterval(spamCascadeInterval);
                 spamCascadeInterval = null;
@@ -507,8 +520,6 @@ Best, ${userName}, Special Investigator`;
             } else if (selectedOption.consequence === 'scam') {
                 startSpamCascade(); // Start the spam cascade
             }
-            // Always move spam emails to trash after interaction
-            originalEmail.folder = 'trash';
         } else if (originalEmail.id === 'marketing-email') {
             // Replying to Sarah starts the spam cascade after 6 seconds
             setTimeout(startSpamCascade, 6000);
@@ -1172,6 +1183,12 @@ Best, ${userName}, Special Investigator`;
             return;
         }
         
+        // Remove pulsation when opening compose
+        const composeBtn = document.querySelector('.compose-btn');
+        if (composeBtn) {
+            composeBtn.classList.remove('compose-nudge-active');
+        }
+        
         // Populate the dropdown with random names
         composeTo.innerHTML = '<option value="">Select a contact...</option>';
         randomNames.forEach(name => {
@@ -1371,6 +1388,45 @@ Detective ${userName}`;
             if (currentFolder === 'inbox') {
                 loadEmailsForFolder('inbox');
             }
+            
+            // Make compose button pulsate after HR email
+            setTimeout(() => {
+                const composeBtn = document.querySelector('.compose-btn');
+                if (composeBtn) {
+                    composeBtn.classList.add('compose-nudge-active');
+                }
+            }, 3000);
+            
+            // Trigger CEO email after 5 seconds
+            setTimeout(() => {
+                const ceoEmail = {
+                    id: 'ceo-email',
+                    sender: 'Richard "Dick" Thompson, CEO',
+                    subject: 'How\'s the Detective Work Going?',
+                    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                    body: `
+                        <h3>Detective Update Request</h3>
+                        <p>Hey Detective <span id="ceo-user-name"></span>!</p>
+                        <p>Just checking in on your investigation! Eleanor mentioned you're looking into some "recipe theft" situation? Sounds like quite the mystery!</p>
+                        <p>I have to say, I'm not really sure how someone could steal a recipe. I mean, it's just ingredients mixed together, right? How hard can it be to figure out what goes in a snack?</p>
+                        <p>Anyway, keep me posted! I'm sure you'll crack this case wide open. Maybe check if anyone's been acting suspiciously? Like, wearing sunglasses indoors or something?</p>
+                        <p>Best of luck!</p>
+                        <p>Dick Thompson<br>CEO (and amateur detective enthusiast)</p>
+                    `,
+                    folder: 'inbox',
+                    read: false,
+                    replied: false,
+                    emailType: 'readOnly',
+                    receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                    timestamp: new Date().getTime()
+                };
+                
+                emails.push(ceoEmail);
+                refreshUnreadCounts();
+                if (currentFolder === 'inbox') {
+                    loadEmailsForFolder('inbox');
+                }
+            }, 5000);
         }, 8000);
     }
 
