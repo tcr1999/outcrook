@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let spamDeliveryTimer = null;
     let itEmailSent = false;
     let spamCascadeInterval = null;
+    let availableSpamTemplates = [];
 
     // ---- Reply Interface State ----
     let sendReplyBtn;
@@ -751,6 +752,11 @@ Best, ${userName}, Special Investigator`;
     function startSpamCascade() {
         if (spamCascadeInterval) clearInterval(spamCascadeInterval); // Stop any existing cascade
 
+        // Initialize the pool of available spam templates
+        const allSpamTemplates = [spamEmail1Template, spamEmail2Template, spamEmail3Template, spamEmail4Template, spamEmail5Template];
+        availableSpamTemplates = [...allSpamTemplates];
+
+
         // Deliver the first spam email after 15 seconds
         setTimeout(() => {
             deliverRandomSpam();
@@ -761,9 +767,19 @@ Best, ${userName}, Special Investigator`;
     }
     
     function deliverRandomSpam() {
-        const spamTemplates = [spamEmail1Template, spamEmail2Template, spamEmail3Template, spamEmail4Template, spamEmail5Template];
-        const randomSpamTemplate = spamTemplates[Math.floor(Math.random() * spamTemplates.length)];
-        const newSpamEmail = { ...randomSpamTemplate };
+        // If we've run out of unique spam, stop the cascade.
+        if (availableSpamTemplates.length === 0) {
+            if (spamCascadeInterval) {
+                clearInterval(spamCascadeInterval);
+                spamCascadeInterval = null;
+            }
+            return;
+        }
+
+        const randomIndex = Math.floor(Math.random() * availableSpamTemplates.length);
+        const [selectedTemplate] = availableSpamTemplates.splice(randomIndex, 1); // Pick and remove from pool
+
+        const newSpamEmail = { ...selectedTemplate };
         const now = new Date();
 
         newSpamEmail.id = `spam-cascade-${now.getTime()}`; // Unique ID
