@@ -563,12 +563,14 @@ Best, ${userName}, Special Investigator`;
 
             if (magnifyingGlass.classList.contains('active')) {
                 showCustomPrompt('Digital Microscope is now ACTIVE. Hover over scrambled text to reveal clues.', 'alert');
-                // Force custom cursor on
+                // Force custom cursor on and clear any emoji
+                customCursor.textContent = '';
                 body.classList.add('custom-cursor-active');
                 customCursor.style.display = 'block';
             } else {
                 showCustomPrompt('Digital Microscope is now OFF.', 'alert');
-                // Revert to user's chosen cursor theme
+                // Revert to user's chosen cursor theme by calling the function
+                // This will correctly hide the custom cursor if the theme is 'default'
                 applyCursorTheme(localStorage.getItem('cursorTheme') || 'default');
             }
         });
@@ -1048,6 +1050,12 @@ Best, ${userName}, Special Investigator`;
 
     // Function to apply cursor theme
     function applyCursorTheme(theme) {
+        // Prevent changing theme while microscope is active to avoid conflicts
+        if (document.body.classList.contains('microscope-active')) {
+            showCustomPrompt('Deactivate the Digital Microscope to change your cursor.', 'alert');
+            return;
+        }
+
         currentCursorTheme = theme;
         
         // Update active state on cursor options
