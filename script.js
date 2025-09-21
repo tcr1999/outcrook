@@ -1194,7 +1194,7 @@ Best, ${userName}, Special Investigator`;
             emails.push(sentEmail);
             storyContacted = true; // Mark Alex as contacted
             closeComposeModal();
-            loadEmailsForFolder('sent'); // Switch to sent folder to show the new email
+            loadEmailsForFolder('inbox'); // Stay in inbox instead of switching to sent
             
             // Trigger Alex's reply after a delay
             setTimeout(deliverAlexReply, 4000);
@@ -1211,6 +1211,7 @@ Best, ${userName}, Special Investigator`;
             composeSubject.readOnly = true;
             composeSubject.value = 'A Quick Question';
             
+            const userName = localStorage.getItem('outcrookUserName') || 'User';
             const alexEmailBody = `Hi Alex,
 
 I'm the special investigator looking into the recent security incident. I was hoping you could shed some light on the computer hiccups from last month.
@@ -1218,7 +1219,7 @@ I'm the special investigator looking into the recent security incident. I was ho
 Any information would be a great help.
 
 Best,
-[Your Name]`;
+Detective ${userName}`;
 
             // Setup interactive typing
             composeBody.innerHTML = ''; // Clear the area
