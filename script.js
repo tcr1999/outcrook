@@ -1,10 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ---- DOM Elements ----
-    const container = document.querySelector('.container');
-    const introScreen = document.getElementById('intro-screen');
-    const nameInput = document.getElementById('name-input');
-    const startGameBtn = document.getElementById('start-game-btn');
-    
     const userProfile = document.getElementById('user-profile');
     const emailListDiv = document.querySelector('.email-list');
     const emailListFolderHeader = document.getElementById('email-list-folder-header');
@@ -42,28 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
         replied: false,
         storyTriggered: false,
         emailType: 'interactiveReply',
-    };
-
-    // Eleanor Vance's email (initial email)
-    const initialLegalEmail = {
-        id: 'legal-email',
-        sender: 'Eleanor Vance, Chief Legal Officer',
-        subject: 'Uh-oh! TasteBuds Stole Our Yummy Secret!',
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        body: `
-            <h3>Emergency! Our Secret Recipe is Out!</h3>
-            <p>Dear Detective,</p>
-            <p>CODE RED! Our top-secret "TasteBlast" recipe has been SWIPED by those sneaky TasteBuds! They launched an identical product, and we're not happy campers. We need a super sleuth like you to find out WHO, WHAT, and HOW!</p>
-            <p>Your mission, should you choose to accept it, is to gather rock-solid evidence. No flimsy theories! We need facts to take them down in court. The fate of FlavorCo's snacks rests on your investigative shoulders!</p>
-            <p>Keep your ear to the ground and your magnifying glass handy. Report back with juicy findings!</p>
-            <p>Eleanor Vance<br>Chief Legal Officer (and Head of Snack Protection)</p>
-        `,
-        folder: 'inbox',
-        read: false,
-        replied: false,
-        emailType: 'readOnly', // <-- Add type
-        receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-        timestamp: new Date().getTime() // Precise timestamp for sorting
     };
 
     const marketingEmailTemplate = {
@@ -301,11 +274,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Convert to title case
                     userName = userName.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
                     localStorage.setItem('outcrookUserName', userName);
-                } else { // If user provides empty name (after trim) or cancels
+                } else { 
                     // This branch should now only be hit if user hits OK with empty string.
                     // The showCustomPrompt loop handles re-prompting for empty input
-                    // For explicit clarity, though, we won't allow progression with empty.
-                    await showCustomPrompt('Name cannot be empty. Please input your preferred name.', 'alert');
                 }
             }
         }
@@ -314,146 +285,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Email Templates ---
-    // Eleanor Vance's email (initial email)
-    // const initialLegalEmail = {
-    //     id: 'legal-email',
-    //     sender: 'Eleanor Vance, Chief Legal Officer',
-    //     subject: 'Uh-oh! TasteBuds Stole Our Yummy Secret!',
-    //     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    //     body: `
-    //         <h3>Emergency! Our Secret Recipe is Out!</h3>
-    //         <p>Dear Detective,</p>
-    //         <p>CODE RED! Our top-secret "TasteBlast" recipe has been SWIPED by those sneaky TasteBuds! They launched an identical product, and we're not happy campers. We need a super sleuth like you to find out WHO, WHAT, and HOW!</p>
-    //         <p>Your mission, should you choose to accept it, is to gather rock-solid evidence. No flimsy theories! We need facts to take them down in court. The fate of FlavorCo's snacks rests on your investigative shoulders!</p>
-    //         <p>Keep your ear to the ground and your magnifying glass handy. Report back with juicy findings!</p>
-    //         <p>Eleanor Vance<br>Chief Legal Officer (and Head of Snack Protection)</p>
-    //     `,
-    //     folder: 'inbox',
-    //     read: false,
-    //     replied: false,
-    //     emailType: 'readOnly', // <-- Add type
-    //     receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-    //     timestamp: new Date().getTime() // Precise timestamp for sorting
-    // };
-    // emails.push(initialLegalEmail);
-
-    getUserName();
-
     // Function to display current time
     function updateCurrentTime() {
         const now = new Date();
         const options = { hour: '2-digit', minute: '2-digit', hour12: true };
         currentTimeSpan.textContent = now.toLocaleTimeString('en-US', options);
     }
-
-    updateCurrentTime();
-    setInterval(updateCurrentTime, 1000);
-
-    // Creative spam emails - these will be dynamically pushed later based on story progression, not on initial load
-    // const spamEmail1Template = {
-    //     id: 'spam-email-1',
-    //     sender: 'Royal Emissary of Atlantis',
-    //     subject: 'URGENT: Sunken Treasure For You',
-    //     body: `
-    //         <h3>Greetings from the Deep!</h3>
-    //         <p>I bring tidings from the lost city of Atlantis! We have discovered a chest of ancient gold with your name on it. To transport it to the surface, we require a small tribute for the royal submersibles.</p>
-    //         <p>Please select an option below to proceed.</p>
-    //     `,
-    //     folder: 'inbox',
-    //     read: false,
-    //     emailType: 'multipleChoice',
-    //     replyOptions: [
-    //         { text: "This sounds legitimate. Send the tribute.", consequence: 'scam' },
-    //         { text: "Report this email to IT.", consequence: 'reportJunk' },
-    //     ]
-    // };
-
-    // const spamEmail2Template = {
-    //     id: 'spam-email-2',
-    //     sender: 'Nigerian Prince (via secure channel)',
-    //     subject: 'Prince Needs YOUR Help (and Your Gold Coins!)',
-    //     date: new Date(2025, 8, 8).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    //     body: `
-    //         <h3>Royal Plea from Prince Akeem!</h3>
-    //         <p>Hark, noble friend! Prince Akeem of the Sparkling Sands needs your mighty assistance! I have a colossal pile of shiny gold coins (like, 50 MILLION of them!) that need a new comfy home. And YOU, my friend, are the chosen one!</p>
-    //         <p>Just a teeny-tiny fee (for royal paperwork, you understand) and your bank details, and BAM! You'll be swimming in riches! Don't miss this once-in-a-lifetime chance to be best friends with a prince!</p>
-    //         <p>Your Royal Buddy,</p>
-    //         <p>Prince Akeem (I also have a really fast camel)</p>
-    //     `,
-    //     folder: 'spam',
-    //     read: false,
-    //     emailType: 'multipleChoice',
-    //     replyOptions: [
-    //         { text: "This seems suspicious. Report to IT.", consequence: 'reportJunk' },
-    //     ]
-    // };
-
-    // const itSupportEmailTemplate = {
-    //     id: 'it-support-email',
-    //     sender: 'IT Support',
-    //     subject: 'Thank You for Reporting Suspicious Activity!',
-    //     body: `
-    //         <h3>Great catch, Detective!</h3>
-    //         <p>Thanks for reporting that junk email. Vigilance like yours is key to our security. We've analyzed the threat and taken action.</p>
-    //         <p>To help with your investigation, we've approved the installation of a new "Network Analysis" tool for your terminal. This will grant you elevated privileges to uncover hidden data within our systems.</p>
-    //         <p>Please click the button below to begin the installation. It should only take a moment.</p>
-    //         <button id="install-tool-btn" class="install-btn">Install Network Analysis Tool</button>
-    //         <p>Stay sharp,</p>
-    //         <p>IT Support</p>
-    //     `,
-    //     folder: 'inbox',
-    //     read: false,
-    //     replied: false, // Add replied property
-    //     emailType: 'readOnly',
-    // };
-
-    // Story emails - Phase 1: Initial Investigation & Departmental Insights - these will be dynamically pushed later
-    // const marketingEmailTemplate = {
-    //     id: 'marketing-email',
-    //     sender: 'Sarah Chen, Head of Marketing',
-    //     subject: 'Panic! TasteBuds Cloned Our Snack!',
-    //     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    //     body: `
-    //         <h3>Our "TasteBlast" is a Double!</h3>
-    //         <p>Team (and especially you, Detective!),</p>
-    //         <p>This is NOT a drill! TasteBuds just launched "FlavorFusion" and it's basically our "TasteBlast" in a different wrapper! I'm talking identical! My marketing plans are toast!</p>
-    //         <p>Remember those weird computer hiccups last month? Was it a coincidence? Or did someone spill the beans (or the secret spices)? We need to figure out how they copied us! Find the mole, find the truth!</p>
-    //         <p>Frantically yours,</p>
-    //         <p>Sarah Chen<br>Head of Marketing (currently pulling her hair out)</p>
-    //     `,
-    //     folder: 'inbox',
-    //     read: false,
-    //     replied: false,
-    //     emailType: 'multipleChoice', // <-- Set type
-    //     replyOptions: [             // <-- Add reply options
-    //         { text: "Focus on the recipe leak first.", consequence: "logic" },
-    //         { text: "Let's dig into their marketing strategy.", consequence: "creative" },
-    //         { text: "I suspect a mole. Let's watch internally.", consequence: "suspicion" }
-    //     ],
-    //     receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-    // };
-
-    // const rdEmailTemplate = {
-    //     id: 'rd-email',
-    //     sender: 'Dr. Aris Thorne, Head of R&D',
-    //     subject: 'Our Secret Recipe is GONE! Lab on Lockdown!',
-    //     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    //     body: `
-    //         <h3>Recipe Heist! R&D is a Mess!</h3>
-    //         <p>Attention All! (Especially Detective!)</p>
-    //         <p>Our precious "TasteBlast" formula has vanished into thin air! TasteBuds' new product is proof! We need a full-scale investigation into our lab. Every beaker, every test tube, every… sniff… must be checked!</p>
-    //         <p>And speaking of sniffs, I recall a certain "<span class="hidden-clue">Alex</span>" (our junior researcher) grumbling about promotions and secret files. Could it be a clue? Find out who took our delicious secrets!</p>
-    //         <p>Panicked but Scientific,</p>
-    //         <p>Dr. Aris Thorne<br>Head of R&D (currently wearing a tin-foil hat)</p>
-    //     `,
-    //     folder: 'inbox',
-    //     read: false,
-    //     replied: false,
-    //     emailType: 'readOnly',
-    //     receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-    // };
-
+    
     // Unread counts for navigation badges
     const unreadCounts = {
         inbox: 0,
@@ -550,6 +388,13 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         
         const replyButton = document.getElementById('reply-email-btn');
+        const magnifyingGlassIcon = document.getElementById('magnifying-glass-icon');
+
+        // Reset nudge states
+        replyButton.classList.remove('reply-nudge-active');
+        if (magnifyingGlassIcon) {
+            magnifyingGlassIcon.classList.remove('pulse-magnify');
+        }
 
         // Handle button visibility based on email type
         if (email.emailType === 'readOnly' || email.replied) {
@@ -573,8 +418,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add nudge for important emails (Jane's welcome email)
         if (email.id === 'welcome-email' && !email.replied) {
             replyButton.classList.add('reply-nudge-active');
-        } else {
-            replyButton.classList.remove('reply-nudge-active');
+        }
+
+        // Nudge for magnifying glass on R&D email
+        if (magnifyingGlassIcon && email.id === 'rd-email') {
+            magnifyingGlassIcon.classList.add('pulse-magnify');
         }
 
         const welcomeUserNameSpan = emailBodyContentDiv.querySelector('#welcome-user-name');
@@ -632,10 +480,11 @@ Best, ${userName}, Special Investigator`;
         loadEmailsForFolder('inbox');
         refreshUnreadCounts();
 
-        // If it's a spam email, clear the timer for the second spam and handle consequences
+        // If it's a spam email, handle consequences
         if (originalEmail.id.startsWith('spam-')) {
-            if (spamDeliveryTimer) {
-                clearTimeout(spamDeliveryTimer);
+            if (spamCascadeInterval) { // Stop spam cascade if active
+                clearInterval(spamCascadeInterval);
+                spamCascadeInterval = null;
             }
             // Handle consequences based on choice
             if (selectedOption.consequence === 'reportJunk') {
@@ -651,8 +500,6 @@ Best, ${userName}, Special Investigator`;
             // Otherwise, trigger the next main story email after 3 seconds
             setTimeout(deliverNextStoryEmail, 3000);
         }
-
-        setActiveFolder('inbox');
     }
 
     function simulateInstallation(emailToTrash) {
@@ -690,6 +537,8 @@ Best, ${userName}, Special Investigator`;
 
     function addMagnifyingGlassIcon() {
         const headerRight = document.querySelector('.header-right');
+        if (document.getElementById('magnifying-glass-icon')) return; // Don't add if it exists
+
         const magnifyingGlass = document.createElement('div');
         magnifyingGlass.id = 'magnifying-glass-icon';
         magnifyingGlass.textContent = '🔍';
@@ -705,7 +554,7 @@ Best, ${userName}, Special Investigator`;
             });
         });
 
-        headerRight.insertBefore(magnifyingGlass, headerRight.firstChild);
+        headerRight.insertBefore(magnifyingGlass, currentTimeSpan);
     }
 
     // Function to generate a reply body
@@ -841,16 +690,6 @@ Best, ${userName}, Special Investigator`;
             }
         }
 
-        // Nudge for magnifying glass on R&D email
-        const magnifyingGlassIcon = document.getElementById('magnifying-glass-icon');
-        if (magnifyingGlassIcon) {
-            if (email.id === 'rd-email') {
-                magnifyingGlassIcon.classList.add('pulse-magnify');
-            } else {
-                magnifyingGlassIcon.classList.remove('pulse-magnify');
-            }
-        }
-
         // Mark as read and update badge (will only run once thanks to the check)
         if (!email.read) {
             email.read = true;
@@ -867,20 +706,6 @@ Best, ${userName}, Special Investigator`;
             activeNavItem.classList.add('active');
         }
     }
-
-    // Handle navigation item clicks
-    const navItems = document.querySelectorAll('.nav-item');
-    navItems.forEach(item => {
-        item.addEventListener('click', () => {
-            const folder = item.id.replace('-nav', ''); // Get folder name from ID
-            setActiveFolder(folder);
-            loadEmailsForFolder(folder);
-        });
-    });
-
-    // Initial load: Display inbox and refresh unread counts
-    loadEmailsForFolder('inbox');
-    refreshUnreadCounts();
 
     // --- Email Delivery Logic ---
 
@@ -900,12 +725,6 @@ Best, ${userName}, Special Investigator`;
         }
     }
 
-    // Keep track of the next story email to deliver
-    const storyEmailsQueue = [
-        marketingEmailTemplate,
-        // rdEmailTemplate is now delivered after IT email
-    ];
-
     // Function to deliver the next story email after a random delay
     function deliverNextStoryEmail() {
         if (nextStoryEmailIndex < storyEmailsQueue.length) {
@@ -921,42 +740,13 @@ Best, ${userName}, Special Investigator`;
                 loadEmailsForFolder('inbox');
             }
             nextStoryEmailIndex++;
-            // After Sarah's email (index 0), deliver the spam
+
+            // After Sarah's email (index 0), trigger spam
             if (storyEmailsQueue[nextStoryEmailIndex - 1].id === 'marketing-email') {
-                setTimeout(deliverFirstSpamEmail, 10000); // Deliver first spam 10s after Sarah's
+                setTimeout(startSpamCascade, 10000); // Start the spam cascade 10s after Sarah's
             }
         }
     }
-
-    function deliverFirstSpamEmail() {
-        const spamEmail = { ...spamEmail1Template };
-        const now = new Date();
-        spamEmail.date = now.toLocaleString('en-US', { month: 'short', day: 'numeric' });
-        spamEmail.receivedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-        spamEmail.timestamp = now.getTime();
-        emails.push(spamEmail);
-        refreshUnreadCounts();
-        if (currentFolder === 'inbox') {
-            loadEmailsForFolder('inbox');
-        }
-
-        // Set a timer to deliver the second spam email after 60 seconds
-        spamDeliveryTimer = setTimeout(deliverSecondSpamEmail, 60000);
-    }
-
-    function deliverSecondSpamEmail() {
-        const spamEmail = { ...spamEmail2Template };
-        const now = new Date();
-        spamEmail.date = now.toLocaleString('en-US', { month: 'short', day: 'numeric' });
-        spamEmail.receivedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-        spamEmail.timestamp = now.getTime();
-        emails.push(spamEmail);
-        refreshUnreadCounts();
-        if (currentFolder === 'inbox') {
-            loadEmailsForFolder('inbox');
-        }
-    }
-
 
     function startSpamCascade() {
         if (spamCascadeInterval) clearInterval(spamCascadeInterval); // Stop any existing cascade
@@ -999,14 +789,13 @@ Best, ${userName}, Special Investigator`;
                 <p>Stay sharp,</p>
                 <p>IT Support</p>
             `;
-        } else { // 'scam' consequence
+        } else { // 'scam' consequence - this path is currently not taken but kept for future
             return `
                 <h3>Action Required: Security Training Mandated</h3>
                 <p>Detective,</p>
                 <p>We noticed you responded to a recent phishing attempt. While your prompt reporting is appreciated, interacting with such emails is extremely risky and against company policy.</p>
                 <p>To prevent future incidents, we are mandating a security refresher course. We have also installed a "Network Analysis" tool on your terminal to help you better identify hidden threats in the future. Please use it wisely.</p>
                 <p>The installation will begin automatically.</p>
-                <button id="install-tool-btn" class="install-btn">Begin Installation</button>
                 <p>Be more careful,</p>
                 <p>IT Support</p>
             `;
@@ -1042,9 +831,6 @@ Best, ${userName}, Special Investigator`;
         }
     }
 
-    // This will track if a special 'story' email is currently displayed and requires a reply.
-    // let currentStoryEmailRequiresReply = null; 
-
     // Reply email functionality
     replyEmailBtn.addEventListener('click', () => {
         // Capture the currently displayed email's details from emailBodyContentDiv
@@ -1065,15 +851,16 @@ Best, ${userName}, Special Investigator`;
         // Create a new container for the reply interface elements
         const replyInterfaceContainer = document.createElement('div');
         replyInterfaceContainer.id = 'reply-interface-container';
-        replyInterfaceContainer.style.display = 'flex'; // Use flex for layout of its children
-        replyInterfaceContainer.style.flexDirection = 'column';
-
+        
         // Clear emailBodyContentDiv and prepare for reply interface
         emailBodyContentDiv.innerHTML = `
             <h3>Replying to: ${originalEmail.subject}</h3>
             <div id="reply-typing-area" style="border: 1px solid #ccc; padding: 10px; min-height: 100px; white-space: pre-wrap; position: relative; user-select: none;"></div>
         `;
         replyEmailBtn.style.display = 'none'; // Hide original reply button
+        
+        const emailContentDiv = document.querySelector('.email-content');
+        emailContentDiv.appendChild(replyInterfaceContainer);
 
         const replyTypingArea = document.getElementById('reply-typing-area');
         let typingStarted = false;
@@ -1099,15 +886,10 @@ Best, ${userName}, Special Investigator`;
         sendReplyBtn.style.display = 'none'; // Initially hidden
         replyInterfaceContainer.appendChild(sendReplyBtn);
 
-        // Append the new reply interface container to emailContentDiv, AFTER emailBodyContentDiv
-        // document.querySelector('.email-content').appendChild(replyInterfaceContainer); // This line was removed as per new_code
-
-
         const sendReplyHandler = function() {
             sendReplyBtn.removeEventListener('click', sendReplyHandler);
             document.removeEventListener('keydown', enterSendHandler);
             
-            replyInterfaceContainer.style.display = 'none'; // Hide the entire reply interface
             replyInterfaceContainer.remove(); // Remove from DOM after use
 
             const sentReply = {
@@ -1132,13 +914,6 @@ Best, ${userName}, Special Investigator`;
 
             // Remove nudge after replying
             replyEmailBtn.classList.remove('reply-nudge-active');
-
-            // Re-select the original email item in the inbox to keep it highlighted
-            const correspondingEmailItem = emailListDiv.querySelector(`[data-email-id="${originalEmail.id}"]`);
-            if (correspondingEmailItem) {
-                document.querySelectorAll('.email-item').forEach(el => el.classList.remove('active'));
-                correspondingEmailItem.classList.add('active');
-            }
             
             // Trigger next story email 3 seconds after replying to Jane's welcome email
             if (originalEmail.id === 'welcome-email') {
@@ -1224,57 +999,8 @@ Best, ${userName}, Special Investigator`;
         }
     }
 
-    // Add mouse move listener
-    document.addEventListener('mousemove', handleMouseMove);
-
-    // Load dark mode preference from localStorage
-    if (localStorage.getItem('darkMode') === 'enabled') {
-        body.classList.add('dark-mode');
-        darkModeToggle.checked = true;
-    }
-
-    // Load cursor theme preference from localStorage
-    const savedCursorTheme = localStorage.getItem('cursorTheme') || 'default';
-    applyCursorTheme(savedCursorTheme);
-
-    // Add click handlers to cursor options
-    cursorOptions.forEach(option => {
-        option.addEventListener('click', () => {
-            applyCursorTheme(option.dataset.cursor);
-        });
-    });
-
-    // Open settings menu
-    settingsBtn.addEventListener('click', () => {
-        settingsMenu.style.display = 'flex';
-    });
-
-    // Close settings menu
-    closeSettingsBtn.addEventListener('click', () => {
-        settingsMenu.style.display = 'none';
-    });
-
-    // Toggle dark mode
-    darkModeToggle.addEventListener('change', () => {
-        if (darkModeToggle.checked) {
-            body.classList.add('dark-mode');
-            localStorage.setItem('darkMode', 'enabled');
-        } else {
-            body.classList.remove('dark-mode');
-            localStorage.setItem('darkMode', 'disabled');
-        }
-    });
-
-    // ---- App Initialization ----
-
-    function initializeGame(userName) {
-        container.style.display = 'grid'; // Show the email client
-        introScreen.style.display = 'none'; // Hide the intro letter
-
-        // Set user name
-        const formattedName = userName.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
-        localStorage.setItem('outcrookUserName', formattedName);
-        userProfile.textContent = `Detective ${formattedName}`;
+    async function init() {
+        await getUserName();
 
         // Initial email setup
         const initialLegalEmail = {
@@ -1298,12 +1024,23 @@ Best, ${userName}, Special Investigator`;
             timestamp: new Date().getTime()
         };
         emails.push(initialLegalEmail);
-        
+
         // Setup Event Listeners, timers, and initial load
         setInterval(updateCurrentTime, 1000);
+        updateCurrentTime();
+        
+        // Handle navigation item clicks
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const folder = item.id.replace('-nav', ''); // Get folder name from ID
+                setActiveFolder(folder);
+                loadEmailsForFolder(folder);
+            });
+        });
+
         loadEmailsForFolder(currentFolder);
         refreshUnreadCounts();
-        setupEventListeners();
 
         // Load preferences
         if (localStorage.getItem('darkMode') === 'enabled') {
@@ -1313,31 +1050,27 @@ Best, ${userName}, Special Investigator`;
         const savedCursorTheme = localStorage.getItem('cursorTheme') || 'default';
         applyCursorTheme(savedCursorTheme);
         document.addEventListener('mousemove', handleMouseMove);
+
+        // Settings Menu Listeners
+        settingsBtn.addEventListener('click', () => settingsMenu.style.display = 'flex');
+        closeSettingsBtn.addEventListener('click', () => settingsMenu.style.display = 'none');
+        darkModeToggle.addEventListener('change', () => {
+            if (darkModeToggle.checked) {
+                body.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        });
+        cursorOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                applyCursorTheme(option.dataset.cursor);
+            });
+        });
     }
 
-    startGameBtn.addEventListener('click', () => {
-        const userName = nameInput.value;
-        if (userName && userName.trim().length > 0) {
-            initializeGame(userName);
-        } else {
-            nameInput.classList.add('input-error');
-        }
-    });
-
-    nameInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault(); // Prevent form submission
-            startGameBtn.click();
-        }
-    });
-
-    nameInput.addEventListener('input', () => {
-        if (nameInput.classList.contains('input-error')) {
-            nameInput.classList.remove('input-error');
-        }
-    });
-
-    // Note: No top-level init() call anymore, game starts on button click.
+    init();
 });
 
 
