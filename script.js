@@ -448,14 +448,6 @@ Best, ${userName}, Special Investigator`;
         loadEmailsForFolder('inbox');
         refreshUnreadCounts();
 
-        // Here you can add logic based on selectedOption.consequence
-        console.log(`User chose option with consequence: ${selectedOption.consequence}`);
-
-        // If user reported junk, deliver the IT support email after a delay
-        if (selectedOption.consequence === 'reportJunk') {
-            setTimeout(deliverITSupportEmail, 10000); // 10 seconds, as this is a side quest
-        }
-
         // If it's a spam email, clear the timer for the second spam and deliver the IT email.
         if (originalEmail.id.startsWith('spam-')) {
             if (spamDeliveryTimer) {
@@ -762,10 +754,36 @@ Best, ${userName}, Special Investigator`;
         }
     }
 
+
+    function generateITEmailBody(consequence) {
+        if (consequence === 'reportJunk') {
+            return `
+                <h3>Great catch, Detective!</h3>
+                <p>Thanks for reporting that junk email. Vigilance like yours is key to our security. We've analyzed the threat and taken action.</p>
+                <p>To help with your investigation, we've approved the installation of a new "Network Analysis" tool for your terminal. This will grant you elevated privileges to uncover hidden data within our systems.</p>
+                <p>Please click the button below to begin the installation. It should only take a moment.</p>
+                <button id="install-tool-btn" class="install-btn">Install Network Analysis Tool</button>
+                <p>Stay sharp,</p>
+                <p>IT Support</p>
+            `;
+        } else { // 'scam' consequence
+            return `
+                <h3>Action Required: Security Training Mandated</h3>
+                <p>Detective,</p>
+                <p>We noticed you responded to a recent phishing attempt. While your prompt reporting is appreciated, interacting with such emails is extremely risky and against company policy.</p>
+                <p>To prevent future incidents, we are mandating a security refresher course. We have also installed a "Network Analysis" tool on your terminal to help you better identify hidden threats in the future. Please use it wisely.</p>
+                <p>The installation will begin automatically.</p>
+                <button id="install-tool-btn" class="install-btn">Begin Installation</button>
+                <p>Be more careful,</p>
+                <p>IT Support</p>
+            `;
+        }
+    }
+
     function deliverITSupportEmail(consequence) {
         const itEmail = { ...itSupportEmailTemplate };
         const now = new Date();
-        itEmail.date = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        itEmail.date = now.toLocaleString('en-US', { month: 'short', day: 'numeric' });
         itEmail.receivedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         itEmail.timestamp = now.getTime(); // Precise timestamp for sorting
         itEmail.body = generateITEmailBody(consequence); // Generate body based on user action
