@@ -1,24 +1,218 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const emailContentDiv = document.querySelector('.email-content');
+    // ---- DOM Elements ----
+    const container = document.querySelector('.container');
+    const introScreen = document.getElementById('intro-screen');
+    const nameInput = document.getElementById('name-input');
+    const startGameBtn = document.getElementById('start-game-btn');
+    
     const userProfile = document.getElementById('user-profile');
     const emailListDiv = document.querySelector('.email-list');
     const emailListFolderHeader = document.getElementById('email-list-folder-header');
     const replyEmailBtn = document.getElementById('reply-email-btn');
     const emailBodyContentDiv = document.getElementById('email-body-content');
-    const deleteEmailBtn = document.getElementById('delete-email-btn');
     const currentTimeSpan = document.getElementById('current-time');
 
+    // ---- Game State ----
     let emails = [];
     let currentFolder = 'inbox';
-    let storyTriggered = false;
     let nextStoryEmailIndex = 0;
-    let spamDeliveryTimer = null; // Timer for the second spam email
-    let itEmailSent = false; // Track if the IT email has been sent
-    let spamCascadeInterval = null; // Timer for the spam cascade
+    let spamDeliveryTimer = null;
+    let itEmailSent = false;
+    let spamCascadeInterval = null;
 
-    // Declare sendReplyBtn and sendPromptElement at a higher scope
+    // ---- Reply Interface State ----
     let sendReplyBtn;
     let sendPromptElement;
+    
+    // --- Email Templates (including 5 new spam variations) ---
+    const welcomeEmailTemplate = {
+        id: 'welcome-email',
+        sender: 'Jane, Director of People',
+        subject: 'Your Super-Secret Detective Mission Starts NOW!',
+        body: `
+            <h3>Welcome to the Outcrook Team!</h3>
+            <p>Greetings, Detective <span id="welcome-user-name"></span>!</p>
+            <p>Your super-secret mission at FlavorCo (a division of Outcrook!) officially begins! We're thrilled to have your keen eyes and sharp mind on board. We suspect foul play, whispers of stolen snack secrets... a real whodunit!</p>
+            <p>Your task: sniff out clues, interrogate suspects (figuratively, of course!), and uncover the truth. Your badge and magnifying glass are waiting (metaphorically, for now!). Good luck, agent!</p>
+            <p>Best,</p>
+            <p>Jane, Director of People (and Head of Secret Squirrel Operations)</p>
+        `,
+        folder: 'inbox',
+        read: false,
+        replied: false,
+        storyTriggered: false,
+        emailType: 'interactiveReply',
+    };
+
+    // Eleanor Vance's email (initial email)
+    const initialLegalEmail = {
+        id: 'legal-email',
+        sender: 'Eleanor Vance, Chief Legal Officer',
+        subject: 'Uh-oh! TasteBuds Stole Our Yummy Secret!',
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        body: `
+            <h3>Emergency! Our Secret Recipe is Out!</h3>
+            <p>Dear Detective,</p>
+            <p>CODE RED! Our top-secret "TasteBlast" recipe has been SWIPED by those sneaky TasteBuds! They launched an identical product, and we're not happy campers. We need a super sleuth like you to find out WHO, WHAT, and HOW!</p>
+            <p>Your mission, should you choose to accept it, is to gather rock-solid evidence. No flimsy theories! We need facts to take them down in court. The fate of FlavorCo's snacks rests on your investigative shoulders!</p>
+            <p>Keep your ear to the ground and your magnifying glass handy. Report back with juicy findings!</p>
+            <p>Eleanor Vance<br>Chief Legal Officer (and Head of Snack Protection)</p>
+        `,
+        folder: 'inbox',
+        read: false,
+        replied: false,
+        emailType: 'readOnly', // <-- Add type
+        receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        timestamp: new Date().getTime() // Precise timestamp for sorting
+    };
+
+    const marketingEmailTemplate = {
+        id: 'marketing-email',
+        sender: 'Sarah Chen, Head of Marketing',
+        subject: 'Panic! TasteBuds Cloned Our Snack!',
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        body: `
+            <h3>Our "TasteBlast" is a Double!</h3>
+            <p>Team (and especially you, Detective!),</p>
+            <p>This is NOT a drill! TasteBuds just launched "FlavorFusion" and it's basically our "TasteBlast" in a different wrapper! I'm talking identical! My marketing plans are toast!</p>
+            <p>Remember those weird computer hiccups last month? Was it a coincidence? Or did someone spill the beans (or the secret spices)? We need to figure out how they copied us! Find the mole, find the truth!</p>
+            <p>Frantically yours,</p>
+            <p>Sarah Chen<br>Head of Marketing (currently pulling her hair out)</p>
+        `,
+        folder: 'inbox',
+        read: false,
+        replied: false,
+        emailType: 'multipleChoice', // <-- Set type
+        replyOptions: [             // <-- Add reply options
+            { text: "Focus on the recipe leak first.", consequence: "logic" },
+            { text: "Let's dig into their marketing strategy.", consequence: "creative" },
+            { text: "I suspect a mole. Let's watch internally.", consequence: "suspicion" }
+        ],
+        receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    };
+
+    const rdEmailTemplate = {
+        id: 'rd-email',
+        sender: 'Dr. Aris Thorne, Head of R&D',
+        subject: 'Our Secret Recipe is GONE! Lab on Lockdown!',
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        body: `
+            <h3>Recipe Heist! R&D is a Mess!</h3>
+            <p>Attention All! (Especially Detective!)</p>
+            <p>Our precious "TasteBlast" formula has vanished into thin air! TasteBuds' new product is proof! We need a full-scale investigation into our lab. Every beaker, every test tube, every… sniff… must be checked!</p>
+            <p>And speaking of sniffs, I recall a certain "<span class="hidden-clue">Alex</span>" (our junior researcher) grumbling about promotions and secret files. Could it be a clue? Find out who took our delicious secrets!</p>
+            <p>Panicked but Scientific,</p>
+            <p>Dr. Aris Thorne<br>Head of R&D (currently wearing a tin-foil hat)</p>
+        `,
+        folder: 'inbox',
+        read: false,
+        replied: false,
+        emailType: 'readOnly',
+        receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    };
+
+    const itSupportEmailTemplate = {
+        id: 'it-support-email',
+        sender: 'IT Support',
+        subject: 'Thank You for Reporting Suspicious Activity!',
+        body: `
+            <h3>Great catch, Detective!</h3>
+            <p>Thanks for reporting that junk email. Vigilance like yours is key to our security. We've analyzed the threat and taken action.</p>
+            <p>To help with your investigation, we've approved the installation of a new "Network Analysis" tool for your terminal. This will grant you elevated privileges to uncover hidden data within our systems.</p>
+            <p>Please click the button below to begin the installation. It should only take a moment.</p>
+            <button id="install-tool-btn" class="install-btn-pulsate">Install Network Analysis Tool</button>
+            <p>Stay sharp,</p>
+            <p>IT Support</p>
+        `,
+        folder: 'inbox',
+        read: false,
+        replied: false, // Add replied property
+        emailType: 'readOnly',
+    };
+
+    const spamEmail1Template = {
+        id: 'spam-email-1',
+        sender: 'Royal Emissary of Atlantis',
+        subject: 'URGENT: Sunken Treasure For You',
+        body: `
+            <h3>Greetings from the Deep!</h3>
+            <p>I bring tidings from the lost city of Atlantis! We have discovered a chest of ancient gold with your name on it. To transport it to the surface, we require a small tribute for the royal submersibles.</p>
+            <p>Please select an option below to proceed.</p>
+        `,
+        folder: 'inbox',
+        read: false,
+        emailType: 'multipleChoice',
+        replyOptions: [
+            { text: "This sounds legitimate. Send the tribute.", consequence: 'scam' },
+            { text: "Report this email to IT.", consequence: 'reportJunk' },
+        ]
+    };
+    const spamEmail2Template = {
+        id: 'spam-email-2',
+        sender: 'Barnaby, Head of Royal Transport',
+        subject: 'Fuel for the Gilded Narwhal',
+        body: `
+            <h3>A Matter of Nautical Urgency!</h3>
+            <p>Further to the Emissary's message, please be advised that the Royal Submersible, the 'Gilded Narwhal', requires a top-up of purified kelp fuel. A small donation from yourself would greatly expedite the treasure's journey!</p>
+        `,
+        folder: 'inbox',
+        read: false,
+        emailType: 'multipleChoice',
+        replyOptions: [
+            { text: "Of course, for the Narwhal! Send donation.", consequence: 'scam' },
+            { text: "This is getting fishy. Report to IT.", consequence: 'reportJunk' },
+        ]
+    };
+    const spamEmail3Template = {
+        id: 'spam-email-3',
+        sender: 'Captain Neptune, Head of Naval Affairs',
+        subject: 'A Royal Request for Your Assistance',
+        body: `
+            <h3>A Royal Request for Your Assistance</h3>
+            <p>Your Majesty, the Royal Fleet has encountered a mysterious underwater obstruction. We require a skilled diver to investigate the source. Your presence would be invaluable.</p>
+        `,
+        folder: 'inbox',
+        read: false,
+        emailType: 'multipleChoice',
+        replyOptions: [
+            { text: "I'll dive in! Send me the coordinates.", consequence: 'scam' },
+            { text: "This is a trap. Report to IT.", consequence: 'reportJunk' },
+        ]
+    };
+    const spamEmail4Template = {
+        id: 'spam-email-4',
+        sender: 'Mermaid Queen, Head of Underwater Affairs',
+        subject: 'A Royal Invitation to the Deep',
+        body: `
+            <h3>A Royal Invitation to the Deep</h3>
+            <p>Your Majesty, the Mermaid Queen has invited you to a grand underwater banquet. We have prepared the finest Atlantean delicacies and entertainment. Your presence is requested.</p>
+        `,
+        folder: 'inbox',
+        read: false,
+        emailType: 'multipleChoice',
+        replyOptions: [
+            { text: "I'll swim down! Send me the date.", consequence: 'scam' },
+            { text: "This is a ruse. Report to IT.", consequence: 'reportJunk' },
+        ]
+    };
+    const spamEmail5Template = {
+        id: 'spam-email-5',
+        sender: 'Atlantean Ambassador',
+        subject: 'A Royal Request for Your Assistance',
+        body: `
+            <h3>A Royal Request for Your Assistance</h3>
+            <p>Your Majesty, the Atlantean Ambassador has requested your presence at a diplomatic meeting. We must discuss the recent tensions with the Surface Kingdom.</p>
+        `,
+        folder: 'inbox',
+        read: false,
+        emailType: 'multipleChoice',
+        replyOptions: [
+            { text: "I'll attend! Send me the location.", consequence: 'scam' },
+            { text: "This is a ploy. Report to IT.", consequence: 'reportJunk' },
+        ]
+    };
+
+    const storyEmailsQueue = [ marketingEmailTemplate ];
 
     // Custom Prompt/Notification Logic
     const customPromptOverlay = document.getElementById('custom-prompt-overlay');
@@ -121,47 +315,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Email Templates ---
-    const welcomeEmailTemplate = {
-        id: 'welcome-email',
-        sender: 'Jane, Director of People',
-        subject: 'Your Super-Secret Detective Mission Starts NOW!',
-        body: `
-            <h3>Welcome to the Outcrook Team!</h3>
-            <p>Greetings, Detective <span id="welcome-user-name"></span>!</p>
-            <p>Your super-secret mission at FlavorCo (a division of Outcrook!) officially begins! We're thrilled to have your keen eyes and sharp mind on board. We suspect foul play, whispers of stolen snack secrets... a real whodunit!</p>
-            <p>Your task: sniff out clues, interrogate suspects (figuratively, of course!), and uncover the truth. Your badge and magnifying glass are waiting (metaphorically, for now!). Good luck, agent!</p>
-            <p>Best,</p>
-            <p>Jane, Director of People (and Head of Secret Squirrel Operations)</p>
-        `,
-        folder: 'inbox',
-        read: false,
-        replied: false,
-        storyTriggered: false,
-        emailType: 'interactiveReply',
-    };
-
     // Eleanor Vance's email (initial email)
-    const initialLegalEmail = {
-        id: 'legal-email',
-        sender: 'Eleanor Vance, Chief Legal Officer',
-        subject: 'Uh-oh! TasteBuds Stole Our Yummy Secret!',
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        body: `
-            <h3>Emergency! Our Secret Recipe is Out!</h3>
-            <p>Dear Detective,</p>
-            <p>CODE RED! Our top-secret "TasteBlast" recipe has been SWIPED by those sneaky TasteBuds! They launched an identical product, and we're not happy campers. We need a super sleuth like you to find out WHO, WHAT, and HOW!</p>
-            <p>Your mission, should you choose to accept it, is to gather rock-solid evidence. No flimsy theories! We need facts to take them down in court. The fate of FlavorCo's snacks rests on your investigative shoulders!</p>
-            <p>Keep your ear to the ground and your magnifying glass handy. Report back with juicy findings!</p>
-            <p>Eleanor Vance<br>Chief Legal Officer (and Head of Snack Protection)</p>
-        `,
-        folder: 'inbox',
-        read: false,
-        replied: false,
-        emailType: 'readOnly', // <-- Add type
-        receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-        timestamp: new Date().getTime() // Precise timestamp for sorting
-    };
-    emails.push(initialLegalEmail);
+    // const initialLegalEmail = {
+    //     id: 'legal-email',
+    //     sender: 'Eleanor Vance, Chief Legal Officer',
+    //     subject: 'Uh-oh! TasteBuds Stole Our Yummy Secret!',
+    //     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    //     body: `
+    //         <h3>Emergency! Our Secret Recipe is Out!</h3>
+    //         <p>Dear Detective,</p>
+    //         <p>CODE RED! Our top-secret "TasteBlast" recipe has been SWIPED by those sneaky TasteBuds! They launched an identical product, and we're not happy campers. We need a super sleuth like you to find out WHO, WHAT, and HOW!</p>
+    //         <p>Your mission, should you choose to accept it, is to gather rock-solid evidence. No flimsy theories! We need facts to take them down in court. The fate of FlavorCo's snacks rests on your investigative shoulders!</p>
+    //         <p>Keep your ear to the ground and your magnifying glass handy. Report back with juicy findings!</p>
+    //         <p>Eleanor Vance<br>Chief Legal Officer (and Head of Snack Protection)</p>
+    //     `,
+    //     folder: 'inbox',
+    //     read: false,
+    //     replied: false,
+    //     emailType: 'readOnly', // <-- Add type
+    //     receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+    //     timestamp: new Date().getTime() // Precise timestamp for sorting
+    // };
+    // emails.push(initialLegalEmail);
 
     getUserName();
 
@@ -176,108 +351,108 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(updateCurrentTime, 1000);
 
     // Creative spam emails - these will be dynamically pushed later based on story progression, not on initial load
-    const spamEmail1Template = {
-        id: 'spam-email-1',
-        sender: 'Royal Emissary of Atlantis',
-        subject: 'URGENT: Sunken Treasure For You',
-        body: `
-            <h3>Greetings from the Deep!</h3>
-            <p>I bring tidings from the lost city of Atlantis! We have discovered a chest of ancient gold with your name on it. To transport it to the surface, we require a small tribute for the royal submersibles.</p>
-            <p>Please select an option below to proceed.</p>
-        `,
-        folder: 'inbox',
-        read: false,
-        emailType: 'multipleChoice',
-        replyOptions: [
-            { text: "This sounds legitimate. Send the tribute.", consequence: 'scam' },
-            { text: "Report this email to IT.", consequence: 'reportJunk' },
-        ]
-    };
+    // const spamEmail1Template = {
+    //     id: 'spam-email-1',
+    //     sender: 'Royal Emissary of Atlantis',
+    //     subject: 'URGENT: Sunken Treasure For You',
+    //     body: `
+    //         <h3>Greetings from the Deep!</h3>
+    //         <p>I bring tidings from the lost city of Atlantis! We have discovered a chest of ancient gold with your name on it. To transport it to the surface, we require a small tribute for the royal submersibles.</p>
+    //         <p>Please select an option below to proceed.</p>
+    //     `,
+    //     folder: 'inbox',
+    //     read: false,
+    //     emailType: 'multipleChoice',
+    //     replyOptions: [
+    //         { text: "This sounds legitimate. Send the tribute.", consequence: 'scam' },
+    //         { text: "Report this email to IT.", consequence: 'reportJunk' },
+    //     ]
+    // };
 
-    const spamEmail2Template = {
-        id: 'spam-email-2',
-        sender: 'Nigerian Prince (via secure channel)',
-        subject: 'Prince Needs YOUR Help (and Your Gold Coins!)',
-        date: new Date(2025, 8, 8).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        body: `
-            <h3>Royal Plea from Prince Akeem!</h3>
-            <p>Hark, noble friend! Prince Akeem of the Sparkling Sands needs your mighty assistance! I have a colossal pile of shiny gold coins (like, 50 MILLION of them!) that need a new comfy home. And YOU, my friend, are the chosen one!</p>
-            <p>Just a teeny-tiny fee (for royal paperwork, you understand) and your bank details, and BAM! You'll be swimming in riches! Don't miss this once-in-a-lifetime chance to be best friends with a prince!</p>
-            <p>Your Royal Buddy,</p>
-            <p>Prince Akeem (I also have a really fast camel)</p>
-        `,
-        folder: 'spam',
-        read: false,
-        emailType: 'multipleChoice',
-        replyOptions: [
-            { text: "This seems suspicious. Report to IT.", consequence: 'reportJunk' },
-        ]
-    };
+    // const spamEmail2Template = {
+    //     id: 'spam-email-2',
+    //     sender: 'Nigerian Prince (via secure channel)',
+    //     subject: 'Prince Needs YOUR Help (and Your Gold Coins!)',
+    //     date: new Date(2025, 8, 8).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    //     body: `
+    //         <h3>Royal Plea from Prince Akeem!</h3>
+    //         <p>Hark, noble friend! Prince Akeem of the Sparkling Sands needs your mighty assistance! I have a colossal pile of shiny gold coins (like, 50 MILLION of them!) that need a new comfy home. And YOU, my friend, are the chosen one!</p>
+    //         <p>Just a teeny-tiny fee (for royal paperwork, you understand) and your bank details, and BAM! You'll be swimming in riches! Don't miss this once-in-a-lifetime chance to be best friends with a prince!</p>
+    //         <p>Your Royal Buddy,</p>
+    //         <p>Prince Akeem (I also have a really fast camel)</p>
+    //     `,
+    //     folder: 'spam',
+    //     read: false,
+    //     emailType: 'multipleChoice',
+    //     replyOptions: [
+    //         { text: "This seems suspicious. Report to IT.", consequence: 'reportJunk' },
+    //     ]
+    // };
 
-    const itSupportEmailTemplate = {
-        id: 'it-support-email',
-        sender: 'IT Support',
-        subject: 'Thank You for Reporting Suspicious Activity!',
-        body: `
-            <h3>Great catch, Detective!</h3>
-            <p>Thanks for reporting that junk email. Vigilance like yours is key to our security. We've analyzed the threat and taken action.</p>
-            <p>To help with your investigation, we've approved the installation of a new "Network Analysis" tool for your terminal. This will grant you elevated privileges to uncover hidden data within our systems.</p>
-            <p>Please click the button below to begin the installation. It should only take a moment.</p>
-            <button id="install-tool-btn" class="install-btn-pulsate">Install Network Analysis Tool</button>
-            <p>Stay sharp,</p>
-            <p>IT Support</p>
-        `,
-        folder: 'inbox',
-        read: false,
-        replied: false, // Add replied property
-        emailType: 'readOnly',
-    };
+    // const itSupportEmailTemplate = {
+    //     id: 'it-support-email',
+    //     sender: 'IT Support',
+    //     subject: 'Thank You for Reporting Suspicious Activity!',
+    //     body: `
+    //         <h3>Great catch, Detective!</h3>
+    //         <p>Thanks for reporting that junk email. Vigilance like yours is key to our security. We've analyzed the threat and taken action.</p>
+    //         <p>To help with your investigation, we've approved the installation of a new "Network Analysis" tool for your terminal. This will grant you elevated privileges to uncover hidden data within our systems.</p>
+    //         <p>Please click the button below to begin the installation. It should only take a moment.</p>
+    //         <button id="install-tool-btn" class="install-btn-pulsate">Install Network Analysis Tool</button>
+    //         <p>Stay sharp,</p>
+    //         <p>IT Support</p>
+    //     `,
+    //     folder: 'inbox',
+    //     read: false,
+    //     replied: false, // Add replied property
+    //     emailType: 'readOnly',
+    // };
 
     // Story emails - Phase 1: Initial Investigation & Departmental Insights - these will be dynamically pushed later
-    const marketingEmailTemplate = {
-        id: 'marketing-email',
-        sender: 'Sarah Chen, Head of Marketing',
-        subject: 'Panic! TasteBuds Cloned Our Snack!',
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        body: `
-            <h3>Our "TasteBlast" is a Double!</h3>
-            <p>Team (and especially you, Detective!),</p>
-            <p>This is NOT a drill! TasteBuds just launched "FlavorFusion" and it's basically our "TasteBlast" in a different wrapper! I'm talking identical! My marketing plans are toast!</p>
-            <p>Remember those weird computer hiccups last month? Was it a coincidence? Or did someone spill the beans (or the secret spices)? We need to figure out how they copied us! Find the mole, find the truth!</p>
-            <p>Frantically yours,</p>
-            <p>Sarah Chen<br>Head of Marketing (currently pulling her hair out)</p>
-        `,
-        folder: 'inbox',
-        read: false,
-        replied: false,
-        emailType: 'multipleChoice', // <-- Set type
-        replyOptions: [             // <-- Add reply options
-            { text: "Focus on the recipe leak first.", consequence: "logic" },
-            { text: "Let's dig into their marketing strategy.", consequence: "creative" },
-            { text: "I suspect a mole. Let's watch internally.", consequence: "suspicion" }
-        ],
-        receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-    };
+    // const marketingEmailTemplate = {
+    //     id: 'marketing-email',
+    //     sender: 'Sarah Chen, Head of Marketing',
+    //     subject: 'Panic! TasteBuds Cloned Our Snack!',
+    //     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    //     body: `
+    //         <h3>Our "TasteBlast" is a Double!</h3>
+    //         <p>Team (and especially you, Detective!),</p>
+    //         <p>This is NOT a drill! TasteBuds just launched "FlavorFusion" and it's basically our "TasteBlast" in a different wrapper! I'm talking identical! My marketing plans are toast!</p>
+    //         <p>Remember those weird computer hiccups last month? Was it a coincidence? Or did someone spill the beans (or the secret spices)? We need to figure out how they copied us! Find the mole, find the truth!</p>
+    //         <p>Frantically yours,</p>
+    //         <p>Sarah Chen<br>Head of Marketing (currently pulling her hair out)</p>
+    //     `,
+    //     folder: 'inbox',
+    //     read: false,
+    //     replied: false,
+    //     emailType: 'multipleChoice', // <-- Set type
+    //     replyOptions: [             // <-- Add reply options
+    //         { text: "Focus on the recipe leak first.", consequence: "logic" },
+    //         { text: "Let's dig into their marketing strategy.", consequence: "creative" },
+    //         { text: "I suspect a mole. Let's watch internally.", consequence: "suspicion" }
+    //     ],
+    //     receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    // };
 
-    const rdEmailTemplate = {
-        id: 'rd-email',
-        sender: 'Dr. Aris Thorne, Head of R&D',
-        subject: 'Our Secret Recipe is GONE! Lab on Lockdown!',
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        body: `
-            <h3>Recipe Heist! R&D is a Mess!</h3>
-            <p>Attention All! (Especially Detective!)</p>
-            <p>Our precious "TasteBlast" formula has vanished into thin air! TasteBuds' new product is proof! We need a full-scale investigation into our lab. Every beaker, every test tube, every… sniff… must be checked!</p>
-            <p>And speaking of sniffs, I recall a certain "<span class="hidden-clue">Alex</span>" (our junior researcher) grumbling about promotions and secret files. Could it be a clue? Find out who took our delicious secrets!</p>
-            <p>Panicked but Scientific,</p>
-            <p>Dr. Aris Thorne<br>Head of R&D (currently wearing a tin-foil hat)</p>
-        `,
-        folder: 'inbox',
-        read: false,
-        replied: false,
-        emailType: 'readOnly',
-        receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-    };
+    // const rdEmailTemplate = {
+    //     id: 'rd-email',
+    //     sender: 'Dr. Aris Thorne, Head of R&D',
+    //     subject: 'Our Secret Recipe is GONE! Lab on Lockdown!',
+    //     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    //     body: `
+    //         <h3>Recipe Heist! R&D is a Mess!</h3>
+    //         <p>Attention All! (Especially Detective!)</p>
+    //         <p>Our precious "TasteBlast" formula has vanished into thin air! TasteBuds' new product is proof! We need a full-scale investigation into our lab. Every beaker, every test tube, every… sniff… must be checked!</p>
+    //         <p>And speaking of sniffs, I recall a certain "<span class="hidden-clue">Alex</span>" (our junior researcher) grumbling about promotions and secret files. Could it be a clue? Find out who took our delicious secrets!</p>
+    //         <p>Panicked but Scientific,</p>
+    //         <p>Dr. Aris Thorne<br>Head of R&D (currently wearing a tin-foil hat)</p>
+    //     `,
+    //     folder: 'inbox',
+    //     read: false,
+    //     replied: false,
+    //     emailType: 'readOnly',
+    //     receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    // };
 
     // Unread counts for navigation badges
     const unreadCounts = {
@@ -796,7 +971,7 @@ Best, ${userName}, Special Investigator`;
     }
     
     function deliverRandomSpam() {
-        const spamTemplates = [spamEmail1Template, spamEmail2Template];
+        const spamTemplates = [spamEmail1Template, spamEmail2Template, spamEmail3Template, spamEmail4Template, spamEmail5Template];
         const randomSpamTemplate = spamTemplates[Math.floor(Math.random() * spamTemplates.length)];
         const newSpamEmail = { ...randomSpamTemplate };
         const now = new Date();
@@ -925,7 +1100,7 @@ Best, ${userName}, Special Investigator`;
         replyInterfaceContainer.appendChild(sendReplyBtn);
 
         // Append the new reply interface container to emailContentDiv, AFTER emailBodyContentDiv
-        emailContentDiv.appendChild(replyInterfaceContainer);
+        // document.querySelector('.email-content').appendChild(replyInterfaceContainer); // This line was removed as per new_code
 
 
         const sendReplyHandler = function() {
@@ -1088,6 +1263,59 @@ Best, ${userName}, Special Investigator`;
             body.classList.remove('dark-mode');
             localStorage.setItem('darkMode', 'disabled');
         }
+    });
+
+    // ---- App Initialization ---
+    function initializeGame(userName) {
+        container.style.display = 'grid'; // Show the email client
+        introScreen.style.display = 'none'; // Hide the intro letter
+
+        // Set user name
+        const formattedName = userName.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+        localStorage.setItem('outcrookUserName', formattedName);
+        userProfile.textContent = `Detective ${formattedName}`;
+
+        // Initial email setup
+        const initialLegalEmail = {
+            id: 'legal-email',
+            sender: 'Eleanor Vance, Chief Legal Officer',
+            subject: 'Uh-oh! TasteBuds Stole Our Yummy Secret!',
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            body: `
+                <h3>Emergency! Our Secret Recipe is Out!</h3>
+                <p>Dear Detective,</p>
+                <p>CODE RED! Our top-secret "TasteBlast" recipe has been SWIPED by those sneaky TasteBuds! They launched an identical product, and we're not happy campers. We need a super sleuth like you to find out WHO, WHAT, and HOW!</p>
+                <p>Your mission, should you choose to accept it, is to gather rock-solid evidence. No flimsy theories! We need facts to take them down in court. The fate of FlavorCo's snacks rests on your investigative shoulders!</p>
+                <p>Keep your ear to the ground and your magnifying glass handy. Report back with juicy findings!</p>
+                <p>Eleanor Vance<br>Chief Legal Officer (and Head of Snack Protection)</p>
+            `,
+            folder: 'inbox',
+            read: false,
+            replied: false,
+            emailType: 'readOnly', // <-- Add type
+            receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+            timestamp: new Date().getTime() // Precise timestamp for sorting
+        };
+        emails.push(initialLegalEmail);
+        
+        // Setup Event Listeners, timers, and initial load
+        setInterval(updateCurrentTime, 1000);
+        loadEmailsForFolder(currentFolder);
+        refreshUnreadCounts();
+        setupEventListeners(); // This would wrap all the nav clicks, settings, etc.
+    }
+
+    startGameBtn.addEventListener('click', () => {
+        const userName = nameInput.value;
+        if (userName && userName.trim().length > 0) {
+            initializeGame(userName);
+        } else {
+            nameInput.classList.add('input-error');
+        }
+    });
+
+    nameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') startGameBtn.click();
     });
 
 });
