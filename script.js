@@ -153,7 +153,8 @@ document.addEventListener('DOMContentLoaded', () => {
         read: false,
         replied: false,
         emailType: 'readOnly', // <-- Add type
-        receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+        receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        timestamp: new Date().getTime() // Precise timestamp for sorting
     };
     emails.push(initialLegalEmail);
 
@@ -223,13 +224,14 @@ document.addEventListener('DOMContentLoaded', () => {
             <h3>Great catch, Detective!</h3>
             <p>Thanks for reporting that junk email. Vigilance like yours is key to our security. We've analyzed the threat and taken action.</p>
             <p>To help with your investigation, we've approved the installation of a new "Network Analysis" tool for your terminal. This will grant you elevated privileges to uncover hidden data within our systems.</p>
-            <p>Please click the link below to begin the installation. It should only take a moment.</p>
-            <p><a href="#" id="install-tool-link">Install Network Analysis Tool</a></p>
+            <p>Please click the button below to begin the installation. It should only take a moment.</p>
+            <button id="install-tool-btn" class="install-btn-pulsate">Install Network Analysis Tool</button>
             <p>Stay sharp,</p>
             <p>IT Support</p>
         `,
         folder: 'inbox',
         read: false,
+        replied: false, // Add replied property
         emailType: 'readOnly',
     };
 
@@ -422,11 +424,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Add click event listener to install link if it exists
-        const installLink = emailBodyContentDiv.querySelector('#install-tool-link');
-        if (installLink) {
-            installLink.addEventListener('click', (e) => {
+        const installBtn = emailBodyContentDiv.querySelector('#install-tool-btn');
+        if (installBtn) {
+            installBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                simulateInstallation();
+                // Disable the button to prevent re-installation
+                installBtn.textContent = 'Tool Already Installed';
+                installBtn.disabled = true;
+                installBtn.classList.remove('install-btn-pulsate');
+                // Mark the email as "replied" to so the state is saved
+                email.replied = true; 
+                simulateInstallation(email); // Pass the email to be deleted
             });
         }
     }
@@ -472,7 +480,7 @@ Best, ${userName}, Special Investigator`;
         setTimeout(deliverNextStoryEmail, 3000);
     }
 
-    function simulateInstallation() {
+    function simulateInstallation(emailToTrash) {
         const installOverlay = document.getElementById('install-overlay');
         const progressBar = document.getElementById('progress-bar');
         const installStatus = document.getElementById('install-status');
@@ -492,6 +500,12 @@ Best, ${userName}, Special Investigator`;
                 setTimeout(() => {
                     installOverlay.style.display = 'none';
                     addMagnifyingGlassIcon();
+                    // Move the IT email to trash
+                    if (emailToTrash) {
+                        emailToTrash.folder = 'trash';
+                        loadEmailsForFolder(currentFolder);
+                        refreshUnreadCounts();
+                    }
                 }, 1500);
             }
         }, 200);
@@ -588,12 +602,8 @@ Best, ${userName}, Special Investigator`;
 
         const filteredEmails = emails.filter(email => email.folder === folder);
         if (filteredEmails.length > 0) {
-            // Sort emails by receivedTime in descending order (latest on top) for all folders
-            filteredEmails.sort((a, b) => {
-                const timeA = new Date(`2000/01/01 ${a.receivedTime}`);
-                const timeB = new Date(`2000/01/01 ${b.receivedTime}`);
-                return timeB - timeA;
-            });
+            // Sort emails by precise timestamp in descending order (latest on top)
+            filteredEmails.sort((a, b) => b.timestamp - a.timestamp);
 
             filteredEmails.forEach(email => {
                 emailListDiv.appendChild(renderEmailItem(email));
@@ -635,6 +645,13 @@ Best, ${userName}, Special Investigator`;
                 }, 5000);
             }
         }
+        // Pulsate install button if it's the IT email and not installed
+        if (email.id === 'it-support-email' && !email.replied) {
+            const installBtn = document.getElementById('install-tool-btn');
+            if (installBtn) {
+                installBtn.classList.add('install-btn-pulsate');
+            }
+        }
 
         // Mark as read and update badge (will only run once thanks to the check)
         if (!email.read) {
@@ -664,11 +681,12 @@ Best, ${userName}, Special Investigator`;
     // Function to deliver Jane's welcome email
     function deliverWelcomeEmail() {
         const welcomeEmail = { ...welcomeEmailTemplate };
-        welcomeEmail.date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        welcomeEmail.receivedTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        const now = new Date();
+        welcomeEmail.date = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        welcomeEmail.receivedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        welcomeEmail.timestamp = now.getTime(); // Precise timestamp for sorting
         
         emails.push(welcomeEmail);
-        loadEmailsForFolder('inbox'); // Reload inbox to show the new email on top
         refreshUnreadCounts();
     }
 
@@ -684,8 +702,10 @@ Best, ${userName}, Special Investigator`;
     function deliverNextStoryEmail() {
         if (nextStoryEmailIndex < storyEmailsQueue.length) {
             const nextEmail = { ...storyEmailsQueue[nextStoryEmailIndex] }; // Create a copy
-            nextEmail.date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            nextEmail.receivedTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            const now = new Date();
+            nextEmail.date = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            nextEmail.receivedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            nextEmail.timestamp = now.getTime(); // Precise timestamp for sorting
             emails.push(nextEmail);
             refreshUnreadCounts(); // Update notification badge without changing folder
             // If user is currently in the inbox, refresh the view to show the new email
@@ -709,8 +729,10 @@ Best, ${userName}, Special Investigator`;
 
     function deliverITSupportEmail() {
         const itEmail = { ...itSupportEmailTemplate };
-        itEmail.date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        itEmail.receivedTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        const now = new Date();
+        itEmail.date = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        itEmail.receivedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        itEmail.timestamp = now.getTime(); // Precise timestamp for sorting
         
         emails.push(itEmail);
         refreshUnreadCounts();
