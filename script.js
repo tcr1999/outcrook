@@ -545,37 +545,31 @@ Best, ${userName}, Special Investigator`;
     }
 
     function addMagnifyingGlassIcon() {
-        const headerRight = document.querySelector('.header-right');
-        if (document.getElementById('magnifying-glass-icon')) return; // Don't add if it exists
-
-        const magnifyingGlass = document.createElement('div');
-        magnifyingGlass.id = 'magnifying-glass-icon';
-        magnifyingGlass.textContent = '🔍';
-        magnifyingGlass.style.fontSize = '1.5em';
-        magnifyingGlass.style.cursor = 'pointer';
+        const microscopeWrapper = document.getElementById('microscope-wrapper');
+        const magnifyingGlass = document.getElementById('magnifying-glass-icon');
+        const statusText = document.getElementById('microscope-status');
         
-        // Add click listener to reveal clues
+        // Make the whole element visible
+        microscopeWrapper.classList.add('visible');
+        
+        // Add click listener to toggle the microscope state
         magnifyingGlass.addEventListener('click', () => {
             const body = document.body;
-            // Toggle an 'active' state on the microscope
-            magnifyingGlass.classList.toggle('active');
+            microscopeWrapper.classList.toggle('active');
             body.classList.toggle('microscope-active');
 
-            if (magnifyingGlass.classList.contains('active')) {
-                showCustomPrompt('Digital Microscope is now ACTIVE. Hover over scrambled text to reveal clues.', 'alert');
+            if (microscopeWrapper.classList.contains('active')) {
+                statusText.textContent = 'ON';
                 // Force custom cursor on and clear any emoji
                 customCursor.textContent = '';
                 body.classList.add('custom-cursor-active');
                 customCursor.style.display = 'block';
             } else {
-                showCustomPrompt('Digital Microscope is now OFF.', 'alert');
-                // Revert to user's chosen cursor theme by calling the function
-                // This will correctly hide the custom cursor if the theme is 'default'
+                statusText.textContent = 'OFF';
+                // Revert to user's chosen cursor theme
                 applyCursorTheme(localStorage.getItem('cursorTheme') || 'default');
             }
         });
-
-        headerRight.insertBefore(magnifyingGlass, currentTimeSpan);
     }
 
     // New function to handle jumbling the clue text

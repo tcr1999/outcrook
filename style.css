@@ -833,6 +833,14 @@ input:checked + .slider:before {
     transform: translateX(22px);
 }
 
+.slider.round {
+    border-radius: 34px;
+}
+  
+.slider.round:before {
+    border-radius: 50%;
+}
+
 /* Close Settings Button */
 #close-settings-btn {
     background-color: #6c757d;
@@ -988,4 +996,42 @@ body.dark-mode #custom-prompt-buttons #custom-prompt-cancel:hover {
 
 .email-item.slide-in {
     animation: slideInRight 0.125s ease-out forwards; /* 0.125s duration (halved again) */
+}
+
+/* --- Microscope & Clue Styles --- */
+#microscope-wrapper {
+    display: none; /* Initially hidden */
+    flex-direction: column;
+    align-items: center;
+    margin-right: 15px; /* Space between microscope and user info */
+    position: relative;
+}
+
+#microscope-wrapper.visible {
+    display: flex; /* Show when the tool is installed */
+}
+
+#magnifying-glass-icon {
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: filter 0.2s ease;
+}
+
+#magnifying-glass-icon:hover {
+    filter: drop-shadow(0 0 4px #fff);
+}
+
+#microscope-status {
+    font-size: 0.7em;
+    font-weight: bold;
+    color: #a0ddff;
+    margin-top: -2px;
+}
+
+#microscope-wrapper.active #microscope-status {
+    color: #ffff00; /* Bright yellow when ON */
+}
+
+body.microscope-active {
+    cursor: none; /* Hide default cursor */
 }
