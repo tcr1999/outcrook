@@ -341,6 +341,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const deleteButton = emailItem.querySelector('.delete-email-item-btn');
+        // Hide delete button in the trash folder
+        if (currentFolder === 'trash') {
+            deleteButton.style.display = 'none';
+        }
+
         deleteButton.addEventListener('click', (event) => {
             event.stopPropagation(); // Prevent the email item click event from firing
             const emailIdToDelete = event.target.dataset.emailId;
