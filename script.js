@@ -1,5 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ---- DOM Elements ----
+    const container = document.querySelector('.container');
+    const introScreen = document.getElementById('intro-screen');
+    const nameInput = document.getElementById('name-input');
+    const startGameBtn = document.getElementById('start-game-btn');
+
     const userProfile = document.getElementById('user-profile');
     const emailListDiv = document.querySelector('.email-list');
     const emailListFolderHeader = document.getElementById('email-list-folder-header');
@@ -264,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Function to get user name
-    async function getUserName() { // Made async to use await
+    async function getUserName() {
         let userName = localStorage.getItem('outcrookUserName');
         if (!userName) {
             let isValidName = false;
@@ -848,7 +853,7 @@ Best, ${userName}, Special Investigator`;
     }
 
     // Reply email functionality
-    replyEmailBtn.addEventListener('click', () => {
+    function handleReplyClick() {
         // Capture the currently displayed email's details from emailBodyContentDiv
         const currentEmailSubject = emailBodyContentDiv.querySelector('h3').textContent;
         const currentEmailSender = emailBodyContentDiv.querySelector('p:nth-of-type(1)').textContent.replace('From: ', '');
@@ -961,7 +966,7 @@ Best, ${userName}, Special Investigator`;
         };
 
         document.addEventListener('keydown', startTypingListener);
-    });
+    }
 
     // Settings menu and Dark Mode functionality
     const settingsBtn = document.getElementById('settings-btn');
@@ -1015,36 +1020,7 @@ Best, ${userName}, Special Investigator`;
         }
     }
 
-    async function init() {
-        await getUserName();
-
-        // Initial email setup
-        const initialLegalEmail = {
-            id: 'legal-email',
-            sender: 'Eleanor Vance, Chief Legal Officer',
-            subject: 'URGENT & CONFIDENTIAL: Internal Investigation',
-            date: new Date().toLocaleString('en-US', { month: 'short', day: 'numeric' }),
-            body: `
-                <h3>Regarding: Project Chimera - Urgent & Confidential</h3>
-                <p>Detective,</p>
-                <p>Welcome to FlavorCo. We have a sensitive situation. Our competitor, TasteBuds, has launched a product identical to our bestseller, "Ambrosia," which was developed under the code name Project Chimera. This is too specific to be a coincidence.</p>
-                <p>We suspect a leak. Your job is to investigate this internally, with full access but complete discretion. Start by talking to Sarah Chen in Marketing. She was the project lead.</p>
-                <p>We're counting on you.</p>
-                <p>Eleanor Vance<br>Chief Legal Officer</p>
-            `,
-            folder: 'inbox',
-            read: false,
-            replied: false,
-            emailType: 'readOnly',
-            receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-            timestamp: new Date().getTime()
-        };
-        emails.push(initialLegalEmail);
-
-        // Setup Event Listeners, timers, and initial load
-        setInterval(updateCurrentTime, 1000);
-        updateCurrentTime();
-        
+    function setupEventListeners() {
         // Handle navigation item clicks
         const navItems = document.querySelectorAll('.nav-item');
         navItems.forEach(item => {
@@ -1054,18 +1030,6 @@ Best, ${userName}, Special Investigator`;
                 loadEmailsForFolder(folder);
             });
         });
-
-        loadEmailsForFolder(currentFolder);
-        refreshUnreadCounts();
-
-        // Load preferences
-        if (localStorage.getItem('darkMode') === 'enabled') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('dark-mode-toggle').checked = true;
-        }
-        const savedCursorTheme = localStorage.getItem('cursorTheme') || 'default';
-        applyCursorTheme(savedCursorTheme);
-        document.addEventListener('mousemove', handleMouseMove);
 
         // Settings Menu Listeners
         settingsBtn.addEventListener('click', () => settingsMenu.style.display = 'flex');
@@ -1084,9 +1048,63 @@ Best, ${userName}, Special Investigator`;
                 applyCursorTheme(option.dataset.cursor);
             });
         });
+
+        // Reply button main listener
+        replyEmailBtn.addEventListener('click', handleReplyClick);
     }
 
-    init();
+    function initializeGame(userName) {
+        container.style.display = 'grid'; // Show the email client
+        introScreen.style.display = 'none'; // Hide the intro letter
+
+        // Set user name
+        const formattedName = userName.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+        localStorage.setItem('outcrookUserName', formattedName);
+        userProfile.textContent = `Detective ${formattedName}`;
+
+        // Setup Event Listeners, timers, and initial load
+        setInterval(updateCurrentTime, 1000);
+        updateCurrentTime();
+        
+        setupEventListeners();
+        
+        loadEmailsForFolder(currentFolder); // Load initially empty inbox
+        refreshUnreadCounts();
+
+        // Load preferences
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('dark-mode-toggle').checked = true;
+        }
+        const savedCursorTheme = localStorage.getItem('cursorTheme') || 'default';
+        applyCursorTheme(savedCursorTheme);
+        document.addEventListener('mousemove', handleMouseMove);
+
+        // Deliver Jane's email after 3 seconds
+        setTimeout(deliverWelcomeEmail, 3000);
+    }
+
+    startGameBtn.addEventListener('click', () => {
+        const userName = nameInput.value;
+        if (userName && userName.trim().length > 0) {
+            initializeGame(userName);
+        } else {
+            nameInput.classList.add('input-error');
+        }
+    });
+
+    nameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            startGameBtn.click();
+        }
+    });
+
+    nameInput.addEventListener('input', () => {
+        if (nameInput.classList.contains('input-error')) {
+            nameInput.classList.remove('input-error');
+        }
+    });
 });
 
 
