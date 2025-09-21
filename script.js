@@ -496,12 +496,15 @@ Best, ${userName}, Special Investigator`;
             if (selectedOption.consequence === 'reportJunk') {
                 // Only deliver the IT email if it hasn't been sent before
                 if (!itEmailSent) {
-                    setTimeout(() => deliverITSupportEmail(selectedOption.consequence), 3000);
+                    setTimeout(() => deliverITSupportEmail(selectedOption.consequence), 5000);
                     itEmailSent = true; // Mark as sent
                 }
             } else if (selectedOption.consequence === 'scam') {
                 startSpamCascade(); // Start the spam cascade
             }
+        } else if (originalEmail.id === 'marketing-email') {
+            // Replying to Sarah starts the spam cascade after 6 seconds
+            setTimeout(startSpamCascade, 6000);
         } else {
             // Otherwise, trigger the next main story email after 3 seconds
             setTimeout(deliverNextStoryEmail, 3000);
@@ -746,11 +749,6 @@ Best, ${userName}, Special Investigator`;
                 loadEmailsForFolder('inbox');
             }
             nextStoryEmailIndex++;
-
-            // After Sarah's email (index 0), trigger spam
-            if (storyEmailsQueue[nextStoryEmailIndex - 1].id === 'marketing-email') {
-                setTimeout(startSpamCascade, 10000); // Start the spam cascade 10s after Sarah's
-            }
         }
     }
 
@@ -761,14 +759,11 @@ Best, ${userName}, Special Investigator`;
         const allSpamTemplates = [spamEmail1Template, spamEmail2Template, spamEmail3Template, spamEmail4Template, spamEmail5Template];
         availableSpamTemplates = [...allSpamTemplates];
 
-
-        // Deliver the first spam email after 15 seconds
-        setTimeout(() => {
-            deliverRandomSpam();
-            
-            // Then, start the interval for subsequent emails every 8 seconds
-            spamCascadeInterval = setInterval(deliverRandomSpam, 8000);
-        }, 15000);
+        // Deliver the first spam email immediately (delay is handled by the caller)
+        deliverRandomSpam();
+        
+        // Then, start the interval for subsequent emails every 15 seconds
+        spamCascadeInterval = setInterval(deliverRandomSpam, 15000);
     }
     
     function deliverRandomSpam() {
