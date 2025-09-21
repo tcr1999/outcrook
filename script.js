@@ -341,8 +341,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const deleteButton = emailItem.querySelector('.delete-email-item-btn');
-        // Hide delete button in the trash folder
-        if (currentFolder === 'trash') {
+        // Hide delete button in the trash folder or for Jane's email
+        if (currentFolder === 'trash' || email.id === 'welcome-email') {
             deleteButton.style.display = 'none';
         }
 
