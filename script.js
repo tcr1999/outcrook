@@ -433,6 +433,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Nudge for magnifying glass on R&D email
         if (magnifyingGlassIcon && email.id === 'rd-email') {
             magnifyingGlassIcon.classList.add('pulse-magnify');
+            
+            // Start compose pulsation when R&D email is viewed (user can now use magnifier to reveal "Alex")
+            setTimeout(() => {
+                const composeBtn = document.querySelector('.compose-btn');
+                if (composeBtn && !composeBtn.classList.contains('compose-nudge-active')) {
+                    composeBtn.classList.add('compose-nudge-active');
+                }
+            }, 2000); // 2 seconds after viewing R&D email
         }
 
         const welcomeUserNameSpan = emailBodyContentDiv.querySelector('#welcome-user-name');
@@ -520,6 +528,10 @@ Best, ${userName}, Special Investigator`;
             } else if (selectedOption.consequence === 'scam') {
                 startSpamCascade(); // Start the spam cascade
             }
+            
+            // Refresh the current folder view to show the email moved to trash
+            loadEmailsForFolder(currentFolder);
+            refreshUnreadCounts();
         } else if (originalEmail.id === 'marketing-email') {
             // Replying to Sarah starts the spam cascade after 6 seconds
             setTimeout(startSpamCascade, 6000);
@@ -1389,13 +1401,7 @@ Detective ${userName}`;
                 loadEmailsForFolder('inbox');
             }
             
-            // Make compose button pulsate after HR email
-            setTimeout(() => {
-                const composeBtn = document.querySelector('.compose-btn');
-                if (composeBtn) {
-                    composeBtn.classList.add('compose-nudge-active');
-                }
-            }, 3000);
+            // Don't pulsate compose button here - will happen after magnifier reveals "Alex"
             
             // Trigger CEO email after 5 seconds
             setTimeout(() => {
