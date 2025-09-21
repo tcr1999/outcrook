@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //         <p>Thanks for reporting that junk email. Vigilance like yours is key to our security. We've analyzed the threat and taken action.</p>
     //         <p>To help with your investigation, we've approved the installation of a new "Network Analysis" tool for your terminal. This will grant you elevated privileges to uncover hidden data within our systems.</p>
     //         <p>Please click the button below to begin the installation. It should only take a moment.</p>
-    //         <button id="install-tool-btn" class="install-btn-pulsate">Install Network Analysis Tool</button>
+    //         <button id="install-tool-btn" class="install-btn">Install Network Analysis Tool</button>
     //         <p>Stay sharp,</p>
     //         <p>IT Support</p>
     //     `,
@@ -1265,7 +1265,175 @@ Best, ${userName}, Special Investigator`;
         }
     });
 
-    // ---- App Initialization ---
+    // ---- App Initialization ----
+
+    function setupEventListeners() {
+        // Handle navigation item clicks
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const folder = item.id.replace('-nav', ''); // Get folder name from ID
+                setActiveFolder(folder);
+                loadEmailsForFolder(folder);
+            });
+        });
+
+        // Add other listeners like settings, dark mode, etc. here if they are part of the main app UI
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsMenu = document.getElementById('settings-menu');
+        const closeSettingsBtn = document.getElementById('close-settings-btn');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const body = document.body;
+
+        settingsBtn.addEventListener('click', () => settingsMenu.style.display = 'flex');
+        closeSettingsBtn.addEventListener('click', () => settingsMenu.style.display = 'none');
+
+        darkModeToggle.addEventListener('change', () => {
+            if (darkModeToggle.checked) {
+                body.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        });
+
+        // Custom cursor elements
+        const cursorOptions = document.querySelectorAll('.cursor-option');
+        cursorOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                applyCursorTheme(option.dataset.cursor);
+            });
+        });
+
+        replyEmailBtn.addEventListener('click', () => {
+            // Capture the currently displayed email's details from emailBodyContentDiv
+            const currentEmailSubject = emailBodyContentDiv.querySelector('h3').textContent;
+            const currentEmailSender = emailBodyContentDiv.querySelector('p:nth-of-type(1)').textContent.replace('From: ', '');
+
+            // Find the original email object to get its ID for reply generation
+            const originalEmail = emails.find(email => email.subject === currentEmailSubject && email.sender === currentEmailSender);
+
+            if (!originalEmail || originalEmail.replied) {
+                showCustomPrompt('You have already replied to this email or it\'s not a valid email to reply to.', 'alert');
+                return;
+            }
+
+            const userName = localStorage.getItem('outcrookUserName') || 'User';
+            const replyText = generateReplyBody(originalEmail, userName);
+
+            // Create a new container for the reply interface elements
+            const replyInterfaceContainer = document.createElement('div');
+            replyInterfaceContainer.id = 'reply-interface-container';
+            replyInterfaceContainer.style.display = 'flex'; // Use flex for layout of its children
+            replyInterfaceContainer.style.flexDirection = 'column';
+
+            // Clear emailBodyContentDiv and prepare for reply interface
+            emailBodyContentDiv.innerHTML = `
+                <h3>Replying to: ${originalEmail.subject}</h3>
+                <div id="reply-typing-area" style="border: 1px solid #ccc; padding: 10px; min-height: 100px; white-space: pre-wrap; position: relative; user-select: none;"></div>
+            `;
+            replyEmailBtn.style.display = 'none'; // Hide original reply button
+
+            const replyTypingArea = document.getElementById('reply-typing-area');
+            let typingStarted = false;
+
+            // Create and append the type prompt initially to replyTypingArea
+            const typePrompt = document.createElement('p');
+            typePrompt.id = 'type-prompt';
+            typePrompt.classList.add('flashing-text');
+            typePrompt.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);';
+            typePrompt.textContent = 'Press any key to start typing...';
+            replyTypingArea.appendChild(typePrompt);
+
+            // Create send button and prompt, append to replyInterfaceContainer
+            sendPromptElement = document.createElement('p');
+            sendPromptElement.id = 'send-prompt';
+            sendPromptElement.textContent = 'Press Enter to send';
+            sendPromptElement.style.display = 'none'; // Initially hidden
+            replyInterfaceContainer.appendChild(sendPromptElement);
+            
+            sendReplyBtn = document.createElement('button');
+            sendReplyBtn.id = 'send-reply-btn';
+            sendReplyBtn.textContent = 'Send';
+            sendReplyBtn.style.display = 'none'; // Initially hidden
+            replyInterfaceContainer.appendChild(sendReplyBtn);
+
+            // Append the new reply interface container to emailContentDiv, AFTER emailBodyContentDiv
+            // document.querySelector('.email-content').appendChild(replyInterfaceContainer); // This line was removed as per new_code
+
+
+            const sendReplyHandler = function() {
+                sendReplyBtn.removeEventListener('click', sendReplyHandler);
+                document.removeEventListener('keydown', enterSendHandler);
+                
+                replyInterfaceContainer.style.display = 'none'; // Hide the entire reply interface
+                replyInterfaceContainer.remove(); // Remove from DOM after use
+
+                const sentReply = {
+                    id: `reply-${originalEmail.id}-${Date.now()}`,
+                    sender: `${userName}, Special Investigator`,
+                    subject: `Re: ${originalEmail.subject}`,
+                    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                    body: `<pre>${replyText}</pre>`,
+                    folder: 'sent',
+                    read: true,
+                    receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                };
+                emails.push(sentReply);
+                originalEmail.replied = true;
+                // Move the original email to trash after replying.
+                originalEmail.folder = 'trash'; 
+
+                showCustomPrompt('Reply sent!', 'alert'); // Use custom alert
+                // Reload the inbox folder to show the original email, not sent
+                loadEmailsForFolder('inbox');
+                refreshUnreadCounts();
+
+                // Remove nudge after replying
+                replyEmailBtn.classList.remove('reply-nudge-active');
+
+                // Re-select the original email item in the inbox to keep it highlighted
+                const correspondingEmailItem = emailListDiv.querySelector(`[data-email-id="${originalEmail.id}"]`);
+                if (correspondingEmailItem) {
+                    document.querySelectorAll('.email-item').forEach(el => el.classList.remove('active'));
+                    correspondingEmailItem.classList.add('active');
+                }
+                
+                // Trigger next story email 3 seconds after replying to Jane's welcome email
+                if (originalEmail.id === 'welcome-email') {
+                    setTimeout(deliverNextStoryEmail, 3000);
+                }
+            };
+
+            const enterSendHandler = function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    sendReplyHandler();
+                }
+            };
+
+            const startTypingListener = function(event) {
+                if (!typingStarted && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
+                    typePrompt.remove(); // Remove the prompt entirely
+                    typingStarted = true;
+                    document.removeEventListener('keydown', startTypingListener); // Remove this listener once typing starts
+                    
+                    simulateTyping(replyTypingArea, replyText, 15, () => {
+                        sendPromptElement.style.display = 'block'; // Show prompt
+                        sendReplyBtn.style.display = 'block'; // Show the Send button
+
+                        sendReplyBtn.addEventListener('click', sendReplyHandler);
+                        document.addEventListener('keydown', enterSendHandler);
+                    });
+                }
+            };
+
+            document.addEventListener('keydown', startTypingListener);
+        });
+    }
+
+
     function initializeGame(userName) {
         container.style.display = 'grid'; // Show the email client
         introScreen.style.display = 'none'; // Hide the intro letter
@@ -1279,22 +1447,22 @@ Best, ${userName}, Special Investigator`;
         const initialLegalEmail = {
             id: 'legal-email',
             sender: 'Eleanor Vance, Chief Legal Officer',
-            subject: 'Uh-oh! TasteBuds Stole Our Yummy Secret!',
-            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            subject: 'URGENT & CONFIDENTIAL: Internal Investigation',
+            date: new Date().toLocaleString('en-US', { month: 'short', day: 'numeric' }),
             body: `
-                <h3>Emergency! Our Secret Recipe is Out!</h3>
-                <p>Dear Detective,</p>
-                <p>CODE RED! Our top-secret "TasteBlast" recipe has been SWIPED by those sneaky TasteBuds! They launched an identical product, and we're not happy campers. We need a super sleuth like you to find out WHO, WHAT, and HOW!</p>
-                <p>Your mission, should you choose to accept it, is to gather rock-solid evidence. No flimsy theories! We need facts to take them down in court. The fate of FlavorCo's snacks rests on your investigative shoulders!</p>
-                <p>Keep your ear to the ground and your magnifying glass handy. Report back with juicy findings!</p>
-                <p>Eleanor Vance<br>Chief Legal Officer (and Head of Snack Protection)</p>
+                <h3>Regarding: Project Chimera - Urgent & Confidential</h3>
+                <p>Detective,</p>
+                <p>Welcome to FlavorCo. We have a sensitive situation. Our competitor, TasteBuds, has launched a product identical to our bestseller, "Ambrosia," which was developed under the code name Project Chimera. This is too specific to be a coincidence.</p>
+                <p>We suspect a leak. Your job is to investigate this internally, with full access but complete discretion. Start by talking to Sarah Chen in Marketing. She was the project lead.</p>
+                <p>We're counting on you.</p>
+                <p>Eleanor Vance<br>Chief Legal Officer</p>
             `,
             folder: 'inbox',
             read: false,
             replied: false,
-            emailType: 'readOnly', // <-- Add type
+            emailType: 'readOnly',
             receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-            timestamp: new Date().getTime() // Precise timestamp for sorting
+            timestamp: new Date().getTime()
         };
         emails.push(initialLegalEmail);
         
@@ -1302,7 +1470,16 @@ Best, ${userName}, Special Investigator`;
         setInterval(updateCurrentTime, 1000);
         loadEmailsForFolder(currentFolder);
         refreshUnreadCounts();
-        setupEventListeners(); // This would wrap all the nav clicks, settings, etc.
+        setupEventListeners();
+
+        // Load preferences
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('dark-mode-toggle').checked = true;
+        }
+        const savedCursorTheme = localStorage.getItem('cursorTheme') || 'default';
+        applyCursorTheme(savedCursorTheme);
+        document.addEventListener('mousemove', handleMouseMove);
     }
 
     startGameBtn.addEventListener('click', () => {
@@ -1315,9 +1492,19 @@ Best, ${userName}, Special Investigator`;
     });
 
     nameInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') startGameBtn.click();
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent form submission
+            startGameBtn.click();
+        }
     });
 
+    nameInput.addEventListener('input', () => {
+        if (nameInput.classList.contains('input-error')) {
+            nameInput.classList.remove('input-error');
+        }
+    });
+
+    // Note: No top-level init() call anymore, game starts on button click.
 });
 
 
