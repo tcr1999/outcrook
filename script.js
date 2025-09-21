@@ -369,9 +369,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadEmailsForFolder(currentFolder); // Re-load current folder
                 refreshUnreadCounts();
 
-                // If Eleanor's email is deleted, deliver Jane's email
+                // If Eleanor's email is deleted, deliver Jane's email after 3 seconds
                 if (emailIdToDelete === 'legal-email') {
-                    deliverWelcomeEmail();
+                    setTimeout(deliverWelcomeEmail, 3000);
                 }
             }
         });
@@ -465,11 +465,11 @@ Best, ${userName}, Special Investigator`;
 
         // If user reported junk, deliver the IT support email after a delay
         if (selectedOption.consequence === 'reportJunk') {
-            setTimeout(deliverITSupportEmail, 10000); // 10 seconds
+            setTimeout(deliverITSupportEmail, 10000); // 10 seconds, as this is a side quest
         }
 
-        // Trigger the next main story email regardless of choice
-        deliverNextStoryEmail();
+        // Trigger the next main story email after 3 seconds
+        setTimeout(deliverNextStoryEmail, 3000);
     }
 
     function simulateInstallation() {
@@ -613,8 +613,12 @@ Best, ${userName}, Special Investigator`;
     }
 
     function handleEmailDisplay(email, emailItem) {
-        // Stop any existing pulses when a new email is selected
-        document.querySelectorAll('.delete-email-item-btn').forEach(btn => btn.classList.remove('delete-nudge-active'));
+        // Stop any existing pulses when a new email is selected, unless it's for the current read-only email
+        document.querySelectorAll('.delete-email-item-btn').forEach(btn => {
+            if (btn.dataset.emailId !== email.id) {
+                btn.classList.remove('delete-nudge-active');
+            }
+        });
 
         displayEmailContent(email);
 
@@ -691,7 +695,7 @@ Best, ${userName}, Special Investigator`;
             nextStoryEmailIndex++;
             // After Sarah's email (index 0), deliver the spam
             if (storyEmailsQueue[nextStoryEmailIndex - 1].id === 'marketing-email') {
-                setTimeout(deliverSpamEmails, 10000);
+                setTimeout(deliverSpamEmails, 10000); // Keep this at 10s for the side quest
             }
         }
     }
