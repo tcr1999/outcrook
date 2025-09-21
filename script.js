@@ -606,9 +606,20 @@ Best, ${userName}, Special Investigator`;
             filteredEmails.sort((a, b) => b.timestamp - a.timestamp);
 
             filteredEmails.forEach(email => {
-                emailListDiv.appendChild(renderEmailItem(email));
+                const emailItem = renderEmailItem(email);
+                
+                // Always add pulsation to the read legal-email when it's rendered
+                if (email.id === 'legal-email' && email.read) {
+                    const deleteButton = emailItem.querySelector('.delete-email-item-btn');
+                    if (deleteButton) {
+                        deleteButton.classList.add('delete-nudge-active');
+                    }
+                }
+
+                emailListDiv.appendChild(emailItem);
             });
-            // Select the first unread email, or the first email if all are read
+
+            // Select the first email in the sorted list
             const firstEmailToSelect = filteredEmails.find(email => !email.read) || filteredEmails[0];
             if (firstEmailToSelect) {
                 const correspondingEmailItem = emailListDiv.querySelector(`[data-email-id="${firstEmailToSelect.id}"]`);
