@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <h3>Recipe Heist! R&D is a Mess!</h3>
             <p>Attention All! (Especially Detective!)</p>
             <p>Our precious "TasteBlast" formula has vanished into thin air! TasteBuds' new product is proof! We need a full-scale investigation into our lab. Every beaker, every test tube, every… sniff… must be checked!</p>
-            <p>And speaking of sniffs, I recall a certain "<span class="hidden-clue">Alex</span>" (our junior researcher) grumbling about promotions and secret files. Could it be a clue? Find out who took our delicious secrets!</p>
+            <p>And speaking of sniffs, I recall a certain "<span class="jumbled-clue" data-clue="Alex"></span>" (our junior researcher) grumbling about promotions and secret files. Could it be a clue? Find out who took our delicious secrets!</p>
             <p>Panicked but Scientific,</p>
             <p>Dr. Aris Thorne<br>Head of R&D (currently wearing a tin-foil hat)</p>
         `,
@@ -556,14 +556,37 @@ Best, ${userName}, Special Investigator`;
         
         // Add click listener to reveal clues
         magnifyingGlass.addEventListener('click', () => {
-            const hiddenClues = document.querySelectorAll('.hidden-clue');
-            hiddenClues.forEach(clue => {
-                clue.style.backgroundColor = 'yellow';
-                clue.style.color = 'black';
-            });
+            const body = document.body;
+            // Toggle an 'active' state on the microscope
+            magnifyingGlass.classList.toggle('active');
+            body.classList.toggle('microscope-active');
+
+            if (magnifyingGlass.classList.contains('active')) {
+                showCustomPrompt('Digital Microscope is now ACTIVE. Hover over scrambled text to reveal clues.', 'alert');
+            } else {
+                showCustomPrompt('Digital Microscope is now OFF.', 'alert');
+            }
         });
 
         headerRight.insertBefore(magnifyingGlass, currentTimeSpan);
+    }
+
+    // New function to handle jumbling the clue text
+    function jumbleClueText() {
+        const clueElement = document.querySelector('.jumbled-clue');
+        if (clueElement && !clueElement.hasChildNodes()) { // Only jumble if it's not already done
+            const clue = clueElement.dataset.clue;
+            const letters = clue.split('');
+            clueElement.innerHTML = ''; // Clear it
+            letters.forEach(letter => {
+                const span = document.createElement('span');
+                span.textContent = letter;
+                span.style.setProperty('--rot', `${Math.random() * 40 - 20}deg`);
+                span.style.setProperty('--x', `${Math.random() * 6 - 3}px`);
+                span.style.setProperty('--y', `${Math.random() * 6 - 3}px`);
+                clueElement.appendChild(span);
+            });
+        }
     }
 
     // Function to generate a reply body
@@ -698,6 +721,9 @@ Best, ${userName}, Special Investigator`;
                 installBtn.classList.add('install-btn-pulsate');
             }
         }
+
+        // After displaying, jumble any clues in the email body
+        jumbleClueText();
 
         // Mark as read and update badge (will only run once thanks to the check)
         if (!email.read) {

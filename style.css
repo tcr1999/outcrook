@@ -157,6 +157,30 @@ body {
     transition: opacity 0.1s ease;
 }
 
+#magnifying-glass-icon.active {
+    filter: drop-shadow(0 0 8px yellow);
+}
+
+.jumbled-clue {
+    display: inline-block;
+    padding: 0 5px;
+}
+
+.jumbled-clue span {
+    display: inline-block;
+    transition: transform 0.3s ease;
+    transform: rotate(var(--rot)) translateX(var(--x)) translateY(var(--y));
+    font-family: 'Times New Roman', serif;
+    font-weight: bold;
+    color: #333;
+}
+
+body.microscope-active .jumbled-clue:hover span {
+    transform: rotate(0) translateX(0) translateY(0);
+    color: #0078d4;
+    font-family: 'Aptos', 'Calibri', 'Segoe UI', 'Arial', sans-serif;
+}
+
 .hidden-clue {
     background-color: transparent;
     color: transparent;
