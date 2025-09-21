@@ -1082,7 +1082,8 @@ Best, ${userName}, Special Investigator`;
 
     // Mouse move handler for custom cursor
     function handleMouseMove(e) {
-        if (currentCursorTheme !== 'default') {
+        // If the custom cursor element is visible for any reason, it should follow the mouse.
+        if (customCursor.style.display === 'block') {
             customCursor.style.left = e.clientX + 'px';
             customCursor.style.top = e.clientY + 'px';
         }
