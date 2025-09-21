@@ -280,26 +280,6 @@ document.addEventListener('DOMContentLoaded', () => {
         receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
 
-    const itSecurityEmailTemplate = {
-        id: 'it-security-email',
-        sender: 'IT Security Automated Alert',
-        subject: 'RED ALERT! Our Data Took a Midnight Sneak-Out!',
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        body: `
-            <h3>Unauthorized Data Fun!</h3>
-            <p><strong>System Alert:</strong> FlavorCo Network</p>
-            <p><strong>DANGER Level:</strong> HIGH (like, really high!)</p>
-            <p><strong>Incident:</strong> Our super-secret "TasteBlast" files went on an unauthorized midnight stroll! Data zoomed out from IP (192.168.1.107) to some shady server during prime dreaming hours (02:30 AM PST)!</p>
-            <p><strong>Status:</strong> We've locked the digital doors, but the cat's out of the bag (and the data's out of the server!). Detective, we need you to find the cyber-culprit behind this digital heist!</p>
-            <p>Bleep-bloop,</p>
-            <p>Automated System Message (and a very worried server rack)</p>
-        `,
-        folder: 'inbox',
-        read: false,
-        replied: false,
-        receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-    };
-
     // Unread counts for navigation badges
     const unreadCounts = {
         inbox: 0,
