@@ -476,8 +476,19 @@ Best, ${userName}, Special Investigator`;
             setTimeout(deliverITSupportEmail, 10000); // 10 seconds, as this is a side quest
         }
 
-        // Trigger the next main story email after 3 seconds
-        setTimeout(deliverNextStoryEmail, 3000);
+        // If it's a spam email, clear the timer for the second spam and deliver the IT email.
+        if (originalEmail.id.startsWith('spam-')) {
+            if (spamDeliveryTimer) {
+                clearTimeout(spamDeliveryTimer);
+            }
+            // Deliver the IT support email after a short delay, passing the consequence
+            setTimeout(() => deliverITSupportEmail(selectedOption.consequence), 3000); 
+        } else {
+            // Otherwise, trigger the next main story email after 3 seconds
+            setTimeout(deliverNextStoryEmail, 3000);
+        }
+
+        setActiveFolder('inbox');
     }
 
     function simulateInstallation(emailToTrash) {
@@ -672,13 +683,21 @@ Best, ${userName}, Special Investigator`;
         }
     }
 
+    function setActiveFolder(folderId) {
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(nav => nav.classList.remove('active'));
+        const activeNavItem = document.getElementById(`${folderId}-nav`);
+        if (activeNavItem) {
+            activeNavItem.classList.add('active');
+        }
+    }
+
     // Handle navigation item clicks
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
         item.addEventListener('click', () => {
-            navItems.forEach(nav => nav.classList.remove('active')); // Remove active from all
-            item.classList.add('active'); // Add active to clicked
             const folder = item.id.replace('-nav', ''); // Get folder name from ID
+            setActiveFolder(folder);
             loadEmailsForFolder(folder);
         });
     });
