@@ -44,6 +44,18 @@ body {
     margin-top: 30px;
     display: flex;
     flex-direction: column;
+    position: relative;
+}
+
+#placeholder-flash {
+    position: absolute;
+    top: 13px;
+    left: 15px;
+    font-family: 'Aptos', 'Calibri', 'Segoe UI', 'Arial', sans-serif;
+    color: #999;
+    font-size: 1.1em;
+    pointer-events: none;
+    animation: gradual-flash 1s ease-in-out infinite;
 }
 
 #name-input {
@@ -54,12 +66,19 @@ body {
     margin-bottom: 15px;
     font-family: "Brush Script MT", "Brush Script Std", cursive;
     color: #222;
+    background-color: transparent;
+    position: relative;
+    z-index: 2;
+}
+
+#name-input:focus + #placeholder-flash,
+#name-input:not(:placeholder-shown) + #placeholder-flash {
+    display: none;
 }
 
 #name-input::placeholder {
     font-family: 'Aptos', 'Calibri', 'Segoe UI', 'Arial', sans-serif;
     color: #999;
-    animation: gradual-flash 1s ease-in-out infinite;
 }
 
 @keyframes gradual-flash {
