@@ -755,14 +755,24 @@ Best, ${userName}, Special Investigator`;
     function startSpamCascade() {
         if (spamCascadeInterval) clearInterval(spamCascadeInterval); // Stop any existing cascade
 
-        // Initialize the pool of available spam templates
-        const allSpamTemplates = [spamEmail1Template, spamEmail2Template, spamEmail3Template, spamEmail4Template, spamEmail5Template];
+        // 1. Deliver the first, non-random spam email.
+        const firstSpam = { ...spamEmail1Template };
+        const now = new Date();
+        firstSpam.id = `spam-cascade-${now.getTime()}`;
+        firstSpam.date = now.toLocaleString('en-US', { month: 'short', day: 'numeric' });
+        firstSpam.receivedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        firstSpam.timestamp = now.getTime();
+        emails.push(firstSpam);
+        refreshUnreadCounts();
+        if (currentFolder === 'inbox') {
+            loadEmailsForFolder('inbox');
+        }
+
+        // 2. Initialize the pool for the *rest* of the spam.
+        const allSpamTemplates = [spamEmail2Template, spamEmail3Template, spamEmail4Template, spamEmail5Template];
         availableSpamTemplates = [...allSpamTemplates];
 
-        // Deliver the first spam email immediately (delay is handled by the caller)
-        deliverRandomSpam();
-        
-        // Then, start the interval for subsequent emails every 15 seconds
+        // 3. Start the interval for the subsequent random emails.
         spamCascadeInterval = setInterval(deliverRandomSpam, 15000);
     }
     
