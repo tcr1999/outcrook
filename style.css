@@ -47,11 +47,18 @@ body {
 }
 
 #name-input {
-    padding: 10px;
-    font-size: 1em;
+    padding: 12px 15px;
+    font-size: 1.5em;
     border: 1px solid #ccc;
     border-radius: 4px;
     margin-bottom: 15px;
+    font-family: "Brush Script MT", "Brush Script Std", cursive;
+    color: #222;
+}
+
+#name-input::placeholder {
+    font-family: 'Aptos', 'Calibri', 'Segoe UI', 'Arial', sans-serif;
+    color: #999;
 }
 
 #name-input.input-error {
