@@ -10,6 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let emails = [];
     let currentFolder = 'inbox';
+    let storyTriggered = false;
+    let nextStoryEmailIndex = 0;
+    let spamDeliveryTimer = null; // Timer for the second spam email
+    let itEmailSent = false; // Track if the IT email has been sent
+    let spamCascadeInterval = null; // Timer for the spam cascade
 
     // Declare sendReplyBtn and sendPromptElement at a higher scope
     let sendReplyBtn;
@@ -454,13 +459,21 @@ Best, ${userName}, Special Investigator`;
         loadEmailsForFolder('inbox');
         refreshUnreadCounts();
 
-        // If it's a spam email, clear the timer for the second spam and deliver the IT email.
+        // If it's a spam email, clear the timer for the second spam and handle consequences
         if (originalEmail.id.startsWith('spam-')) {
             if (spamDeliveryTimer) {
                 clearTimeout(spamDeliveryTimer);
             }
-            // Deliver the IT support email after a short delay, passing the consequence
-            setTimeout(() => deliverITSupportEmail(selectedOption.consequence), 3000); 
+            // Handle consequences based on choice
+            if (selectedOption.consequence === 'reportJunk') {
+                // Only deliver the IT email if it hasn't been sent before
+                if (!itEmailSent) {
+                    setTimeout(() => deliverITSupportEmail(selectedOption.consequence), 3000);
+                    itEmailSent = true; // Mark as sent
+                }
+            } else if (selectedOption.consequence === 'scam') {
+                startSpamCascade(); // Start the spam cascade
+            }
         } else {
             // Otherwise, trigger the next main story email after 3 seconds
             setTimeout(deliverNextStoryEmail, 3000);
@@ -713,7 +726,6 @@ Best, ${userName}, Special Investigator`;
     }
 
     // Keep track of the next story email to deliver
-    let nextStoryEmailIndex = 0; // Start with the first story email after Jane's
     const storyEmailsQueue = [
         marketingEmailTemplate,
         rdEmailTemplate,
@@ -770,6 +782,28 @@ Best, ${userName}, Special Investigator`;
         }
     }
 
+
+    function startSpamCascade() {
+        if (spamCascadeInterval) clearInterval(spamCascadeInterval); // Stop any existing cascade
+
+        spamCascadeInterval = setInterval(() => {
+            const spamTemplates = [spamEmail1Template, spamEmail2Template];
+            const randomSpamTemplate = spamTemplates[Math.floor(Math.random() * spamTemplates.length)];
+            const newSpamEmail = { ...randomSpamTemplate };
+            const now = new Date();
+
+            newSpamEmail.id = `spam-cascade-${now.getTime()}`; // Unique ID
+            newSpamEmail.date = now.toLocaleString('en-US', { month: 'short', day: 'numeric' });
+            newSpamEmail.receivedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            newSpamEmail.timestamp = now.getTime();
+            
+            emails.push(newSpamEmail);
+            refreshUnreadCounts();
+            if (currentFolder === 'inbox') {
+                loadEmailsForFolder('inbox');
+            }
+        }, 15000); // New spam every 15 seconds
+    }
 
     function generateITEmailBody(consequence) {
         if (consequence === 'reportJunk') {
