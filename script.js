@@ -594,28 +594,11 @@ Best, ${userName}, Special Investigator`;
                 const randomChar = jumbleChars[Math.floor(Math.random() * jumbleChars.length)];
                 span.textContent = randomChar;
                 span.dataset.char = originalChar; // Store the original character
+                span.dataset.jumble = randomChar; // Store the jumbled character
                 span.style.setProperty('--rot', `${Math.random() * 40 - 20}deg`);
                 span.style.setProperty('--x', `${Math.random() * 6 - 3}px`);
                 span.style.setProperty('--y', `${Math.random() * 6 - 3}px`);
                 clueElement.appendChild(span);
-            });
-
-            // Add hover listeners for revealing
-            clueElement.addEventListener('mouseenter', () => {
-                if (document.body.classList.contains('microscope-active')) {
-                    clueElement.querySelectorAll('span').forEach(span => {
-                        span.textContent = span.dataset.char;
-                    });
-                }
-            });
-
-            clueElement.addEventListener('mouseleave', () => {
-                if (document.body.classList.contains('microscope-active')) {
-                    clueElement.querySelectorAll('span').forEach(span => {
-                        const jumbleChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=';
-                        span.textContent = jumbleChars[Math.floor(Math.random() * jumbleChars.length)];
-                    });
-                }
             });
         });
     }
@@ -1086,6 +1069,26 @@ Best, ${userName}, Special Investigator`;
         if (customCursor.style.display === 'block') {
             customCursor.style.left = e.clientX + 'px';
             customCursor.style.top = e.clientY + 'px';
+
+            // Handle lens-based reveal effect
+            if (document.body.classList.contains('microscope-active')) {
+                const lensRadius = 45; // Half of the cursor's width/height
+                document.querySelectorAll('.jumbled-clue span').forEach(span => {
+                    const rect = span.getBoundingClientRect();
+                    const spanX = rect.left + rect.width / 2;
+                    const spanY = rect.top + rect.height / 2;
+                    
+                    const distance = Math.sqrt(Math.pow(spanX - e.clientX, 2) + Math.pow(spanY - e.clientY, 2));
+
+                    if (distance < lensRadius) {
+                        span.textContent = span.dataset.char;
+                        span.classList.add('revealed');
+                    } else {
+                        span.textContent = span.dataset.jumble;
+                        span.classList.remove('revealed');
+                    }
+                });
+            }
         }
     }
 

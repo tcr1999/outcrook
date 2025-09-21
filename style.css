@@ -187,7 +187,7 @@ body.microscope-active #custom-cursor {
     color: #333;
 }
 
-body.microscope-active .jumbled-clue:hover span {
+.jumbled-clue span.revealed {
     transform: rotate(0) translateX(0) translateY(0);
     color: #0078d4;
     font-family: 'Aptos', 'Calibri', 'Segoe UI', 'Arial', sans-serif;
