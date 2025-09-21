@@ -59,6 +59,16 @@ body {
 #name-input::placeholder {
     font-family: 'Aptos', 'Calibri', 'Segoe UI', 'Arial', sans-serif;
     color: #999;
+    animation: gradual-flash 2s ease-in-out infinite;
+}
+
+@keyframes gradual-flash {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.4;
+    }
 }
 
 #name-input.input-error {
