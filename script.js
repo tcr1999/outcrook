@@ -178,25 +178,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Creative spam emails - these will be dynamically pushed later based on story progression, not on initial load
     const spamEmail1Template = {
         id: 'spam-email-1',
-        sender: 'TotallyLegitBank',
-        subject: 'Your Bank Account is Doing the Macarena! Fix it NOW!',
-        date: new Date(2025, 8, 10).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        sender: 'Royal Emissary of Atlantis',
+        subject: 'URGENT: Sunken Treasure For You',
         body: `
-            <h3>URGENT! Your Money is on the Loose!</h3>
-            <p>Oh no! We've detected your bank account doing the Macarena with some suspicious characters! To stop it from dancing away with all your coins, click this super safe (pinky swear!) link IMMEDIATELY:</p>
-            <p><a href="#" onclick="alert('Nice try! This is spam.'); return false;">Bring My Money Home!</a></p>
-            <p>If you don't, your account will be turned into a pumpkin. Don't say we didn't warn you!</p>
-            <p>Sincerely,</p>
-            <p>The Totally Legit Bank (we're totally not a bunch of squirrels in a trench coat)</p>
+            <h3>Greetings from the Deep!</h3>
+            <p>I bring tidings from the lost city of Atlantis! We have discovered a chest of ancient gold with your name on it. To transport it to the surface, we require a small tribute for the royal submersibles.</p>
+            <p>Please select an option below to proceed.</p>
         `,
-        folder: 'spam',
+        folder: 'inbox',
         read: false,
         emailType: 'multipleChoice',
         replyOptions: [
-            { text: "Report Junk to IT", consequence: "reportJunk" },
-            { text: "Send my account details!", consequence: "fallForScam" }
-        ],
-        receivedTime: new Date(2025, 8, 10, 9, 30).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+            { text: "This sounds legitimate. Send the tribute.", consequence: 'scam' },
+            { text: "Report this email to IT.", consequence: 'reportJunk' },
+        ]
     };
 
     const spamEmail2Template = {
@@ -215,10 +210,8 @@ document.addEventListener('DOMContentLoaded', () => {
         read: false,
         emailType: 'multipleChoice',
         replyOptions: [
-            { text: "Report Junk to IT", consequence: "reportJunk" },
-            { text: "Take my money, Your Highness!", consequence: "fallForScam" }
-        ],
-        receivedTime: new Date(2025, 8, 8, 14, 0).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+            { text: "This seems suspicious. Report to IT.", consequence: 'reportJunk' },
+        ]
     };
 
     const itSupportEmailTemplate = {
@@ -419,13 +412,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (installBtn) {
             installBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                // Disable the button to prevent re-installation
+                // More robust check: if the tool is already installed, don't do it again.
+                if (document.getElementById('magnifying-glass-icon')) {
+                    showCustomPrompt('Network Analysis Tool is already installed.', 'alert');
+                    installBtn.textContent = 'Tool Already Installed';
+                    installBtn.disabled = true;
+                    return;
+                }
                 installBtn.textContent = 'Tool Already Installed';
                 installBtn.disabled = true;
                 installBtn.classList.remove('install-btn-pulsate');
-                // Mark the email as "replied" to so the state is saved
                 email.replied = true; 
-                simulateInstallation(email); // Pass the email to be deleted
+                simulateInstallation(email);
             });
         }
     }
@@ -508,6 +506,8 @@ Best, ${userName}, Special Investigator`;
                         loadEmailsForFolder(currentFolder);
                         refreshUnreadCounts();
                     }
+                    // Deliver R&D email 3 seconds after installation
+                    setTimeout(deliverRDEmail, 3000);
                 }, 1500);
             }
         }, 200);
@@ -728,13 +728,13 @@ Best, ${userName}, Special Investigator`;
     // Keep track of the next story email to deliver
     const storyEmailsQueue = [
         marketingEmailTemplate,
-        rdEmailTemplate,
+        // rdEmailTemplate is now delivered after IT email
     ];
 
     // Function to deliver the next story email after a random delay
     function deliverNextStoryEmail() {
         if (nextStoryEmailIndex < storyEmailsQueue.length) {
-            const nextEmail = { ...storyEmailsQueue[nextStoryEmailIndex] }; // Create a copy
+            const nextEmail = { ...storyEmailsQueue[nextStoryEmailIndex] };
             const now = new Date();
             nextEmail.date = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             nextEmail.receivedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
@@ -786,23 +786,31 @@ Best, ${userName}, Special Investigator`;
     function startSpamCascade() {
         if (spamCascadeInterval) clearInterval(spamCascadeInterval); // Stop any existing cascade
 
-        spamCascadeInterval = setInterval(() => {
-            const spamTemplates = [spamEmail1Template, spamEmail2Template];
-            const randomSpamTemplate = spamTemplates[Math.floor(Math.random() * spamTemplates.length)];
-            const newSpamEmail = { ...randomSpamTemplate };
-            const now = new Date();
-
-            newSpamEmail.id = `spam-cascade-${now.getTime()}`; // Unique ID
-            newSpamEmail.date = now.toLocaleString('en-US', { month: 'short', day: 'numeric' });
-            newSpamEmail.receivedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            newSpamEmail.timestamp = now.getTime();
+        // Deliver the first spam email after 15 seconds
+        setTimeout(() => {
+            deliverRandomSpam();
             
-            emails.push(newSpamEmail);
-            refreshUnreadCounts();
-            if (currentFolder === 'inbox') {
-                loadEmailsForFolder('inbox');
-            }
-        }, 15000); // New spam every 15 seconds
+            // Then, start the interval for subsequent emails every 8 seconds
+            spamCascadeInterval = setInterval(deliverRandomSpam, 8000);
+        }, 15000);
+    }
+    
+    function deliverRandomSpam() {
+        const spamTemplates = [spamEmail1Template, spamEmail2Template];
+        const randomSpamTemplate = spamTemplates[Math.floor(Math.random() * spamTemplates.length)];
+        const newSpamEmail = { ...randomSpamTemplate };
+        const now = new Date();
+
+        newSpamEmail.id = `spam-cascade-${now.getTime()}`; // Unique ID
+        newSpamEmail.date = now.toLocaleString('en-US', { month: 'short', day: 'numeric' });
+        newSpamEmail.receivedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        newSpamEmail.timestamp = now.getTime();
+        
+        emails.push(newSpamEmail);
+        refreshUnreadCounts();
+        if (currentFolder === 'inbox') {
+            loadEmailsForFolder('inbox');
+        }
     }
 
     function generateITEmailBody(consequence) {
@@ -839,6 +847,20 @@ Best, ${userName}, Special Investigator`;
         itEmail.body = generateITEmailBody(consequence); // Generate body based on user action
         
         emails.push(itEmail);
+        refreshUnreadCounts();
+        if (currentFolder === 'inbox') {
+            loadEmailsForFolder('inbox');
+        }
+    }
+
+    function deliverRDEmail() {
+        const rdEmail = { ...rdEmailTemplate };
+        const now = new Date();
+        rdEmail.date = now.toLocaleString('en-US', { month: 'short', day: 'numeric' });
+        rdEmail.receivedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        rdEmail.timestamp = now.getTime();
+        
+        emails.push(rdEmail);
         refreshUnreadCounts();
         if (currentFolder === 'inbox') {
             loadEmailsForFolder('inbox');
