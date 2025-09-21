@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---- Reply Interface State ----
     let sendReplyBtn;
     let sendPromptElement;
+    let storyContacted = false; // Prevents contacting Alex multiple times
     
     // --- Email Templates (including 5 new spam variations) ---
     const welcomeEmailTemplate = {
@@ -1149,6 +1150,110 @@ Best, ${userName}, Special Investigator`;
         // Deliver Jane's email after 3 seconds
         setTimeout(deliverWelcomeEmail, 3000);
     }
+
+    // --- Compose Email Logic ---
+    const composeModalOverlay = document.getElementById('compose-modal-overlay');
+    const composeBtn = document.querySelector('.compose-btn');
+    const closeComposeBtn = document.getElementById('close-compose-btn');
+    const sendComposeBtn = document.getElementById('send-compose-btn');
+    const composeTo = document.getElementById('compose-to');
+    const composeSubject = document.getElementById('compose-subject');
+    const composeBody = document.getElementById('compose-body-text');
+
+    function openComposeModal() {
+        if (storyContacted) {
+            showCustomPrompt("You've already followed up on your lead.", 'alert');
+            return;
+        }
+        composeTo.value = '';
+        composeSubject.value = '';
+        composeBody.innerHTML = '';
+        sendComposeBtn.disabled = true;
+        composeModalOverlay.style.display = 'flex';
+    }
+
+    function closeComposeModal() {
+        composeModalOverlay.style.display = 'none';
+    }
+
+    function handleSendCompose() {
+        if (composeTo.value.toLowerCase() === 'alex' && composeSubject.value) {
+            const userName = localStorage.getItem('outcrookUserName') || 'User';
+            const sentEmail = {
+                id: `composed-${Date.now()}`,
+                sender: `${userName}, Special Investigator`,
+                subject: composeSubject.value,
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                body: `<pre>${composeBody.textContent}</pre>`,
+                folder: 'sent',
+                read: true,
+                receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                timestamp: new Date().getTime()
+            };
+            emails.push(sentEmail);
+            storyContacted = true; // Mark Alex as contacted
+            closeComposeModal();
+            loadEmailsForFolder('sent'); // Switch to sent folder to show the new email
+            
+            // Trigger Alex's reply after a delay
+            setTimeout(deliverAlexReply, 4000);
+        } else {
+            showCustomPrompt("Your 'To' field seems incorrect or the subject is empty. Are you contacting the right person?", 'alert');
+        }
+    }
+    
+    // Auto-populate logic for the keyword puzzle
+    composeTo.addEventListener('blur', () => {
+        if (storyContacted) return;
+
+        if (composeTo.value.toLowerCase() === 'alex') {
+            composeSubject.readOnly = true;
+            composeSubject.value = 'A Quick Question';
+            
+            const alexEmailBody = `Hi Alex,
+
+I'm the special investigator looking into the recent security incident. I was hoping you could shed some light on the computer hiccups from last month.
+
+Any information would be a great help.
+
+Best,
+[Your Name]`;
+
+            // Setup interactive typing
+            composeBody.innerHTML = ''; // Clear the area
+            const typePrompt = document.createElement('p');
+            typePrompt.classList.add('flashing-text');
+            typePrompt.style.cssText = 'position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 0.9em;';
+            typePrompt.textContent = 'Press any key to start typing...';
+            composeBody.appendChild(typePrompt);
+
+            const startTypingListener = (event) => {
+                if (!event.metaKey && !event.ctrlKey) {
+                    typePrompt.remove();
+                    document.removeEventListener('keydown', startTypingListener);
+                    simulateTyping(composeBody, alexEmailBody, 15, () => {
+                        sendComposeBtn.disabled = false;
+                    });
+                }
+            };
+            document.addEventListener('keydown', startTypingListener);
+
+        } else {
+            composeSubject.readOnly = false;
+            composeSubject.value = '';
+        }
+    });
+
+    // A lightweight init function to set up the intro screen listeners
+    function init() {
+        // ... existing code ...
+        // Connect event listeners for the compose modal
+        composeBtn.addEventListener('click', openComposeModal);
+        closeComposeBtn.addEventListener('click', closeComposeModal);
+        sendComposeBtn.addEventListener('click', handleSendCompose);
+    }
+
+    init(); // Run the setup
 
     startGameBtn.addEventListener('click', () => {
         const userName = nameInput.value;

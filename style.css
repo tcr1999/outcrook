@@ -998,6 +998,99 @@ body.dark-mode #custom-prompt-buttons #custom-prompt-cancel:hover {
     animation: slideInRight 0.125s ease-out forwards; /* 0.125s duration (halved again) */
 }
 
+/* --- Compose Modal Styles --- */
+#compose-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1003; /* Highest z-index */
+}
+
+#compose-modal {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 90%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+}
+
+#compose-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f0f2f5;
+    border-bottom: 1px solid #ddd;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+#compose-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+#close-compose-btn {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #666;
+}
+
+#compose-body {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+#compose-body input,
+#compose-body .custom-typing-area {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Important */
+    font-family: 'Aptos', 'Calibri', 'Segoe UI', 'Arial', sans-serif;
+    font-size: 1em;
+}
+
+#compose-body .custom-typing-area {
+    min-height: 200px;
+    position: relative; /* For placeholder/prompt positioning */
+    white-space: pre-wrap;
+    user-select: none;
+}
+
+#compose-footer {
+    padding: 10px 15px;
+    text-align: right;
+    border-top: 1px solid #ddd;
+}
+
+#send-compose-btn {
+    background-color: #0078d4;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#send-compose-btn:disabled {
+    background-color: #a0a0a0;
+    cursor: not-allowed;
+}
+
 /* --- Microscope & Clue Styles --- */
 #microscope-wrapper {
     display: none; /* Initially hidden */

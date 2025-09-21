@@ -118,5 +118,23 @@
     
     <!-- Custom Cursor Element -->
     <div id="custom-cursor" style="display: none;">🖱️</div>
+
+    <!-- Compose Email Modal -->
+    <div id="compose-modal-overlay" style="display: none;">
+        <div id="compose-modal">
+            <div id="compose-header">
+                <h3>New Message</h3>
+                <button id="close-compose-btn">&times;</button>
+            </div>
+            <div id="compose-body">
+                <input type="text" id="compose-to" placeholder="To">
+                <input type="text" id="compose-subject" placeholder="Subject">
+                <div id="compose-body-text" class="custom-typing-area" placeholder="Compose your email..."></div>
+            </div>
+            <div id="compose-footer">
+                <button id="send-compose-btn" disabled>Send</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
