@@ -59,7 +59,7 @@ body {
 #name-input::placeholder {
     font-family: 'Aptos', 'Calibri', 'Segoe UI', 'Arial', sans-serif;
     color: #999;
-    animation: gradual-flash 2s ease-in-out infinite;
+    animation: gradual-flash 1.5s ease-in-out infinite;
 }
 
 @keyframes gradual-flash {
@@ -67,7 +67,7 @@ body {
         opacity: 1;
     }
     50% {
-        opacity: 0.4;
+        opacity: 0.3;
     }
 }
 
