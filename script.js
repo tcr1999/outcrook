@@ -277,6 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
         folder: 'inbox',
         read: false,
         replied: false,
+        emailType: 'readOnly',
         receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
 
@@ -649,6 +650,16 @@ Best, ${userName}, Special Investigator`;
             const installBtn = document.getElementById('install-tool-btn');
             if (installBtn) {
                 installBtn.classList.add('install-btn-pulsate');
+            }
+        }
+
+        // Nudge for magnifying glass on R&D email
+        const magnifyingGlassIcon = document.getElementById('magnifying-glass-icon');
+        if (magnifyingGlassIcon) {
+            if (email.id === 'rd-email') {
+                magnifyingGlassIcon.classList.add('pulse-magnify');
+            } else {
+                magnifyingGlassIcon.classList.remove('pulse-magnify');
             }
         }
 
