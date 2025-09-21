@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---- Game State ----
     let emails = [];
     let currentFolder = 'inbox';
+    
+    // Make emails global for external functions
+    window.emails = emails;
     let nextStoryEmailIndex = 0;
     let spamDeliveryTimer = null;
     let itEmailSent = false;
@@ -504,6 +507,8 @@ Best, ${userName}, Special Investigator`;
             } else if (selectedOption.consequence === 'scam') {
                 startSpamCascade(); // Start the spam cascade
             }
+            // Always move spam emails to trash after interaction
+            originalEmail.folder = 'trash';
         } else if (originalEmail.id === 'marketing-email') {
             // Replying to Sarah starts the spam cascade after 6 seconds
             setTimeout(startSpamCascade, 6000);
@@ -671,7 +676,7 @@ Best, ${userName}, Special Investigator`;
         const filteredEmails = emails.filter(email => email.folder === folder);
         if (filteredEmails.length > 0) {
             // Sort emails by precise timestamp in descending order (latest on top)
-            filteredEmails.sort((a, b) => b.timestamp - a.timestamp);
+            filteredEmails.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
             filteredEmails.forEach(email => {
                 const emailItem = renderEmailItem(email);
@@ -1166,7 +1171,16 @@ Best, ${userName}, Special Investigator`;
             showCustomPrompt("You've already followed up on your lead.", 'alert');
             return;
         }
-        composeTo.value = '';
+        
+        // Populate the dropdown with random names
+        composeTo.innerHTML = '<option value="">Select a contact...</option>';
+        randomNames.forEach(name => {
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            composeTo.appendChild(option);
+        });
+        
         composeSubject.value = '';
         composeBody.innerHTML = '';
         sendComposeBtn.disabled = true;
@@ -1178,7 +1192,7 @@ Best, ${userName}, Special Investigator`;
     }
 
     function handleSendCompose() {
-        if (composeTo.value.toLowerCase() === 'alex' && composeSubject.value) {
+        if (composeTo.value.toLowerCase() === 'alex chen' && composeSubject.value) {
             const userName = localStorage.getItem('outcrookUserName') || 'User';
             const sentEmail = {
                 id: `composed-${Date.now()}`,
@@ -1203,11 +1217,20 @@ Best, ${userName}, Special Investigator`;
         }
     }
     
+    // Random names list for compose
+    const randomNames = [
+        'Alex Chen', 'Sarah Johnson', 'Mike Rodriguez', 'Emma Thompson', 'David Kim',
+        'Lisa Wang', 'James Wilson', 'Maria Garcia', 'Robert Brown', 'Jennifer Lee',
+        'Christopher Davis', 'Amanda Taylor', 'Michael Anderson', 'Jessica Martinez',
+        'Daniel White', 'Ashley Thomas', 'Matthew Jackson', 'Samantha Harris',
+        'Andrew Clark', 'Nicole Lewis'
+    ];
+
     // Auto-populate logic for the keyword puzzle
-    composeTo.addEventListener('blur', () => {
+    composeTo.addEventListener('change', () => {
         if (storyContacted) return;
 
-        if (composeTo.value.toLowerCase() === 'alex') {
+        if (composeTo.value.toLowerCase() === 'alex chen') {
             composeSubject.readOnly = true;
             composeSubject.value = 'A Quick Question';
             
@@ -1285,71 +1308,74 @@ Detective ${userName}`;
             placeholder.style.display = 'block';
         }
     });
-});
 
-function deliverAlexReply() {
-    const alexReplyTemplate = {
-        id: 'alex-reply-email',
-        sender: 'Alex Chen, Junior Researcher',
-        subject: 'Re: A Quick Question',
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        body: `
-            <h3>Response to Your Inquiry</h3>
-            <p>Detective,</p>
-            <p>I received your email about the "computer hiccups" last month. I'm not sure what you're referring to specifically.</p>
-            <p>Our systems have been running normally. I haven't noticed any unusual activity or access patterns. I work standard hours and follow all security protocols.</p>
-            <p>If there were any issues, I'm sure IT would have documented them properly. I have nothing to hide and nothing to add to your investigation.</p>
-            <p>Alex Chen<br>Junior Researcher, R&D</p>
-        `,
-        folder: 'inbox',
-        read: false,
-        replied: false,
-        emailType: 'multipleChoice',
-        replyOptions: [
-            { text: "What about the midnight server access on September 15th?", consequence: 'pressure' },
-            { text: "Can you explain the unusual login patterns?", consequence: 'technical' },
-            { text: "I have evidence of your unauthorized access.", consequence: 'confrontation' }
-        ],
-        receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-        timestamp: new Date().getTime()
-    };
-    
-    emails.push(alexReplyTemplate);
-    refreshUnreadCounts();
-    if (currentFolder === 'inbox') {
-        loadEmailsForFolder('inbox');
-    }
-    
-    // Trigger HR email after 8 seconds
-    setTimeout(() => {
-        const hrEmail = {
-            id: 'hr-email',
-            sender: 'Patricia Wells, HR Director',
-            subject: 'Personnel Update - Alex Chen',
+    function deliverAlexReply() {
+        const alexReplyTemplate = {
+            id: 'alex-reply-email',
+            sender: 'Alex Chen, Junior Researcher',
+            subject: 'Re: A Quick Question',
             date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
             body: `
-                <h3>Internal HR Notice</h3>
+                <h3>Response to Your Inquiry</h3>
                 <p>Detective,</p>
-                <p>Following up on your investigation, I've reviewed Alex Chen's personnel file. Some concerning details emerged:</p>
-                <p>Alex applied for the Senior R&D position three times over the past year. Each time, we promoted someone else. Her last rejection was particularly bitter - she stormed out of my office saying "You'll regret this decision."</p>
-                <p>She's been increasingly vocal about "unfair treatment" in team meetings. Several colleagues have reported her hostile attitude toward management.</p>
-                <p>Given her access to sensitive projects and this pattern of behavior, I thought you should know.</p>
-                <p>Patricia Wells<br>HR Director</p>
+                <p>I received your email about the "computer hiccups" last month. I'm not sure what you're referring to specifically.</p>
+                <p>Our systems have been running normally. I haven't noticed any unusual activity or access patterns. I work standard hours and follow all security protocols.</p>
+                <p>If there were any issues, I'm sure IT would have documented them properly. I have nothing to hide and nothing to add to your investigation.</p>
+                <p>Alex Chen<br>Junior Researcher, R&D</p>
             `,
             folder: 'inbox',
             read: false,
             replied: false,
-            emailType: 'readOnly',
+            emailType: 'multipleChoice',
+            replyOptions: [
+                { text: "What about the midnight server access on September 15th?", consequence: 'pressure' },
+                { text: "Can you explain the unusual login patterns?", consequence: 'technical' },
+                { text: "I have evidence of your unauthorized access.", consequence: 'confrontation' }
+            ],
             receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
             timestamp: new Date().getTime()
         };
         
-        emails.push(hrEmail);
+        emails.push(alexReplyTemplate);
         refreshUnreadCounts();
         if (currentFolder === 'inbox') {
             loadEmailsForFolder('inbox');
         }
-    }, 8000);
-}
+        
+        // Trigger HR email after 8 seconds
+        setTimeout(() => {
+            const hrEmail = {
+                id: 'hr-email',
+                sender: 'Patricia Wells, HR Director',
+                subject: 'Personnel Update - Alex Chen',
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                body: `
+                    <h3>Internal HR Notice</h3>
+                    <p>Detective,</p>
+                    <p>Following up on your investigation, I've reviewed Alex Chen's personnel file. Some concerning details emerged:</p>
+                    <p>Alex applied for the Senior R&D position three times over the past year. Each time, we promoted someone else. Her last rejection was particularly bitter - she stormed out of my office saying "You'll regret this decision."</p>
+                    <p>She's been increasingly vocal about "unfair treatment" in team meetings. Several colleagues have reported her hostile attitude toward management.</p>
+                    <p>Given her access to sensitive projects and this pattern of behavior, I thought you should know.</p>
+                    <p>Patricia Wells<br>HR Director</p>
+                `,
+                folder: 'inbox',
+                read: false,
+                replied: false,
+                emailType: 'readOnly',
+                receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                timestamp: new Date().getTime()
+            };
+            
+            emails.push(hrEmail);
+            refreshUnreadCounts();
+            if (currentFolder === 'inbox') {
+                loadEmailsForFolder('inbox');
+            }
+        }, 8000);
+    }
+
+    // Make function global for external access
+    window.deliverAlexReply = deliverAlexReply;
+});
 
 
