@@ -699,6 +699,10 @@ Best, ${userName}, Special Investigator`;
         
         emails.push(welcomeEmail);
         refreshUnreadCounts();
+        // If user is in inbox (which they will be), refresh the view
+        if (currentFolder === 'inbox') {
+            loadEmailsForFolder('inbox');
+        }
     }
 
     // Keep track of the next story email to deliver
@@ -706,7 +710,6 @@ Best, ${userName}, Special Investigator`;
     const storyEmailsQueue = [
         marketingEmailTemplate,
         rdEmailTemplate,
-        itSecurityEmailTemplate
     ];
 
     // Function to deliver the next story email after a random delay
@@ -726,24 +729,47 @@ Best, ${userName}, Special Investigator`;
             nextStoryEmailIndex++;
             // After Sarah's email (index 0), deliver the spam
             if (storyEmailsQueue[nextStoryEmailIndex - 1].id === 'marketing-email') {
-                setTimeout(deliverSpamEmails, 10000); // Keep this at 10s for the side quest
+                setTimeout(deliverFirstSpamEmail, 10000); // Deliver first spam 10s after Sarah's
             }
         }
     }
 
-    function deliverSpamEmails() {
-        emails.push(spamEmail1Template);
-        emails.push(spamEmail2Template);
+    function deliverFirstSpamEmail() {
+        const spamEmail = { ...spamEmail1Template };
+        const now = new Date();
+        spamEmail.date = now.toLocaleString('en-US', { month: 'short', day: 'numeric' });
+        spamEmail.receivedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        spamEmail.timestamp = now.getTime();
+        emails.push(spamEmail);
         refreshUnreadCounts();
-        // Note: No need to reload folder view as they go to spam, not inbox
+        if (currentFolder === 'inbox') {
+            loadEmailsForFolder('inbox');
+        }
+
+        // Set a timer to deliver the second spam email after 60 seconds
+        spamDeliveryTimer = setTimeout(deliverSecondSpamEmail, 60000);
     }
 
-    function deliverITSupportEmail() {
+    function deliverSecondSpamEmail() {
+        const spamEmail = { ...spamEmail2Template };
+        const now = new Date();
+        spamEmail.date = now.toLocaleString('en-US', { month: 'short', day: 'numeric' });
+        spamEmail.receivedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        spamEmail.timestamp = now.getTime();
+        emails.push(spamEmail);
+        refreshUnreadCounts();
+        if (currentFolder === 'inbox') {
+            loadEmailsForFolder('inbox');
+        }
+    }
+
+    function deliverITSupportEmail(consequence) {
         const itEmail = { ...itSupportEmailTemplate };
         const now = new Date();
         itEmail.date = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         itEmail.receivedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         itEmail.timestamp = now.getTime(); // Precise timestamp for sorting
+        itEmail.body = generateITEmailBody(consequence); // Generate body based on user action
         
         emails.push(itEmail);
         refreshUnreadCounts();
