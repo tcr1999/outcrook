@@ -369,9 +369,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadEmailsForFolder(currentFolder); // Re-load current folder
                 refreshUnreadCounts();
 
-                // If Eleanor's email is deleted, deliver Jane's email after 3 seconds
+                // If Eleanor's email is deleted, deliver Jane's email
                 if (emailIdToDelete === 'legal-email') {
-                    setTimeout(deliverWelcomeEmail, 3000);
+                    deliverWelcomeEmail();
                 }
             }
         });
@@ -429,6 +429,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 simulateInstallation();
             });
         }
+    }
+
+    function handleMultipleChoiceReply(originalEmail, selectedOption) {
+        const userName = localStorage.getItem('outcrookUserName') || 'User';
+        const senderFirstName = originalEmail.sender.split(',')[0].trim();
+
+        const replyText = `Hi ${senderFirstName},
+
+${selectedOption.text}
+
+Best, ${userName}, Special Investigator`;
+
+        const sentReply = {
+            id: `reply-${originalEmail.id}-${Date.now()}`,
+            sender: `${userName}, Special Investigator`,
+            subject: `Re: ${originalEmail.subject}`,
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            body: `<pre>${replyText}</pre>`,
+            folder: 'sent',
+            read: true,
+            receivedTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+        };
+        
+        emails.push(sentReply);
+        originalEmail.replied = true;
+        originalEmail.folder = 'trash';
+
+        showCustomPrompt('Reply sent!', 'alert');
+        loadEmailsForFolder('inbox');
+        refreshUnreadCounts();
+
+        // Here you can add logic based on selectedOption.consequence
+        console.log(`User chose option with consequence: ${selectedOption.consequence}`);
+
+        // If user reported junk, deliver the IT support email after a delay
+        if (selectedOption.consequence === 'reportJunk') {
+            setTimeout(deliverITSupportEmail, 10000); // 10 seconds
+        }
+
+        // Trigger the next main story email regardless of choice
+        deliverNextStoryEmail();
     }
 
     function simulateInstallation() {
@@ -560,7 +601,10 @@ Best, ${userName}, Special Investigator`;
             // Select the first unread email, or the first email if all are read
             const firstEmailToSelect = filteredEmails.find(email => !email.read) || filteredEmails[0];
             if (firstEmailToSelect) {
-                handleEmailDisplay(firstEmailToSelect, emailListDiv.querySelector(`[data-email-id="${firstEmailToSelect.id}"]`));
+                const correspondingEmailItem = emailListDiv.querySelector(`[data-email-id="${firstEmailToSelect.id}"]`);
+                if (correspondingEmailItem) {
+                    handleEmailDisplay(firstEmailToSelect, correspondingEmailItem);
+                }
             }
         } else {
             emailListDiv.innerHTML = '<div class="email-list-placeholder">No emails in this folder.</div>';
@@ -620,11 +664,8 @@ Best, ${userName}, Special Investigator`;
         welcomeEmail.receivedTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         
         emails.push(welcomeEmail);
+        loadEmailsForFolder('inbox'); // Reload inbox to show the new email on top
         refreshUnreadCounts();
-        // If user is currently in the inbox, refresh the view to show the new email
-        if (currentFolder === 'inbox') {
-            loadEmailsForFolder('inbox');
-        }
     }
 
     // Keep track of the next story email to deliver
@@ -648,10 +689,9 @@ Best, ${userName}, Special Investigator`;
                 loadEmailsForFolder('inbox');
             }
             nextStoryEmailIndex++;
-            // After the main story emails, deliver the spam
-            if (nextStoryEmailIndex === storyEmailsQueue.length) {
-                // Now that the main story path has continued, deliver the spam emails
-                setTimeout(deliverSpamEmails, 3000); // 3 seconds after the last main email
+            // After Sarah's email (index 0), deliver the spam
+            if (storyEmailsQueue[nextStoryEmailIndex - 1].id === 'marketing-email') {
+                setTimeout(deliverSpamEmails, 10000);
             }
         }
     }
