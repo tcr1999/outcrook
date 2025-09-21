@@ -1109,6 +1109,13 @@ Best, ${userName}, Special Investigator`;
         if (nameInput.classList.contains('input-error')) {
             nameInput.classList.remove('input-error');
         }
+
+        const placeholder = document.getElementById('placeholder-flash');
+        if (nameInput.value.length > 0) {
+            placeholder.style.display = 'none';
+        } else {
+            placeholder.style.display = 'block';
+        }
     });
 });
 
