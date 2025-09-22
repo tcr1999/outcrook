@@ -1,0 +1,158 @@
+{
+  "welcomeEmailTemplate": {
+    "id": "welcome-email",
+    "sender": "Jane, Director of People",
+    "senderIP": "192.168.1.042",
+    "subject": "Your Super-Secret Detective Mission Starts NOW!",
+    "body": "<h3>Welcome to the Outcrook Team!</h3><p>Greetings, Detective <span id=\"welcome-user-name\"></span>!</p><p>Your super-secret mission at FlavorCo (a division of Outcrook!) officially begins! We're thrilled to have your keen eyes and sharp mind on board. We suspect foul play, whispers of stolen snack secrets... a real whodunit!</p><p>Your task: sniff out clues, interrogate suspects (figuratively, of course!), and uncover the truth. Your badge and magnifying glass are waiting (metaphorically, for now!). Good luck, agent!</p><p>Best,</p><p>Jane, Director of People (and Head of Secret Squirrel Operations)</p>",
+    "folder": "inbox",
+    "read": false,
+    "replied": false,
+    "storyTriggered": false,
+    "emailType": "interactiveReply"
+  },
+  "marketingEmailTemplate": {
+    "id": "marketing-email",
+    "sender": "Sarah Chen, Head of Marketing",
+    "subject": "Panic! TasteBuds Cloned Our Snack!",
+    "body": "<h3>Our \"TasteBlast\" is a Double!</h3><p>Team (and especially you, Detective!),</p><p>This is NOT a drill! TasteBuds just launched \"FlavorFusion\" and it's basically our \"TasteBlast\" in a different wrapper! I'm talking identical! My marketing plans are toast!</p><p>Remember those weird computer hiccups last month? Was it a coincidence? Or did someone spill the beans (or the secret spices)? We need to figure out how they copied us! Find the mole, find the truth!</p><p>Frantically yours,</p><p>Sarah Chen<br>Head of Marketing (currently pulling her hair out)</p>",
+    "folder": "inbox",
+    "read": false,
+    "replied": false,
+    "emailType": "multipleChoice",
+    "replyOptions": [
+      { "text": "Focus on the recipe leak first.", "consequence": "logic" },
+      { "text": "Let's dig into their marketing strategy.", "consequence": "creative" },
+      { "text": "I suspect a mole. Let's watch internally.", "consequence": "suspicion" }
+    ]
+  },
+  "rdEmailTemplate": {
+    "id": "rd-email",
+    "sender": "Dr. Aris Thorne, Head of R&D",
+    "senderIP": "192.168.1.105",
+    "subject": "Our Secret Recipe is GONE! Lab on Lockdown!",
+    "body": "<h3>Recipe Heist! R&D is a Mess!</h3><p>Detective <span id=\"rd-user-name\"></span>,</p><p>Our precious \"TasteBlast\" formula has vanished into thin air! TasteBuds' new product is proof! We need a full-scale investigation into our lab. Every beaker, every test tube, every… sniff… must be checked!</p><p>And speaking of sniffs, I recall a certain \"<span class=\"jumbled-clue\" data-clue=\"Alex\"></span>\" (our junior researcher) grumbling about promotions and secret files. Could it be a clue? Find out who took our delicious secrets!</p><p>Panicked but Scientific,</p><p>Dr. Aris Thorne<br>Head of R&D (currently wearing a tin-foil hat)</p>",
+    "folder": "inbox",
+    "read": false,
+    "replied": false,
+    "emailType": "readOnly"
+  },
+  "itSupportEmailTemplate": {
+    "id": "it-support-email",
+    "sender": "IT Support",
+    "subject": "Thank You for Reporting Suspicious Activity!",
+    "body": "<h3>Great catch, Detective!</h3><p>Thanks for reporting that junk email. Vigilance like yours is key to our security. We've analyzed the threat and taken action.</p><p>To help with your investigation, we've approved the installation of a new \"Digital Microscope Tool\" for your terminal. This will grant you elevated privileges to uncover hidden data within our systems.</p><p>Please click the button below to begin the installation. It should only take a moment.</p><button id=\"install-tool-btn\" class=\"install-btn-pulsate\">Install Digital Microscope Tool</button><p>Stay sharp,</p><p>IT Support</p>",
+    "folder": "inbox",
+    "read": false,
+    "replied": false,
+    "emailType": "readOnly"
+  },
+  "spamEmail1Template": {
+    "id": "spam-email-1",
+    "sender": "Royal Emissary of Atlantis",
+    "subject": "URGENT: Sunken Treasure For You",
+    "body": "<h3>Greetings from the Deep!</h3><p>I bring tidings from the lost city of Atlantis! We have discovered a chest of ancient gold with your name on it. To transport it to the surface, we require a small tribute for the royal submersibles.</p><p>Please select an option below to proceed.</p>",
+    "folder": "inbox",
+    "read": false,
+    "emailType": "multipleChoice",
+    "replyOptions": [
+      { "text": "This sounds legitimate. Send the tribute.", "consequence": "scam" },
+      { "text": "Report this email to IT.", "consequence": "reportJunk" }
+    ]
+  },
+  "spamEmail2Template": {
+    "id": "spam-email-2",
+    "sender": "Barnaby, Head of Royal Transport",
+    "subject": "Fuel for the Gilded Narwhal",
+    "body": "<h3>A Matter of Nautical Urgency!</h3><p>Further to the Emissary's message, please be advised that the Royal Submersible, the 'Gilded Narwhal', requires a top-up of purified kelp fuel. A small donation from yourself would greatly expedite the treasure's journey!</p>",
+    "folder": "inbox",
+    "read": false,
+    "emailType": "multipleChoice",
+    "replyOptions": [
+      { "text": "Of course, for the Narwhal! Send donation.", "consequence": "scam" },
+      { "text": "This is getting fishy. Report to IT.", "consequence": "reportJunk" }
+    ]
+  },
+  "spamEmail3Template": {
+    "id": "spam-email-3",
+    "sender": "Captain Neptune, Head of Naval Affairs",
+    "subject": "A Royal Request for Your Assistance",
+    "body": "<h3>A Royal Request for Your Assistance</h3><p>Your Majesty, the Royal Fleet has encountered a mysterious underwater obstruction. We require a skilled diver to investigate the source. Your presence would be invaluable.</p>",
+    "folder": "inbox",
+    "read": false,
+    "emailType": "multipleChoice",
+    "replyOptions": [
+      { "text": "I'll dive in! Send me the coordinates.", "consequence": "scam" },
+      { "text": "This is a trap. Report to IT.", "consequence": "reportJunk" }
+    ]
+  },
+  "spamEmail4Template": {
+    "id": "spam-email-4",
+    "sender": "Mermaid Queen, Head of Underwater Affairs",
+    "subject": "A Royal Invitation to the Deep",
+    "body": "<h3>A Royal Invitation to the Deep</h3><p>Your Majesty, the Mermaid Queen has invited you to a grand underwater banquet. We have prepared the finest Atlantean delicacies and entertainment. Your presence is requested.</p>",
+    "folder": "inbox",
+    "read": false,
+    "emailType": "multipleChoice",
+    "replyOptions": [
+      { "text": "I'll swim down! Send me the date.", "consequence": "scam" },
+      { "text": "This is a ruse. Report to IT.", "consequence": "reportJunk" }
+    ]
+  },
+  "spamEmail5Template": {
+    "id": "spam-email-5",
+    "sender": "Atlantean Ambassador",
+    "subject": "A Royal Request for Your Assistance",
+    "body": "<h3>A Royal Request for Your Assistance</h3><p>Your Majesty, the Atlantean Ambassador has requested your presence at a diplomatic meeting. We must discuss the recent tensions with the Surface Kingdom.</p>",
+    "folder": "inbox",
+    "read": false,
+    "emailType": "multipleChoice",
+    "replyOptions": [
+      { "text": "I'll attend! Send me the location.", "consequence": "scam" },
+      { "text": "This is a ploy. Report to IT.", "consequence": "reportJunk" }
+    ]
+  },
+  "alexReplyTemplate": {
+    "id": "alex-reply-email",
+    "sender": "Alex Chen, Junior Researcher",
+    "subject": "Re: A Quick Question",
+    "body": "<h3>Response to Your Inquiry</h3><p>Detective,</p><p>I received your email about the \"computer hiccups\" last month. I'm not sure what you're referring to specifically.</p><p>Our systems have been running normally. I haven't noticed any unusual activity or access patterns. I work standard hours and follow all security protocols.</p><p>If there were any issues, I'm sure IT would have documented them properly. I have nothing to hide and nothing to add to your investigation.</p><p>Alex Chen<br>Junior Researcher, R&D</p>",
+    "folder": "inbox",
+    "read": false,
+    "replied": false,
+    "emailType": "multipleChoice",
+    "replyOptions": [
+      { "text": "What about the midnight server access on September 15th?", "consequence": "pressure" },
+      { "text": "Can you explain the unusual login patterns?", "consequence": "technical" },
+      { "text": "I have evidence of your unauthorized access.", "consequence": "confrontation" }
+    ]
+  },
+  "hrEmailTemplate": {
+    "id": "hr-email",
+    "sender": "Patricia Wells, HR Director",
+    "subject": "Personnel Update - Alex Chen",
+    "body": "<h3>Internal HR Notice</h3><p>Detective,</p><p>Following up on your investigation, I've reviewed Alex Chen's personnel file. Some concerning details emerged:</p><p>Alex applied for the Senior R&D position three times over the past year. Each time, we promoted someone else. Her last rejection was particularly bitter - she stormed out of my office saying \"You'll regret this decision.\"</p><p>She's been increasingly vocal about \"unfair treatment\" in team meetings. Several colleagues have reported her hostile attitude toward management.</p><p>Given her access to sensitive projects and this pattern of behavior, I thought you should know.</p><p>Patricia Wells<br>HR Director</p>",
+    "folder": "inbox",
+    "read": false,
+    "replied": false,
+    "emailType": "readOnly"
+  },
+  "ceoEmailTemplate": {
+    "id": "ceo-email",
+    "sender": "Richard \"Dick\" Thompson, CEO",
+    "subject": "How's the Detective Work Going?",
+    "body": "<h3>Detective Update Request</h3><p>Hey Detective <span id=\"ceo-user-name\"></span>!</p><p>Just checking in on your investigation! Eleanor mentioned you're looking into some \"recipe theft\" situation? Sounds like quite the mystery!</p><p>I have to say, I'm not really sure how someone could steal a recipe. I mean, it's just ingredients mixed together, right? How hard can it be to figure out what goes in a snack?</p><p>Anyway, keep me posted! I'm sure you'll crack this case wide open. Maybe check if anyone's been acting suspiciously? Like, wearing sunglasses indoors or something?</p><p>Best of luck!</p><p>Dick Thompson<br>CEO (and amateur detective enthusiast)</p>",
+    "folder": "inbox",
+    "read": false,
+    "replied": false,
+    "emailType": "readOnly"
+  },
+  "storyEmailsQueue": ["marketingEmailTemplate"],
+  "randomNames": [
+    "Alex Chen", "Sarah Johnson", "Mike Rodriguez", "Emma Thompson", "David Kim",
+    "Lisa Wang", "James Wilson", "Maria Garcia", "Robert Brown", "Jennifer Lee",
+    "Christopher Davis", "Amanda Taylor", "Michael Anderson", "Jessica Martinez",
+    "Daniel White", "Ashley Thomas", "Matthew Jackson", "Samantha Harris",
+    "Andrew Clark", "Nicole Lewis"
+  ]
+}
