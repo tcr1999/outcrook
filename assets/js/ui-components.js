@@ -75,9 +75,11 @@ export function refreshUnreadCounts(emails) {
  * Render email item element
  * @param {Object} email - Email object
  * @param {string} currentFolder - Current folder
+ * @param {Function} onDeleteClick - Callback for delete button click
+ * @param {Function} onEmailClick - Callback for email item click
  * @returns {HTMLElement} Email item element
  */
-export function renderEmailItem(email, currentFolder) {
+export function renderEmailItem(email, currentFolder, onDeleteClick, onEmailClick) {
     const emailItem = document.createElement('div');
     emailItem.classList.add('email-item');
     if (!email.read) {
@@ -100,6 +102,21 @@ export function renderEmailItem(email, currentFolder) {
     if (currentFolder === 'trash' || email.id === 'welcome-email') {
         deleteButton.style.display = 'none';
     }
+
+    // Add email item click event listener
+    emailItem.addEventListener('click', () => {
+        if (onEmailClick) {
+            onEmailClick(email, emailItem);
+        }
+    });
+
+    // Add delete button event listener
+    deleteButton.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent the email item click event from firing
+        if (onDeleteClick) {
+            onDeleteClick(email.id);
+        }
+    });
 
     return emailItem;
 }

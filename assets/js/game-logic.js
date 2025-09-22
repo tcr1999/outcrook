@@ -211,6 +211,11 @@ export class EmailDeliverySystem {
             if (this.onEmailDelivered) {
                 this.onEmailDelivered();
             }
+            
+            // Trigger HR email after 8 seconds
+            setTimeout(() => {
+                this.deliverHREmail();
+            }, CONFIG.TIMING.HR_EMAIL_DELAY);
         }
     }
 
@@ -224,6 +229,11 @@ export class EmailDeliverySystem {
             if (this.onEmailDelivered) {
                 this.onEmailDelivered();
             }
+            
+            // Trigger CEO email after 5 seconds
+            setTimeout(() => {
+                this.deliverCEOEmail();
+            }, CONFIG.TIMING.CEO_EMAIL_DELAY);
         }
     }
 

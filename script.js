@@ -282,7 +282,7 @@ function loadEmailsForFolder(folder) {
         filteredEmails.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
         
         filteredEmails.forEach(email => {
-            const emailItem = renderEmailItem(email, folder);
+            const emailItem = renderEmailItem(email, folder, handleDeleteEmail, handleEmailDisplay);
             
             // Add pulsation to read legal-email
             if (email.id === 'legal-email' && email.read) {
@@ -562,6 +562,25 @@ function handleSendCompose() {
 }
 
 /**
+ * Handle delete email
+ */
+function handleDeleteEmail(emailId) {
+    const emailIndex = gameState.emails.findIndex(email => email.id === emailId);
+    if (emailIndex > -1) {
+        gameState.updateEmail(emailId, { folder: CONFIG.FOLDERS.TRASH, read: true });
+        loadEmailsForFolder(gameState.currentFolder);
+        refreshUnreadCounts(gameState.emails);
+
+        // If Eleanor's email is deleted, deliver Jane's email after 3 seconds
+        if (emailId === 'legal-email') {
+            setTimeout(() => {
+                emailDeliverySystem.deliverWelcomeEmail();
+            }, CONFIG.TIMING.WELCOME_EMAIL_DELAY);
+        }
+    }
+}
+
+/**
  * Add magnifying glass icon
  */
 function addMagnifyingGlassIcon() {
@@ -623,3 +642,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize the game
     initializeGame();
 });
+
+// Make function global for external access
+window.deliverAlexReply = () => {
+    if (emailDeliverySystem) {
+        emailDeliverySystem.deliverAlexReply();
+    }
+};
