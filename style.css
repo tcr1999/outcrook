@@ -193,15 +193,24 @@ body.microscope-active #custom-cursor {
     font-family: 'Aptos', 'Calibri', 'Segoe UI', 'Arial', sans-serif;
 }
 
-.sender-with-ip {
-    cursor: pointer;
-    transition: all 0.2s ease;
+.sender-ip-clue {
+    display: inline-block;
+    padding: 0 5px;
 }
 
-.sender-with-ip:hover {
-    background: #f0f0f0;
-    padding: 1px 3px;
-    border-radius: 2px;
+.sender-ip-clue span {
+    display: inline-block;
+    transition: transform 0.3s ease;
+    transform: rotate(var(--rot)) translateX(var(--x)) translateY(var(--y));
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    color: #333;
+}
+
+.sender-ip-clue span.revealed {
+    transform: rotate(0) translateX(0) translateY(0);
+    color: #0078d4;
+    font-family: 'Aptos', 'Calibri', 'Segoe UI', 'Arial', sans-serif;
 }
 
 .hidden-clue {

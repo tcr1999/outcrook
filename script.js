@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
         emailItem.dataset.emailId = email.id; // Store email ID for easy lookup
         emailItem.innerHTML = `
             <div class="email-info">
-                <div class="email-sender ${email.senderIP ? 'sender-with-ip' : ''}" ${email.senderIP ? `data-ip="${email.senderIP}"` : ''}>${email.sender}</div>
+                <div class="email-sender">${email.sender}</div>
                 <div class="email-subject">${email.subject}</div>
                 <div class="email-date">${email.date} ${email.receivedTime}</div>
             </div>
@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function displayEmailContent(email) {
         emailBodyContentDiv.innerHTML = `
             <h3>${email.subject}</h3>
-            <p>From: ${email.sender}</p>
+            <p>From: ${email.senderIP ? `<span class="sender-ip-clue" data-ip="${email.senderIP}">${email.sender}</span>` : email.sender}</p>
             <p>Date: ${email.date}</p>
             <hr>
             <div>${email.body}</div>
@@ -611,6 +611,29 @@ Best, ${userName}, Special Investigator`;
 
             const clue = clueElement.dataset.clue;
             const letters = clue.split('');
+            const jumbleChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=';
+
+            clueElement.innerHTML = ''; // Clear it
+
+            letters.forEach(originalChar => {
+                const span = document.createElement('span');
+                const randomChar = jumbleChars[Math.floor(Math.random() * jumbleChars.length)];
+                span.textContent = randomChar;
+                span.dataset.char = originalChar; // Store the original character
+                span.dataset.jumble = randomChar; // Store the jumbled character
+                span.style.setProperty('--rot', `${Math.random() * 40 - 20}deg`);
+                span.style.setProperty('--x', `${Math.random() * 6 - 3}px`);
+                span.style.setProperty('--y', `${Math.random() * 6 - 3}px`);
+                clueElement.appendChild(span);
+            });
+        });
+        
+        // Also jumble sender IP clues
+        document.querySelectorAll('.sender-ip-clue').forEach(clueElement => {
+            if (clueElement.hasChildNodes()) return; // Already jumbled
+
+            const ip = clueElement.dataset.ip;
+            const letters = ip.split('');
             const jumbleChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=';
 
             clueElement.innerHTML = ''; // Clear it
@@ -1115,31 +1138,20 @@ Best, ${userName}, Special Investigator`;
                     }
                 });
                 
-                // Handle sender IP reveals
-                document.querySelectorAll('.sender-with-ip').forEach(senderElement => {
-                    const rect = senderElement.getBoundingClientRect();
-                    const elementX = rect.left + rect.width / 2;
-                    const elementY = rect.top + rect.height / 2;
+                // Handle sender IP reveals (letter by letter)
+                document.querySelectorAll('.sender-ip-clue span').forEach(span => {
+                    const rect = span.getBoundingClientRect();
+                    const spanX = rect.left + rect.width / 2;
+                    const spanY = rect.top + rect.height / 2;
                     
-                    const distance = Math.sqrt(Math.pow(elementX - e.clientX, 2) + Math.pow(elementY - e.clientY, 2));
+                    const distance = Math.sqrt(Math.pow(spanX - e.clientX, 2) + Math.pow(spanY - e.clientY, 2));
 
                     if (distance < lensRadius) {
-                        // Show IP address
-                        if (!senderElement.dataset.originalText) {
-                            senderElement.dataset.originalText = senderElement.textContent;
-                        }
-                        senderElement.textContent = senderElement.dataset.ip;
-                        senderElement.style.color = '#0078d4';
-                        senderElement.style.fontWeight = 'bold';
-                        senderElement.style.fontFamily = 'Courier New, monospace';
+                        span.textContent = span.dataset.char;
+                        span.classList.add('revealed');
                     } else {
-                        // Restore original text
-                        if (senderElement.dataset.originalText) {
-                            senderElement.textContent = senderElement.dataset.originalText;
-                            senderElement.style.color = '';
-                            senderElement.style.fontWeight = '';
-                            senderElement.style.fontFamily = '';
-                        }
+                        span.textContent = span.dataset.jumble;
+                        span.classList.remove('revealed');
                     }
                 });
             }
