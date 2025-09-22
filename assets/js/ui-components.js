@@ -631,3 +631,40 @@ export function handleMouseMove(e) {
         }
     }
 }
+
+/**
+ * Add magnifying glass icon functionality
+ */
+export function addMagnifyingGlassIcon() {
+    const microscopeWrapper = document.getElementById('microscope-wrapper');
+    const magnifyingGlassIcon = document.getElementById('magnifying-glass-icon');
+    const statusText = document.getElementById('microscope-status');
+    const customCursor = document.getElementById('custom-cursor');
+    
+    if (!microscopeWrapper || !magnifyingGlassIcon || !statusText) return;
+    
+    // Make the whole element visible
+    microscopeWrapper.classList.add('visible');
+    
+    // Add click listener to toggle the microscope state
+    magnifyingGlassIcon.addEventListener('click', () => {
+        const body = document.body;
+        microscopeWrapper.classList.toggle('active');
+        body.classList.toggle('microscope-active');
+
+        if (microscopeWrapper.classList.contains('active')) {
+            statusText.textContent = 'ON';
+            // Force custom cursor on and clear any emoji
+            if (customCursor) {
+                customCursor.textContent = '';
+                body.classList.add('custom-cursor-active');
+                customCursor.style.display = 'block';
+            }
+        } else {
+            statusText.textContent = 'OFF';
+            // Revert to user's chosen cursor theme
+            const savedCursorTheme = localStorage.getItem(CONFIG.STORAGE_KEYS.CURSOR_THEME) || 'default';
+            applyCursorTheme(savedCursorTheme);
+        }
+    });
+}

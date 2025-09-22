@@ -335,8 +335,10 @@ export class ReplySystem {
                 this.emailDeliverySystem.deliverITSupportEmail('reportJunk');
             }, CONFIG.TIMING.IT_EMAIL_DELAY);
         } else if (selectedOption.consequence === 'scam') {
-            // User fell for the scam - start spam cascade
-            this.emailDeliverySystem.startSpamCascade();
+            // User fell for the scam - start spam cascade after a short delay
+            setTimeout(() => {
+                this.emailDeliverySystem.startSpamCascade();
+            }, 2000); // 2 second delay to let the email deletion complete
         }
     }
 

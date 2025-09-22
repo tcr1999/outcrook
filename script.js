@@ -21,7 +21,8 @@ import {
     showCustomPrompt, 
     handleMagnifierReveal,
     jumbleClueText,
-    createInteractiveReplyInterface
+    createInteractiveReplyInterface,
+    addMagnifyingGlassIcon
 } from './assets/js/ui-components.js';
 import { 
     GameState, 
@@ -589,29 +590,6 @@ function handleDeleteEmail(emailId) {
     }
 }
 
-/**
- * Add magnifying glass icon
- */
-function addMagnifyingGlassIcon() {
-    if (!microscopeWrapper) return;
-    
-    microscopeWrapper.classList.add('visible');
-    
-    magnifyingGlassIcon.addEventListener('click', () => {
-        microscopeWrapper.classList.toggle('active');
-        body.classList.toggle('microscope-active');
-        
-        if (microscopeWrapper.classList.contains('active')) {
-            microscopeStatus.textContent = 'ON';
-            customCursor.textContent = '';
-            body.classList.add('custom-cursor-active');
-            customCursor.style.display = 'block';
-        } else {
-            microscopeStatus.textContent = 'OFF';
-            applyCursorTheme(getCursorTheme());
-        }
-    });
-}
 
 /**
  * Callback when email is delivered
