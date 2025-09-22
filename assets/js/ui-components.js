@@ -594,6 +594,23 @@ export function handleMouseMove(e) {
                 }
             });
             
+            // Handle sender IP clues (letter by letter reveal)
+            document.querySelectorAll('.sender-ip-clue span').forEach(span => {
+                const rect = span.getBoundingClientRect();
+                const spanX = rect.left + rect.width / 2;
+                const spanY = rect.top + rect.height / 2;
+                
+                const distance = Math.sqrt(Math.pow(spanX - e.clientX, 2) + Math.pow(spanY - e.clientY, 2));
+
+                if (distance < lensRadius) {
+                    span.textContent = span.dataset.char;
+                    span.classList.add('revealed');
+                } else {
+                    span.textContent = span.dataset.jumble;
+                    span.classList.remove('revealed');
+                }
+            });
+            
             // Handle subject line IP reveals
             document.querySelectorAll('.subject-line').forEach(subjectLine => {
                 const rect = subjectLine.getBoundingClientRect();

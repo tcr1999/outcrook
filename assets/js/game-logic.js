@@ -65,6 +65,18 @@ export class GameState {
     }
 
     /**
+     * Remove email completely from game state
+     * @param {string} emailId - Email ID to remove
+     */
+    removeEmail(emailId) {
+        const emailIndex = this.emails.findIndex(email => email.id === emailId);
+        if (emailIndex > -1) {
+            this.emails.splice(emailIndex, 1);
+            refreshUnreadCounts(this.emails);
+        }
+    }
+
+    /**
      * Get emails for a specific folder
      * @param {string} folder - Folder name
      * @returns {Array} Array of emails in the folder
@@ -270,7 +282,15 @@ export class ReplySystem {
         const replyEmail = createMultipleChoiceReply(originalEmail, selectedOption);
         if (replyEmail) {
             this.gameState.addEmail(replyEmail);
-            this.gameState.updateEmail(originalEmail.id, { replied: true, folder: CONFIG.FOLDERS.TRASH });
+            
+            // Handle spam emails differently - delete completely when user falls for scam
+            if (originalEmail.id.startsWith('spam-') && selectedOption.consequence === 'scam') {
+                // Completely remove the spam email from the game state
+                this.gameState.removeEmail(originalEmail.id);
+            } else {
+                // For other emails, move to trash
+                this.gameState.updateEmail(originalEmail.id, { replied: true, folder: CONFIG.FOLDERS.TRASH });
+            }
 
             showCustomPrompt('Reply sent!', 'alert');
             
