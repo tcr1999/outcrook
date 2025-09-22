@@ -143,9 +143,8 @@ export class EmailDeliverySystem {
             clearInterval(this.gameState.spamCascadeInterval);
         }
 
-        // Initialize the pool for sequential spam delivery
+        // Initialize the pool for sequential spam delivery (start with spam2 to avoid repetition)
         this.gameState.availableSpamTemplates = [
-            'spamEmail1Template',
             'spamEmail2Template',
             'spamEmail3Template',
             'spamEmail4Template',
