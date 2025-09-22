@@ -152,7 +152,10 @@ export class EmailDeliverySystem {
             'spamEmail5Template'
         ];
 
-        // Start the interval for sequential spam emails
+        // Deliver the first spam email immediately
+        this.deliverSequentialSpam();
+
+        // Start the interval for subsequent spam emails
         this.gameState.spamCascadeInterval = setInterval(() => {
             this.deliverSequentialSpam();
         }, CONFIG.TIMING.SPAM_INTERVAL);
