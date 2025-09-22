@@ -631,25 +631,24 @@ Best, ${userName}, Special Investigator`;
             });
         });
         
-        // Also jumble sender IP clues
+        // Prepare sender IP clues for magnifier reveal
         document.querySelectorAll('.sender-ip-clue').forEach(clueElement => {
-            if (clueElement.hasChildNodes()) return; // Already jumbled
+            if (clueElement.hasChildNodes()) return; // Already prepared
 
             const ip = clueElement.dataset.ip;
-            const letters = ip.split('');
-            const jumbleChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=';
+            const originalText = clueElement.textContent; // "Dr. Aris Thorne, Head of R&D"
+            const letters = originalText.split(''); // Split the original name into letters
 
             clueElement.innerHTML = ''; // Clear it
 
-            letters.forEach(originalChar => {
+            letters.forEach((originalChar, index) => {
                 const span = document.createElement('span');
-                const randomChar = jumbleChars[Math.floor(Math.random() * jumbleChars.length)];
-                span.textContent = randomChar;
-                span.dataset.char = originalChar; // Store the original character
-                span.dataset.jumble = randomChar; // Store the jumbled character
-                span.style.setProperty('--rot', `${Math.random() * 40 - 20}deg`);
-                span.style.setProperty('--x', `${Math.random() * 6 - 3}px`);
-                span.style.setProperty('--y', `${Math.random() * 6 - 3}px`);
+                span.textContent = originalChar; // Show the original character
+                span.dataset.char = index < ip.length ? ip[index] : originalChar; // Store IP char or original
+                span.dataset.jumble = originalChar; // Store the original character
+                span.style.setProperty('--rot', '0deg');
+                span.style.setProperty('--x', '0px');
+                span.style.setProperty('--y', '0px');
                 clueElement.appendChild(span);
             });
         });
