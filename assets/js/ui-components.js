@@ -184,6 +184,14 @@ export function displayEmailContent(email, onReplyClick, onMultipleChoiceReply, 
     // Nudge for magnifying glass on R&D email
     if (magnifyingGlassIcon && email.id === 'rd-email') {
         magnifyingGlassIcon.classList.add('pulse-magnify');
+        
+        // Start compose pulsation when R&D email is viewed (user can now use magnifier to reveal "Alex")
+        setTimeout(() => {
+            const composeBtn = document.querySelector('.compose-btn');
+            if (composeBtn && !composeBtn.classList.contains('compose-nudge-active')) {
+                composeBtn.classList.add('compose-nudge-active');
+            }
+        }, CONFIG.TIMING.COMPOSE_NUDGE_DELAY);
     }
 
     // Update user name placeholders
@@ -553,4 +561,36 @@ export function simulateInstallation(onComplete) {
             }, 1500);
         }
     }, CONFIG.UI.PROGRESS_INTERVAL);
+}
+
+/**
+ * Handle mouse move for custom cursor and magnifier effect
+ * @param {MouseEvent} e - Mouse event
+ */
+export function handleMouseMove(e) {
+    // If the custom cursor element is visible for any reason, it should follow the mouse.
+    if (customCursor && customCursor.style.display === 'block') {
+        customCursor.style.left = e.clientX + 'px';
+        customCursor.style.top = e.clientY + 'px';
+
+        // Handle lens-based reveal effect
+        if (document.body.classList.contains('microscope-active')) {
+            const lensRadius = CONFIG.LENS_RADIUS;
+            document.querySelectorAll('.jumbled-clue span').forEach(span => {
+                const rect = span.getBoundingClientRect();
+                const spanX = rect.left + rect.width / 2;
+                const spanY = rect.top + rect.height / 2;
+                
+                const distance = Math.sqrt(Math.pow(spanX - e.clientX, 2) + Math.pow(spanY - e.clientY, 2));
+
+                if (distance < lensRadius) {
+                    span.textContent = span.dataset.char;
+                    span.classList.add('revealed');
+                } else {
+                    span.textContent = span.dataset.jumble;
+                    span.classList.remove('revealed');
+                }
+            });
+        }
+    }
 }
