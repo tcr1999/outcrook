@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const welcomeEmailTemplate = {
         id: 'welcome-email',
         sender: 'Jane, Director of People',
+        senderIP: '192.168.1.042',
         subject: 'Your Super-Secret Detective Mission Starts NOW!',
         body: `
             <h3>Welcome to the Outcrook Team!</h3>
@@ -77,6 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const rdEmailTemplate = {
         id: 'rd-email',
         sender: 'Dr. Aris Thorne, Head of R&D',
+        senderIP: '192.168.1.105',
         subject: 'Our Secret Recipe is GONE! Lab on Lockdown!',
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         body: `
@@ -352,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
         emailItem.dataset.emailId = email.id; // Store email ID for easy lookup
         emailItem.innerHTML = `
             <div class="email-info">
-                <div class="email-sender">${email.sender}</div>
+                <div class="email-sender ${email.senderIP ? 'sender-with-ip' : ''}" ${email.senderIP ? `data-ip="${email.senderIP}"` : ''}>${email.sender}</div>
                 <div class="email-subject">${email.subject}</div>
                 <div class="email-date">${email.date} ${email.receivedTime}</div>
             </div>
@@ -1110,6 +1112,34 @@ Best, ${userName}, Special Investigator`;
                     } else {
                         span.textContent = span.dataset.jumble;
                         span.classList.remove('revealed');
+                    }
+                });
+                
+                // Handle sender IP reveals
+                document.querySelectorAll('.sender-with-ip').forEach(senderElement => {
+                    const rect = senderElement.getBoundingClientRect();
+                    const elementX = rect.left + rect.width / 2;
+                    const elementY = rect.top + rect.height / 2;
+                    
+                    const distance = Math.sqrt(Math.pow(elementX - e.clientX, 2) + Math.pow(elementY - e.clientY, 2));
+
+                    if (distance < lensRadius) {
+                        // Show IP address
+                        if (!senderElement.dataset.originalText) {
+                            senderElement.dataset.originalText = senderElement.textContent;
+                        }
+                        senderElement.textContent = senderElement.dataset.ip;
+                        senderElement.style.color = '#0078d4';
+                        senderElement.style.fontWeight = 'bold';
+                        senderElement.style.fontFamily = 'Courier New, monospace';
+                    } else {
+                        // Restore original text
+                        if (senderElement.dataset.originalText) {
+                            senderElement.textContent = senderElement.dataset.originalText;
+                            senderElement.style.color = '';
+                            senderElement.style.fontWeight = '';
+                            senderElement.style.fontFamily = '';
+                        }
                     }
                 });
             }

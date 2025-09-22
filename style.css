@@ -193,6 +193,17 @@ body.microscope-active #custom-cursor {
     font-family: 'Aptos', 'Calibri', 'Segoe UI', 'Arial', sans-serif;
 }
 
+.sender-with-ip {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sender-with-ip:hover {
+    background: #f0f0f0;
+    padding: 1px 3px;
+    border-radius: 2px;
+}
+
 .hidden-clue {
     background-color: transparent;
     color: transparent;
