@@ -137,19 +137,34 @@ export class EmailDeliverySystem {
 
     /**
      * Start spam cascade
+     * @param {string} lastSpamId - ID of the spam email that triggered the cascade
      */
-    startSpamCascade() {
+    startSpamCascade(lastSpamId = null) {
         if (this.gameState.spamCascadeInterval) {
             clearInterval(this.gameState.spamCascadeInterval);
         }
 
-        // Initialize the pool for sequential spam delivery (start with spam2 to avoid repetition)
-        this.gameState.availableSpamTemplates = [
-            'spamEmail2Template',
+        // Determine which spam to start with based on the last spam that was fallen for
+        let startIndex = 1; // Default to spam2
+        if (lastSpamId) {
+            // Extract spam number from ID (e.g., "spam-1" -> 1)
+            const spamMatch = lastSpamId.match(/spam-(\d+)/);
+            if (spamMatch) {
+                startIndex = parseInt(spamMatch[1]); // Start with next spam
+            }
+        }
+
+        // Initialize the pool for sequential spam delivery
+        const allSpamTemplates = [
+            'spamEmail1Template',
+            'spamEmail2Template', 
             'spamEmail3Template',
             'spamEmail4Template',
             'spamEmail5Template'
         ];
+
+        // Start from the next spam after the one that was fallen for
+        this.gameState.availableSpamTemplates = allSpamTemplates.slice(startIndex);
 
         // Deliver the first spam email immediately
         this.deliverSequentialSpam();
@@ -331,7 +346,7 @@ export class ReplySystem {
         } else if (selectedOption.consequence === 'scam') {
             // User fell for the scam - start spam cascade after a short delay
             setTimeout(() => {
-                this.emailDeliverySystem.startSpamCascade();
+                this.emailDeliverySystem.startSpamCascade(originalEmail.id);
             }, 2000); // 2 second delay to let the email deletion complete
         }
     }

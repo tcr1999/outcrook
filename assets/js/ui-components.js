@@ -5,7 +5,8 @@ import {
     getCurrentTimeString, 
     getRandomJumbleChar, 
     calculateDistance,
-    wait 
+    wait,
+    applyCursorTheme
 } from './utils.js';
 
 /**
@@ -630,12 +631,7 @@ export function handleMouseMove(e) {
             });
             
             // Handle name IP reveals in email body
-            const nameSpans = document.querySelectorAll('.name-ip-clue');
-            if (nameSpans.length > 0) {
-                console.log(`Found ${nameSpans.length} name-ip-clue elements`);
-            }
-            
-            nameSpans.forEach(nameSpan => {
+            document.querySelectorAll('.name-ip-clue').forEach(nameSpan => {
                 const rect = nameSpan.getBoundingClientRect();
                 const spanX = rect.left + rect.width / 2;
                 const spanY = rect.top + rect.height / 2;
@@ -673,20 +669,12 @@ function processEmailBodyForMagnifier(body) {
     };
     
     let processedBody = body;
-    let replacements = 0;
     
     // Replace each name with a magnifier-enabled span
     Object.entries(nameIPMap).forEach(([name, ip]) => {
         const regex = new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g');
-        const beforeReplace = processedBody;
         processedBody = processedBody.replace(regex, `<span class="name-ip-clue" data-ip="${ip}" data-original-name="${name}">${name}</span>`);
-        if (beforeReplace !== processedBody) {
-            replacements++;
-            console.log(`Replaced "${name}" with magnifier span`);
-        }
     });
-    
-    console.log(`processEmailBodyForMagnifier: Made ${replacements} replacements`);
     return processedBody;
 }
 
