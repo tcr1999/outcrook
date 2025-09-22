@@ -399,6 +399,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <div>${email.body}</div>
         `;
         
+        // Jumble the clue text after setting the HTML
+        jumbleClueText();
+        
         const replyButton = document.getElementById('reply-email-btn');
         const magnifyingGlassIcon = document.getElementById('magnifying-glass-icon');
 
