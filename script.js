@@ -628,6 +628,12 @@ function onEmailDelivered() {
 function onReplySent() {
     loadEmailsForFolder(gameState.currentFolder);
     refreshUnreadCounts(gameState.emails);
+    
+    // Clear email content if current email was moved to trash
+    const emailBodyContentDiv = document.querySelector('#email-body-content');
+    if (emailBodyContentDiv) {
+        emailBodyContentDiv.innerHTML = '<h3 class="email-content-placeholder">Select an email to view its content</h3>';
+    }
 }
 
 /**

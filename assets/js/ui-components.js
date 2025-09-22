@@ -133,7 +133,7 @@ export function displayEmailContent(email, onReplyClick, onMultipleChoiceReply, 
     if (!emailBodyContentDiv) return;
 
     emailBodyContentDiv.innerHTML = `
-        <h3>${email.subject}</h3>
+        <h3 class="subject-line" data-ip="${email.subjectIP || ''}" data-original-subject="${email.subject}">${email.subject}</h3>
         <p>From: ${email.senderIP ? `<span class="sender-ip-clue" data-ip="${email.senderIP}">${email.sender}</span>` : email.sender}</p>
         <p>Date: ${email.date}</p>
         <hr>
@@ -576,6 +576,8 @@ export function handleMouseMove(e) {
         // Handle lens-based reveal effect
         if (document.body.classList.contains('microscope-active')) {
             const lensRadius = CONFIG.LENS_RADIUS;
+            
+            // Handle jumbled clues (Alex reveal)
             document.querySelectorAll('.jumbled-clue span').forEach(span => {
                 const rect = span.getBoundingClientRect();
                 const spanX = rect.left + rect.width / 2;
@@ -589,6 +591,24 @@ export function handleMouseMove(e) {
                 } else {
                     span.textContent = span.dataset.jumble;
                     span.classList.remove('revealed');
+                }
+            });
+            
+            // Handle subject line IP reveals
+            document.querySelectorAll('.subject-line').forEach(subjectLine => {
+                const rect = subjectLine.getBoundingClientRect();
+                const spanX = rect.left + rect.width / 2;
+                const spanY = rect.top + rect.height / 2;
+                
+                const distance = Math.sqrt(Math.pow(spanX - e.clientX, 2) + Math.pow(spanY - e.clientY, 2));
+
+                if (distance < lensRadius && subjectLine.dataset.ip) {
+                    subjectLine.textContent = `IP: ${subjectLine.dataset.ip}`;
+                    subjectLine.classList.add('revealed');
+                } else if (subjectLine.dataset.ip) {
+                    // Restore original subject if it has an IP
+                    subjectLine.textContent = subjectLine.dataset.originalSubject;
+                    subjectLine.classList.remove('revealed');
                 }
             });
         }

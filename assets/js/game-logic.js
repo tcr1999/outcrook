@@ -315,7 +315,7 @@ export class ReplySystem {
                 this.emailDeliverySystem.deliverITSupportEmail('reportJunk');
             }, CONFIG.TIMING.IT_EMAIL_DELAY);
         } else if (selectedOption.consequence === 'scam') {
-            // Start spam cascade
+            // User fell for the scam - start spam cascade
             this.emailDeliverySystem.startSpamCascade();
         }
     }
@@ -444,13 +444,13 @@ export class InstallationSystem {
      */
     handleInstallation(emailToTrash) {
         simulateInstallation(() => {
-            if (this.onInstallationComplete) {
-                this.onInstallationComplete();
-            }
-            
-            // Move the IT email to trash
+            // Move the IT email to trash immediately
             if (emailToTrash) {
                 this.gameState.updateEmail(emailToTrash.id, { folder: CONFIG.FOLDERS.TRASH });
+            }
+            
+            if (this.onInstallationComplete) {
+                this.onInstallationComplete();
             }
             
             // Deliver R&D email after installation
