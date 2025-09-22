@@ -137,7 +137,7 @@ export function displayEmailContent(email, onReplyClick, onMultipleChoiceReply, 
         <p>From: ${email.senderIP ? `<span class="sender-ip-clue" data-ip="${email.senderIP}">${email.sender}</span>` : email.sender}</p>
         <p>Date: ${email.date}</p>
         <hr>
-        <div>${email.body}</div>
+        <div>${processEmailBodyForMagnifier(email.body)}</div>
     `;
     
     // Jumble the clue text after setting the HTML
@@ -628,8 +628,54 @@ export function handleMouseMove(e) {
                     subjectLine.classList.remove('revealed');
                 }
             });
+            
+            // Handle name IP reveals in email body
+            document.querySelectorAll('.name-ip-clue').forEach(nameSpan => {
+                const rect = nameSpan.getBoundingClientRect();
+                const spanX = rect.left + rect.width / 2;
+                const spanY = rect.top + rect.height / 2;
+                
+                const distance = Math.sqrt(Math.pow(spanX - e.clientX, 2) + Math.pow(spanY - e.clientY, 2));
+
+                if (distance < lensRadius && nameSpan.dataset.ip) {
+                    nameSpan.textContent = `IP: ${nameSpan.dataset.ip}`;
+                    nameSpan.classList.add('revealed');
+                } else if (nameSpan.dataset.ip) {
+                    // Restore original name if it has an IP
+                    nameSpan.textContent = nameSpan.dataset.originalName;
+                    nameSpan.classList.remove('revealed');
+                }
+            });
         }
     }
+}
+
+/**
+ * Process email body to add magnifier classes to names
+ * @param {string} body - Email body HTML
+ * @returns {string} Processed HTML with magnifier classes
+ */
+function processEmailBodyForMagnifier(body) {
+    // Define names and their corresponding IP addresses
+    const nameIPMap = {
+        'Jane': '192.168.1.042',
+        'Sarah Chen': '192.168.1.089', 
+        'Dr. Aris Thorne': '192.168.1.105',
+        'Alex Chen': '192.168.1.156',
+        'Patricia Wells': '192.168.1.203',
+        'Dick Thompson': '192.168.1.001',
+        'Richard "Dick" Thompson': '192.168.1.001'
+    };
+    
+    let processedBody = body;
+    
+    // Replace each name with a magnifier-enabled span
+    Object.entries(nameIPMap).forEach(([name, ip]) => {
+        const regex = new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g');
+        processedBody = processedBody.replace(regex, `<span class="name-ip-clue" data-ip="${ip}" data-original-name="${name}">${name}</span>`);
+    });
+    
+    return processedBody;
 }
 
 /**

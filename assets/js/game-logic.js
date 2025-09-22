@@ -143,28 +143,25 @@ export class EmailDeliverySystem {
             clearInterval(this.gameState.spamCascadeInterval);
         }
 
-        // Deliver the first spam email
-        const firstSpam = createSpamEmail('spamEmail1Template');
-        if (firstSpam) {
-            this.gameState.addEmail(firstSpam);
-            if (this.onEmailDelivered) {
-                this.onEmailDelivered();
-            }
-        }
+        // Initialize the pool for sequential spam delivery
+        this.gameState.availableSpamTemplates = [
+            'spamEmail1Template',
+            'spamEmail2Template',
+            'spamEmail3Template',
+            'spamEmail4Template',
+            'spamEmail5Template'
+        ];
 
-        // Initialize the pool for the rest of the spam
-        this.gameState.availableSpamTemplates = [...getSpamEmailTemplates()];
-
-        // Start the interval for subsequent random emails
+        // Start the interval for sequential spam emails
         this.gameState.spamCascadeInterval = setInterval(() => {
-            this.deliverRandomSpam();
+            this.deliverSequentialSpam();
         }, CONFIG.TIMING.SPAM_INTERVAL);
     }
 
     /**
-     * Deliver random spam email
+     * Deliver sequential spam email
      */
-    deliverRandomSpam() {
+    deliverSequentialSpam() {
         if (this.gameState.availableSpamTemplates.length === 0) {
             if (this.gameState.spamCascadeInterval) {
                 clearInterval(this.gameState.spamCascadeInterval);
@@ -173,7 +170,8 @@ export class EmailDeliverySystem {
             return;
         }
 
-        const templateName = removeRandomElement(this.gameState.availableSpamTemplates);
+        // Get the next spam email in sequence (first in array)
+        const templateName = this.gameState.availableSpamTemplates.shift();
         const newSpamEmail = createSpamEmail(templateName);
         if (newSpamEmail) {
             this.gameState.addEmail(newSpamEmail);
@@ -283,14 +281,8 @@ export class ReplySystem {
         if (replyEmail) {
             this.gameState.addEmail(replyEmail);
             
-            // Handle spam emails differently - delete completely when user falls for scam
-            if (originalEmail.id.startsWith('spam-') && selectedOption.consequence === 'scam') {
-                // Completely remove the spam email from the game state
-                this.gameState.removeEmail(originalEmail.id);
-            } else {
-                // For other emails, move to trash
-                this.gameState.updateEmail(originalEmail.id, { replied: true, folder: CONFIG.FOLDERS.TRASH });
-            }
+            // Move all emails to trash when replied to
+            this.gameState.updateEmail(originalEmail.id, { replied: true, folder: CONFIG.FOLDERS.TRASH });
 
             showCustomPrompt('Reply sent!', 'alert');
             
