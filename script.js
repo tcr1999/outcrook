@@ -11,7 +11,7 @@ import {
     setCursorTheme,
     wait 
 } from './assets/js/utils.js';
-import { loadEmailTemplates } from './assets/js/email-manager.js';
+import { loadEmailTemplates, generateReplyBody } from './assets/js/email-manager.js';
 import { 
     updateCurrentTime, 
     refreshUnreadCounts, 
@@ -20,7 +20,8 @@ import {
     simulateTyping, 
     showCustomPrompt, 
     handleMagnifierReveal,
-    jumbleClueText 
+    jumbleClueText,
+    createInteractiveReplyInterface
 } from './assets/js/ui-components.js';
 import { 
     GameState, 
@@ -101,9 +102,6 @@ async function initializeGame() {
         
         // Initialize UI
         initializeUI();
-        
-        // Start the game
-        startGame();
         
     } catch (error) {
         console.error('Failed to initialize game:', error);
@@ -207,9 +205,6 @@ function initializeUI() {
  * Start the game
  */
 function startGame() {
-    container.style.display = 'grid';
-    introScreen.style.display = 'none';
-    
     // Setup timers
     setInterval(updateCurrentTime, 1000);
     updateCurrentTime();
@@ -233,7 +228,13 @@ function handleStartGame() {
         const formattedName = formatUserName(userName);
         setUserName(formattedName);
         userProfile.textContent = `Detective ${formattedName}`;
-        initializeGame();
+        
+        // Hide intro screen and show game
+        container.style.display = 'grid';
+        introScreen.style.display = 'none';
+        
+        // Start the game
+        startGame();
     } else {
         nameInput.classList.add('input-error');
     }
@@ -365,9 +366,17 @@ function handleReplyClick() {
         return;
     }
     
-    replySystem.handleInteractiveReply(originalEmail, () => {
-        loadEmailsForFolder(gameState.currentFolder);
-        refreshUnreadCounts(gameState.emails);
+    // Generate reply text
+    const userName = getUserName();
+    const replyText = generateReplyBody(originalEmail, userName);
+    
+    // Create interactive reply interface
+    createInteractiveReplyInterface(originalEmail, replyText, (finalReplyText) => {
+        // Handle the reply completion
+        replySystem.handleInteractiveReply(originalEmail, () => {
+            loadEmailsForFolder(gameState.currentFolder);
+            refreshUnreadCounts(gameState.emails);
+        });
     });
 }
 

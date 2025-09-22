@@ -348,6 +348,93 @@ export function simulateTyping(targetElement, fullText, charsPerKey = CONFIG.UI.
 }
 
 /**
+ * Create interactive reply interface
+ * @param {Object} originalEmail - Original email being replied to
+ * @param {string} replyText - Reply text to type
+ * @param {Function} onReplyComplete - Callback when reply is complete
+ */
+export function createInteractiveReplyInterface(originalEmail, replyText, onReplyComplete) {
+    const emailBodyContentDiv = document.querySelector(CONFIG.SELECTORS.EMAIL_BODY_CONTENT_DIV);
+    const replyEmailBtn = document.querySelector(CONFIG.SELECTORS.REPLY_EMAIL_BTN);
+    
+    if (!emailBodyContentDiv || !replyEmailBtn) return;
+
+    // Create a new container for the reply interface elements
+    const replyInterfaceContainer = document.createElement('div');
+    replyInterfaceContainer.id = 'reply-interface-container';
+    
+    // Clear emailBodyContentDiv and prepare for reply interface
+    emailBodyContentDiv.innerHTML = `
+        <h3>Replying to: ${originalEmail.subject}</h3>
+        <div id="reply-typing-area" style="border: 1px solid #ccc; padding: 10px; min-height: 100px; white-space: pre-wrap; position: relative; user-select: none;"></div>
+    `;
+    replyEmailBtn.style.display = 'none'; // Hide original reply button
+    
+    const emailContentDiv = document.querySelector('.email-content');
+    emailContentDiv.appendChild(replyInterfaceContainer);
+
+    const replyTypingArea = document.getElementById('reply-typing-area');
+    let typingStarted = false;
+
+    // Create and append the type prompt initially to replyTypingArea
+    const typePrompt = document.createElement('p');
+    typePrompt.id = 'type-prompt';
+    typePrompt.classList.add('flashing-text');
+    typePrompt.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);';
+    typePrompt.textContent = 'Press any key to start typing...';
+    replyTypingArea.appendChild(typePrompt);
+
+    // Create send button and prompt, append to replyInterfaceContainer
+    const sendPromptElement = document.createElement('p');
+    sendPromptElement.id = 'send-prompt';
+    sendPromptElement.textContent = 'Press Enter to send';
+    sendPromptElement.style.display = 'none'; // Initially hidden
+    replyInterfaceContainer.appendChild(sendPromptElement);
+    
+    const sendReplyBtn = document.createElement('button');
+    sendReplyBtn.id = 'send-reply-btn';
+    sendReplyBtn.textContent = 'Send';
+    sendReplyBtn.style.display = 'none'; // Initially hidden
+    replyInterfaceContainer.appendChild(sendReplyBtn);
+
+    const sendReplyHandler = function() {
+        sendReplyBtn.removeEventListener('click', sendReplyHandler);
+        document.removeEventListener('keydown', enterSendHandler);
+        
+        replyInterfaceContainer.remove(); // Remove from DOM after use
+
+        if (onReplyComplete) {
+            onReplyComplete(replyText);
+        }
+    };
+
+    const enterSendHandler = function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendReplyHandler();
+        }
+    };
+
+    const startTypingListener = function(event) {
+        if (!typingStarted && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
+            typePrompt.remove(); // Remove the prompt entirely
+            typingStarted = true;
+            document.removeEventListener('keydown', startTypingListener); // Remove this listener once typing starts
+            
+            simulateTyping(replyTypingArea, replyText, CONFIG.UI.TYPING_CHARS_PER_KEY, () => {
+                sendPromptElement.style.display = 'block'; // Show prompt
+                sendReplyBtn.style.display = 'block'; // Show the Send button
+
+                sendReplyBtn.addEventListener('click', sendReplyHandler);
+                document.addEventListener('keydown', enterSendHandler);
+            });
+        }
+    };
+
+    document.addEventListener('keydown', startTypingListener);
+}
+
+/**
  * Show custom prompt/notification
  * @param {string} message - Message to show
  * @param {string} type - Type of prompt ('alert' or 'prompt')
