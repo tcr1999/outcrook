@@ -303,6 +303,7 @@ export class ReplySystem {
      * @param {Object} selectedOption - Selected option
      */
     handleMultipleChoiceReply(originalEmail, selectedOption) {
+        console.log('handleMultipleChoiceReply called with email ID:', originalEmail.id, 'option:', selectedOption.text);
         const replyEmail = createMultipleChoiceReply(originalEmail, selectedOption);
         if (replyEmail) {
             this.gameState.addEmail(replyEmail);
@@ -317,6 +318,7 @@ export class ReplySystem {
             }
 
             // Handle consequences based on email type
+            console.log('Calling handleReplyConsequences for email:', originalEmail.id);
             this.handleReplyConsequences(originalEmail, selectedOption);
         }
     }
@@ -327,11 +329,15 @@ export class ReplySystem {
      * @param {Object} selectedOption - Selected option
      */
     handleReplyConsequences(originalEmail, selectedOption) {
+        console.log('handleReplyConsequences called for email ID:', originalEmail.id);
         if (originalEmail.id.startsWith('spam-')) {
+            console.log('Detected spam email - calling handleSpamReplyConsequences');
             this.handleSpamReplyConsequences(selectedOption);
         } else if (originalEmail.id === 'marketing-email') {
+            console.log('Detected marketing email - calling handleMarketingReplyConsequences');
             this.handleMarketingReplyConsequences();
         } else {
+            console.log('Detected other email - calling handleDefaultReplyConsequences');
             this.handleDefaultReplyConsequences();
         }
     }
