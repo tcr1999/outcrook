@@ -121,11 +121,15 @@ export class EmailDeliverySystem {
      * Deliver next story email
      */
     async deliverNextStoryEmail() {
+        console.log('deliverNextStoryEmail called, nextStoryEmailIndex:', this.gameState.nextStoryEmailIndex);
         const storyQueue = getStoryEmailsQueue();
+        console.log('Story queue:', storyQueue);
         if (this.gameState.nextStoryEmailIndex < storyQueue.length) {
             const templateName = storyQueue[this.gameState.nextStoryEmailIndex];
+            console.log('Creating email from template:', templateName);
             const nextEmail = createEmailFromTemplate(templateName);
             if (nextEmail) {
+                console.log('Created next story email:', nextEmail.id, nextEmail.subject);
                 this.gameState.addEmail(nextEmail);
                 this.gameState.nextStoryEmailIndex++;
                 if (this.onEmailDelivered) {

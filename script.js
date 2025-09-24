@@ -385,6 +385,7 @@ function handleReplyClick() {
  * Handle multiple choice reply
  */
 function handleMultipleChoiceReply(originalEmail, selectedOption) {
+    console.log('SCRIPT.JS: handleMultipleChoiceReply called with email ID:', originalEmail.id, 'option:', selectedOption.text);
     replySystem.handleMultipleChoiceReply(originalEmail, selectedOption);
     loadEmailsForFolder(gameState.currentFolder);
     refreshUnreadCounts(gameState.emails);
