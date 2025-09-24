@@ -307,3 +307,22 @@ export function createITSupportEmail(consequence) {
     
     return email;
 }
+
+/**
+ * Create IT reset email
+ * @returns {Object} IT reset email object
+ */
+export function createITResetEmail() {
+    const template = emailTemplates.itResetEmailTemplate;
+    if (!template) {
+        console.error('IT reset email template not found');
+        return null;
+    }
+
+    const email = deepCopy(template);
+    email.date = getCurrentDateString();
+    email.receivedTime = getCurrentTimeString();
+    email.timestamp = getCurrentTimestamp();
+    
+    return email;
+}

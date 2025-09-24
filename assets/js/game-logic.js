@@ -16,6 +16,7 @@ import {
     createCEOEmail,
     createSpamEmail,
     createITSupportEmail,
+    createITResetEmail,
     getSpamEmailTemplates,
     getStoryEmailsQueue,
     getRandomNames,
@@ -184,9 +185,10 @@ export class GameState {
  * Email delivery system
  */
 export class EmailDeliverySystem {
-    constructor(gameState, onEmailDelivered) {
+    constructor(gameState, onEmailDelivered, onGameReset) {
         this.gameState = gameState;
         this.onEmailDelivered = onEmailDelivered;
+        this.onGameReset = onGameReset;
     }
 
     /**
@@ -228,76 +230,45 @@ export class EmailDeliverySystem {
     }
 
     /**
-     * Start spam cascade
+     * Start spam cascade - only one spam at a time, limited to 3 spam emails
      * @param {string} lastSpamId - ID of the spam email that triggered the cascade
      */
     startSpamCascade(lastSpamId = null) {
-        console.log('startSpamCascade called with lastSpamId:', lastSpamId);
+        // Stop any existing spam cascade
         if (this.gameState.spamCascadeInterval) {
             clearInterval(this.gameState.spamCascadeInterval);
+            this.gameState.spamCascadeInterval = null;
         }
 
-        // Determine which spam to start with based on the last spam that was fallen for
-        let startIndex = 1; // Default to spam2
+        // Determine which spam to deliver next
+        let nextSpamNumber = 1; // Default to spam1
         if (lastSpamId) {
             if (lastSpamId === 'marketing-email') {
                 // Marketing email triggers spam1 (Emissary's message)
-                startIndex = 0;
-                console.log('Marketing email detected - setting startIndex to 0 (spam1)');
+                nextSpamNumber = 1;
             } else {
                 // Extract spam number from ID (e.g., "spam-email-1" -> 1)
                 const spamMatch = lastSpamId.match(/spam-email-(\d+)/);
                 if (spamMatch) {
-                    startIndex = parseInt(spamMatch[1]); // Start with next spam
-                    console.log('Spam email detected - setting startIndex to', startIndex);
+                    nextSpamNumber = parseInt(spamMatch[1]) + 1; // Next spam in sequence
                 }
             }
         }
-        console.log('Final startIndex:', startIndex);
 
-        // Initialize the pool for sequential spam delivery
-        const allSpamTemplates = [
-            'spamEmail1Template',
-            'spamEmail2Template', 
-            'spamEmail3Template',
-            'spamEmail4Template',
-            'spamEmail5Template'
-        ];
-
-        // Start from the next spam after the one that was fallen for
-        this.gameState.availableSpamTemplates = allSpamTemplates.slice(startIndex);
-
-        // Deliver the first spam email immediately
-        console.log('About to deliver first spam email with startIndex:', startIndex);
-        console.log('Available spam templates:', this.gameState.availableSpamTemplates);
-        this.deliverSequentialSpam();
-
-        // Start the interval for subsequent spam emails
-        this.gameState.spamCascadeInterval = setInterval(() => {
-            this.deliverSequentialSpam();
-        }, CONFIG.TIMING.SPAM_INTERVAL);
+        // Only deliver if we haven't exceeded spam limit (3 spam emails max)
+        if (nextSpamNumber <= 3) {
+            this.deliverSingleSpam(nextSpamNumber);
+        }
     }
 
     /**
-     * Deliver sequential spam email
+     * Deliver a single spam email
+     * @param {number} spamNumber - The spam number to deliver (1, 2, or 3)
      */
-    deliverSequentialSpam() {
-        console.log('deliverSequentialSpam called, available templates:', this.gameState.availableSpamTemplates);
-        if (this.gameState.availableSpamTemplates.length === 0) {
-            console.log('No more spam templates available, stopping cascade');
-            if (this.gameState.spamCascadeInterval) {
-                clearInterval(this.gameState.spamCascadeInterval);
-                this.gameState.spamCascadeInterval = null;
-            }
-            return;
-        }
-
-        // Get the next spam email in sequence (first in array)
-        const templateName = this.gameState.availableSpamTemplates.shift();
-        console.log('Delivering spam email with template:', templateName);
+    deliverSingleSpam(spamNumber) {
+        const templateName = `spamEmail${spamNumber}Template`;
         const newSpamEmail = createSpamEmail(templateName);
         if (newSpamEmail) {
-            console.log('Created spam email:', newSpamEmail.subject, 'from', newSpamEmail.sender);
             this.gameState.addEmail(newSpamEmail);
             if (this.onEmailDelivered) {
                 this.onEmailDelivered();
@@ -320,6 +291,24 @@ export class EmailDeliverySystem {
             if (this.onEmailDelivered) {
                 this.onEmailDelivered();
             }
+        }
+    }
+
+    /**
+     * Deliver IT reset email (game over - reset to beginning)
+     */
+    async deliverITResetEmail() {
+        const itResetEmail = createITResetEmail();
+        if (itResetEmail) {
+            this.gameState.addEmail(itResetEmail);
+            if (this.onEmailDelivered) {
+                this.onEmailDelivered();
+            }
+            
+            // Reset the game after a delay
+            setTimeout(() => {
+                this.resetGame();
+            }, 5000); // 5 second delay to let user read the reset email
         }
     }
 
@@ -385,6 +374,44 @@ export class EmailDeliverySystem {
             if (this.onEmailDelivered) {
                 this.onEmailDelivered();
             }
+        }
+    }
+
+    /**
+     * Reset the game to the beginning
+     */
+    resetGame() {
+        // Clear all emails
+        this.gameState.emails = [];
+        
+        // Reset game state
+        this.gameState.currentFolder = CONFIG.FOLDERS.INBOX;
+        this.gameState.nextStoryEmailIndex = 0;
+        this.gameState.spamDeliveryTimer = null;
+        this.gameState.itEmailSent = false;
+        this.gameState.spamCascadeInterval = null;
+        this.gameState.availableSpamTemplates = [];
+        this.gameState.storyContacted = false;
+        this.gameState.interactedContacts = new Set();
+        this.gameState.gameProgress = {
+            hasReceivedWelcome: false,
+            hasReceivedMarketing: false,
+            hasReceivedRD: false,
+            hasReceivedIT: false,
+            hasReceivedSpam: false,
+            hasReceivedAlex: false,
+            hasReceivedHR: false,
+            hasReceivedCEO: false
+        };
+        
+        // Deliver welcome email to start over
+        setTimeout(() => {
+            this.deliverWelcomeEmail();
+        }, 1000);
+        
+        // Notify the UI that the game has been reset
+        if (this.onGameReset) {
+            this.onGameReset();
         }
     }
 }
@@ -462,10 +489,19 @@ export class ReplySystem {
                 this.emailDeliverySystem.deliverITSupportEmail('reportJunk');
             }, CONFIG.TIMING.IT_EMAIL_DELAY);
         } else if (selectedOption.consequence === 'scam') {
-            // User fell for the scam - start spam cascade after a short delay
-            setTimeout(() => {
-                this.emailDeliverySystem.startSpamCascade(originalEmail.id);
-            }, 2000); // 2 second delay to let the email deletion complete
+            // Check if this is spam3 (the last spam)
+            const spamMatch = originalEmail.id.match(/spam-email-(\d+)/);
+            if (spamMatch && parseInt(spamMatch[1]) === 3) {
+                // User fell for spam3 - trigger IT reset email
+                setTimeout(() => {
+                    this.emailDeliverySystem.deliverITResetEmail();
+                }, 2000);
+            } else {
+                // User fell for spam1 or spam2 - deliver next spam
+                setTimeout(() => {
+                    this.emailDeliverySystem.startSpamCascade(originalEmail.id);
+                }, 2000);
+            }
         }
     }
 

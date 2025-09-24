@@ -87,7 +87,7 @@ async function initializeGame() {
         
         // Initialize game systems
         gameState = new GameState();
-        emailDeliverySystem = new EmailDeliverySystem(gameState, onEmailDelivered);
+        emailDeliverySystem = new EmailDeliverySystem(gameState, onEmailDelivered, onGameReset);
         replySystem = new ReplySystem(gameState, emailDeliverySystem, onReplySent);
         composeSystem = new ComposeSystem(gameState, emailDeliverySystem, onEmailSent);
         installationSystem = new InstallationSystem(gameState, emailDeliverySystem, onInstallationComplete);
@@ -639,6 +639,18 @@ function onEmailDelivered() {
     if (gameState.currentFolder === CONFIG.FOLDERS.INBOX) {
         loadEmailsForFolder(CONFIG.FOLDERS.INBOX);
     }
+}
+
+/**
+ * Callback when game is reset
+ */
+function onGameReset() {
+    // Refresh the UI to show the reset state
+    loadEmailsForFolder(CONFIG.FOLDERS.INBOX);
+    refreshUnreadCounts(gameState.emails);
+    
+    // Show a message to the user
+    showCustomPrompt('Your investigation has been reset due to security concerns. Please start over.', 'alert');
 }
 
 /**
