@@ -140,6 +140,7 @@ export class EmailDeliverySystem {
      * @param {string} lastSpamId - ID of the spam email that triggered the cascade
      */
     startSpamCascade(lastSpamId = null) {
+        console.log('startSpamCascade called with lastSpamId:', lastSpamId);
         if (this.gameState.spamCascadeInterval) {
             clearInterval(this.gameState.spamCascadeInterval);
         }
@@ -150,14 +151,17 @@ export class EmailDeliverySystem {
             if (lastSpamId === 'marketing-email') {
                 // Marketing email triggers spam1 (Emissary's message)
                 startIndex = 0;
+                console.log('Marketing email detected - setting startIndex to 0 (spam1)');
             } else {
                 // Extract spam number from ID (e.g., "spam-email-1" -> 1)
                 const spamMatch = lastSpamId.match(/spam-email-(\d+)/);
                 if (spamMatch) {
                     startIndex = parseInt(spamMatch[1]); // Start with next spam
+                    console.log('Spam email detected - setting startIndex to', startIndex);
                 }
             }
         }
+        console.log('Final startIndex:', startIndex);
 
         // Initialize the pool for sequential spam delivery
         const allSpamTemplates = [
@@ -360,8 +364,10 @@ export class ReplySystem {
      * Handle marketing reply consequences
      */
     handleMarketingReplyConsequences() {
+        console.log('Marketing reply consequences triggered - starting spam cascade in', CONFIG.TIMING.SPAM_CASCADE_DELAY, 'ms');
         // Start spam cascade after delay (this should deliver spam1 - the Emissary's message)
         setTimeout(() => {
+            console.log('Starting spam cascade with marketing-email ID');
             this.emailDeliverySystem.startSpamCascade('marketing-email'); // Pass marketing email ID to start with spam1
         }, CONFIG.TIMING.SPAM_CASCADE_DELAY);
     }
