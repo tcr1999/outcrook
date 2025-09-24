@@ -387,7 +387,8 @@ function handleNameInputChange() {
         }
         
         const currentEmailSubject = emailBodyContentDiv.querySelector('h3').textContent;
-        const currentEmailSender = emailBodyContentDiv.querySelector('p:nth-of-type(1)').textContent.replace('From: ', '');
+        const senderLine = emailBodyContentDiv.querySelector('.email-sender-with-thumbnail');
+        const currentEmailSender = senderLine ? senderLine.querySelector('span').textContent.replace('From: ', '') : '';
 
     const originalEmail = gameState.emails.find(email => email.subject === currentEmailSubject && email.sender === currentEmailSender);
 

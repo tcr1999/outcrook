@@ -81,6 +81,62 @@ function animateCount(element, start, end, duration) {
 }
 
 /**
+ * Create character thumbnail element
+ * @param {string} senderName - Name of the sender
+ * @returns {HTMLElement} Thumbnail element
+ */
+export function createCharacterThumbnail(senderName) {
+    const thumbnail = document.createElement('div');
+    thumbnail.className = 'character-thumbnail';
+    
+    // Get initials from sender name
+    const initials = getInitials(senderName);
+    thumbnail.textContent = initials;
+    
+    // Add data attribute for potential future image loading
+    thumbnail.dataset.senderName = senderName;
+    
+    return thumbnail;
+}
+
+/**
+ * Get initials from a name
+ * @param {string} name - Full name
+ * @returns {string} Initials (max 2 characters)
+ */
+export function getInitials(name) {
+    if (!name) return '?';
+    
+    // Handle special cases for known characters
+    const nameMap = {
+        'Jane Smith': 'JS',
+        'Sarah Johnson': 'SJ', 
+        'Dr. Aris Thorne': 'AT',
+        'Alex Chen': 'AC',
+        'Patricia Wells': 'PW',
+        'Dick Thompson': 'DT',
+        'Richard "Dick" Thompson': 'DT',
+        'IT Support': 'IT',
+        'HR Department': 'HR',
+        'CEO Office': 'CE'
+    };
+    
+    if (nameMap[name]) {
+        return nameMap[name];
+    }
+    
+    // Extract initials from name
+    const words = name.trim().split(/\s+/);
+    if (words.length >= 2) {
+        return (words[0][0] + words[1][0]).toUpperCase();
+    } else if (words.length === 1) {
+        return words[0].substring(0, 2).toUpperCase();
+    }
+    
+    return '?';
+}
+
+/**
  * Update notification badge for a folder
  * @param {string} folderId - Folder ID
  * @param {number} count - Unread count
@@ -148,9 +204,15 @@ export function renderEmailItem(email, currentFolder, onDeleteClick, onEmailClic
     emailItem.classList.add('slide-in');
     emailItem.dataset.emailId = email.id;
     
+    // Get initials for thumbnail
+    const initials = getInitials(email.sender);
+    
     emailItem.innerHTML = `
         <div class="email-info">
-            <div class="email-sender">${email.sender}</div>
+            <div class="email-sender-with-thumbnail">
+                <div class="character-thumbnail">${initials}</div>
+                <div class="email-sender">${email.sender}</div>
+            </div>
             <div class="email-subject">${email.subject}</div>
             <div class="email-date">${email.date} ${email.receivedTime}</div>
         </div>
@@ -192,13 +254,27 @@ export function displayEmailContent(email, onReplyClick, onMultipleChoiceReply, 
     const emailBodyContentDiv = document.querySelector(CONFIG.SELECTORS.EMAIL_BODY_CONTENT_DIV);
     if (!emailBodyContentDiv) return;
 
+    // Create sender line with thumbnail
+    const senderLine = document.createElement('div');
+    senderLine.className = 'email-sender-with-thumbnail';
+    
+    const thumbnail = createCharacterThumbnail(email.sender);
+    senderLine.appendChild(thumbnail);
+    
+    const senderText = document.createElement('span');
+    senderText.innerHTML = `From: ${email.senderIP ? `<span class="sender-ip-clue" data-ip="${email.senderIP}">${email.sender}</span>` : email.sender}`;
+    senderLine.appendChild(senderText);
+
     emailBodyContentDiv.innerHTML = `
         <h3 class="subject-line" data-ip="${email.subjectIP || ''}" data-original-subject="${email.subject}">${email.subject}</h3>
-        <p>From: ${email.senderIP ? `<span class="sender-ip-clue" data-ip="${email.senderIP}">${email.sender}</span>` : email.sender}</p>
         <p>Date: ${email.date}</p>
         <hr>
         <div>${processEmailBodyForMagnifier(email.body)}</div>
     `;
+    
+    // Insert sender line after subject
+    const subjectLine = emailBodyContentDiv.querySelector('.subject-line');
+    subjectLine.insertAdjacentElement('afterend', senderLine);
     
     // Jumble the clue text after setting the HTML
     jumbleClueText();
