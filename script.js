@@ -497,14 +497,25 @@ function handleDarkModeToggle() {
             composeBtn.classList.remove('compose-nudge-active');
         }
         
-    // Populate dropdown
+    // Populate dropdown with relevant contacts
         composeTo.innerHTML = '<option value="">Select a contact...</option>';
-    composeSystem.getRandomNames().forEach(name => {
+    const relevantContacts = composeSystem.getRelevantContacts();
+    if (relevantContacts.length === 0) {
             const option = document.createElement('option');
-            option.value = name;
-            option.textContent = name;
+            option.value = '';
+            option.textContent = 'No contacts available yet...';
+            option.disabled = true;
             composeTo.appendChild(option);
-        });
+        } else {
+            relevantContacts.forEach(contact => {
+                const option = document.createElement('option');
+                option.value = contact.name;
+                option.textContent = `${contact.name} - ${contact.role}`;
+                option.dataset.priority = contact.priority;
+                option.dataset.description = contact.description;
+                composeTo.appendChild(option);
+            });
+        }
         
         composeSubject.value = '';
         composeBody.innerHTML = '';
@@ -524,6 +535,17 @@ function handleDarkModeToggle() {
  */
 function handleComposeToChange() {
     if (composeSystem.isStoryContacted()) return;
+
+    // Show/hide contact info
+    const contactInfo = document.getElementById('contact-info');
+    const selectedOption = composeTo.options[composeTo.selectedIndex];
+    
+    if (composeTo.value && selectedOption.dataset.description) {
+        contactInfo.textContent = selectedOption.dataset.description;
+        contactInfo.style.display = 'block';
+    } else {
+        contactInfo.style.display = 'none';
+    }
 
         if (composeTo.value.toLowerCase() === 'alex chen') {
             composeSubject.readOnly = true;

@@ -1089,6 +1089,57 @@ body.dark-mode #custom-prompt-buttons #custom-prompt-cancel:hover {
     font-size: 1em;
 }
 
+/* Enhanced contact dropdown styling */
+#compose-to {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #0078d4;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 1em;
+    font-weight: 500;
+    color: #333;
+    box-shadow: 0 2px 8px rgba(0, 120, 212, 0.1);
+    transition: all 0.3s ease;
+}
+
+#compose-to:focus {
+    outline: none;
+    border-color: #106ebe;
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.2);
+    transform: translateY(-1px);
+}
+
+#compose-to option {
+    padding: 8px 12px;
+    font-size: 0.95em;
+    background: #fff;
+    color: #333;
+    border: none;
+}
+
+#compose-to option[data-priority="high"] {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    color: #856404;
+    font-weight: 600;
+}
+
+#compose-to option[data-priority="medium"] {
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+    color: #0c5460;
+    font-weight: 500;
+}
+
+#compose-to option[data-priority="low"] {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #6c757d;
+}
+
+#compose-to option:disabled {
+    background: #f8f9fa;
+    color: #6c757d;
+    font-style: italic;
+}
+
 #compose-body .custom-typing-area {
     min-height: 200px;
     position: relative; /* For placeholder/prompt positioning */

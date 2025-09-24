@@ -40,6 +40,17 @@ export class GameState {
         this.spamCascadeInterval = null;
         this.availableSpamTemplates = [];
         this.storyContacted = false;
+        this.interactedContacts = new Set(); // Track which contacts the user has interacted with
+        this.gameProgress = {
+            hasReceivedWelcome: false,
+            hasReceivedMarketing: false,
+            hasReceivedRD: false,
+            hasReceivedIT: false,
+            hasReceivedSpam: false,
+            hasReceivedAlex: false,
+            hasReceivedHR: false,
+            hasReceivedCEO: false
+        };
     }
 
     /**
@@ -93,6 +104,80 @@ export class GameState {
     getEmailById(emailId) {
         return this.emails.find(email => email.id === emailId) || null;
     }
+
+    /**
+     * Track that a contact has been interacted with
+     * @param {string} contactName - Name of the contact
+     */
+    addInteractedContact(contactName) {
+        this.interactedContacts.add(contactName.toLowerCase());
+    }
+
+    /**
+     * Get relevant contacts based on game progress
+     * @returns {Array} Array of relevant contact objects
+     */
+    getRelevantContacts() {
+        const relevantContacts = [];
+        
+        // Always include Alex Chen if the user has received the R&D email
+        if (this.gameProgress.hasReceivedRD) {
+            relevantContacts.push({
+                name: 'Alex Chen',
+                role: 'Junior Researcher',
+                description: 'Mentioned in R&D email as potential lead',
+                priority: 'high'
+            });
+        }
+        
+        // Add other contacts based on game progress
+        if (this.gameProgress.hasReceivedWelcome) {
+            relevantContacts.push({
+                name: 'Jane Smith',
+                role: 'HR Manager',
+                description: 'Sent welcome email',
+                priority: 'medium'
+            });
+        }
+        
+        if (this.gameProgress.hasReceivedMarketing) {
+            relevantContacts.push({
+                name: 'Sarah Johnson',
+                role: 'Marketing Director',
+                description: 'Sent marketing email',
+                priority: 'medium'
+            });
+        }
+        
+        if (this.gameProgress.hasReceivedIT) {
+            relevantContacts.push({
+                name: 'IT Support',
+                role: 'Technical Support',
+                description: 'Sent IT support email',
+                priority: 'low'
+            });
+        }
+        
+        if (this.gameProgress.hasReceivedHR) {
+            relevantContacts.push({
+                name: 'HR Department',
+                role: 'Human Resources',
+                description: 'Sent HR notification',
+                priority: 'medium'
+            });
+        }
+        
+        if (this.gameProgress.hasReceivedCEO) {
+            relevantContacts.push({
+                name: 'CEO Office',
+                role: 'Executive Team',
+                description: 'Sent executive communication',
+                priority: 'high'
+            });
+        }
+        
+        return relevantContacts;
+    }
 }
 
 /**
@@ -111,6 +196,7 @@ export class EmailDeliverySystem {
         const welcomeEmail = createEmailFromTemplate('welcomeEmailTemplate');
         if (welcomeEmail) {
             this.gameState.addEmail(welcomeEmail);
+            this.gameState.gameProgress.hasReceivedWelcome = true;
             if (this.onEmailDelivered) {
                 this.onEmailDelivered();
             }
@@ -121,17 +207,19 @@ export class EmailDeliverySystem {
      * Deliver next story email
      */
     async deliverNextStoryEmail() {
-        console.log('deliverNextStoryEmail called, nextStoryEmailIndex:', this.gameState.nextStoryEmailIndex);
         const storyQueue = getStoryEmailsQueue();
-        console.log('Story queue:', storyQueue);
         if (this.gameState.nextStoryEmailIndex < storyQueue.length) {
             const templateName = storyQueue[this.gameState.nextStoryEmailIndex];
-            console.log('Creating email from template:', templateName);
             const nextEmail = createEmailFromTemplate(templateName);
             if (nextEmail) {
-                console.log('Created next story email:', nextEmail.id, nextEmail.subject);
                 this.gameState.addEmail(nextEmail);
                 this.gameState.nextStoryEmailIndex++;
+                
+                // Track progress based on email type
+                if (templateName === 'marketingEmailTemplate') {
+                    this.gameState.gameProgress.hasReceivedMarketing = true;
+                }
+                
                 if (this.onEmailDelivered) {
                     this.onEmailDelivered();
                 }
@@ -228,6 +316,7 @@ export class EmailDeliverySystem {
         if (itEmail) {
             this.gameState.addEmail(itEmail);
             this.gameState.itEmailSent = true;
+            this.gameState.gameProgress.hasReceivedIT = true;
             if (this.onEmailDelivered) {
                 this.onEmailDelivered();
             }
@@ -241,6 +330,7 @@ export class EmailDeliverySystem {
         const rdEmail = createEmailFromTemplate('rdEmailTemplate');
         if (rdEmail) {
             this.gameState.addEmail(rdEmail);
+            this.gameState.gameProgress.hasReceivedRD = true;
             if (this.onEmailDelivered) {
                 this.onEmailDelivered();
             }
@@ -272,6 +362,7 @@ export class EmailDeliverySystem {
         const hrEmail = createHREmail();
         if (hrEmail) {
             this.gameState.addEmail(hrEmail);
+            this.gameState.gameProgress.hasReceivedHR = true;
             if (this.onEmailDelivered) {
                 this.onEmailDelivered();
             }
@@ -290,6 +381,7 @@ export class EmailDeliverySystem {
         const ceoEmail = createCEOEmail();
         if (ceoEmail) {
             this.gameState.addEmail(ceoEmail);
+            this.gameState.gameProgress.hasReceivedCEO = true;
             if (this.onEmailDelivered) {
                 this.onEmailDelivered();
             }
@@ -471,11 +563,11 @@ export class ComposeSystem {
     }
 
     /**
-     * Get random names for compose dropdown
-     * @returns {Array} Array of random names
+     * Get relevant contacts for compose dropdown
+     * @returns {Array} Array of relevant contact objects
      */
-    getRandomNames() {
-        return getRandomNames();
+    getRelevantContacts() {
+        return this.gameState.getRelevantContacts();
     }
 
     /**
