@@ -380,10 +380,10 @@ export class ReplySystem {
      * Handle marketing reply consequences
      */
     handleMarketingReplyConsequences() {
-        console.log('Marketing reply consequences triggered - starting spam cascade in', CONFIG.TIMING.SPAM_CASCADE_DELAY, 'ms');
+        // Marketing reply triggers spam cascade
         // Start spam cascade after delay (this should deliver spam1 - the Emissary's message)
         setTimeout(() => {
-            console.log('Starting spam cascade with marketing-email ID');
+            // Start spam cascade
             this.emailDeliverySystem.startSpamCascade('marketing-email'); // Pass marketing email ID to start with spam1
         }, CONFIG.TIMING.SPAM_CASCADE_DELAY);
     }
