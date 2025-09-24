@@ -176,6 +176,8 @@ export class EmailDeliverySystem {
         this.gameState.availableSpamTemplates = allSpamTemplates.slice(startIndex);
 
         // Deliver the first spam email immediately
+        console.log('About to deliver first spam email with startIndex:', startIndex);
+        console.log('Available spam templates:', this.gameState.availableSpamTemplates);
         this.deliverSequentialSpam();
 
         // Start the interval for subsequent spam emails
@@ -188,7 +190,9 @@ export class EmailDeliverySystem {
      * Deliver sequential spam email
      */
     deliverSequentialSpam() {
+        console.log('deliverSequentialSpam called, available templates:', this.gameState.availableSpamTemplates);
         if (this.gameState.availableSpamTemplates.length === 0) {
+            console.log('No more spam templates available, stopping cascade');
             if (this.gameState.spamCascadeInterval) {
                 clearInterval(this.gameState.spamCascadeInterval);
                 this.gameState.spamCascadeInterval = null;
@@ -198,8 +202,10 @@ export class EmailDeliverySystem {
 
         // Get the next spam email in sequence (first in array)
         const templateName = this.gameState.availableSpamTemplates.shift();
+        console.log('Delivering spam email with template:', templateName);
         const newSpamEmail = createSpamEmail(templateName);
         if (newSpamEmail) {
+            console.log('Created spam email:', newSpamEmail.subject, 'from', newSpamEmail.sender);
             this.gameState.addEmail(newSpamEmail);
             if (this.onEmailDelivered) {
                 this.onEmailDelivered();
