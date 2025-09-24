@@ -22,7 +22,8 @@ import {
     handleMagnifierReveal,
     jumbleClueText,
     createInteractiveReplyInterface,
-    addMagnifyingGlassIcon
+    addMagnifyingGlassIcon,
+    updateCoinDisplay
 } from './assets/js/ui-components.js';
 import { 
     GameState, 
@@ -94,6 +95,9 @@ async function initializeGame() {
         
         // Make emails global for external functions
         window.emails = gameState.emails;
+        
+        // Make coin display function global for game logic
+        window.updateCoinDisplay = updateCoinDisplay;
         
         // Get DOM elements
         initializeDOMElements();
@@ -228,7 +232,14 @@ function handleStartGame() {
     if (userName && userName.trim().length > 0) {
         const formattedName = formatUserName(userName);
         setUserName(formattedName);
-        userProfile.textContent = `Detective ${formattedName}`;
+        // Create separate elements for proper spacing
+        userProfile.innerHTML = `
+            <span class="detective-name">Detective ${formattedName}</span>
+            <span class="coin-display-inline">
+                <span class="coin-icon">💰</span>
+                <span class="coin-count">${gameState.getCoins()}</span>
+            </span>
+        `;
         
         // Stop pulsation
         startGameBtn.classList.remove('start-nudge-active');
@@ -648,6 +659,12 @@ function onGameReset() {
     // Refresh the UI to show the reset state
     loadEmailsForFolder(CONFIG.FOLDERS.INBOX);
     refreshUnreadCounts(gameState.emails);
+    
+    // Reset coin display
+    const coinCount = document.querySelector('.coin-count');
+    if (coinCount) {
+        coinCount.textContent = gameState.getCoins();
+    }
     
     // Show a message to the user
     showCustomPrompt('Your investigation has been reset due to security concerns. Please start over.', 'alert');

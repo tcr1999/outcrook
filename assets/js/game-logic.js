@@ -42,6 +42,7 @@ export class GameState {
         this.availableSpamTemplates = [];
         this.storyContacted = false;
         this.interactedContacts = new Set(); // Track which contacts the user has interacted with
+        this.coins = 0; // Track player's coins
         this.gameProgress = {
             hasReceivedWelcome: false,
             hasReceivedMarketing: false,
@@ -178,6 +179,26 @@ export class GameState {
         }
         
         return relevantContacts;
+    }
+
+    /**
+     * Add coins to the player's total
+     * @param {number} amount - Amount of coins to add
+     * @param {Function} onCoinsUpdated - Callback when coins are updated
+     */
+    addCoins(amount, onCoinsUpdated) {
+        this.coins += amount;
+        if (onCoinsUpdated) {
+            onCoinsUpdated(this.coins);
+        }
+    }
+
+    /**
+     * Get current coin count
+     * @returns {number} Current coin count
+     */
+    getCoins() {
+        return this.coins;
     }
 }
 
@@ -430,6 +451,7 @@ export class EmailDeliverySystem {
         this.gameState.availableSpamTemplates = [];
         this.gameState.storyContacted = false;
         this.gameState.interactedContacts = new Set();
+        this.gameState.coins = 0; // Reset coins
         this.gameState.gameProgress = {
             hasReceivedWelcome: false,
             hasReceivedMarketing: false,
@@ -527,6 +549,14 @@ export class ReplySystem {
         }
 
         if (selectedOption.consequence === 'reportJunk') {
+            // Award coins for reporting junk
+            this.gameState.addCoins(100, (newCoinTotal) => {
+                // Trigger coin animation in UI
+                if (window.updateCoinDisplay) {
+                    window.updateCoinDisplay(newCoinTotal, 100);
+                }
+            });
+            
             // Deliver IT email after delay
             setTimeout(() => {
                 this.emailDeliverySystem.deliverITSupportEmail('reportJunk');
@@ -629,6 +659,14 @@ export class ComposeSystem {
             if (composedEmail) {
                 this.gameState.addEmail(composedEmail);
                 this.gameState.storyContacted = true;
+                
+                // Award coins for emailing Alex for the first time
+                this.gameState.addCoins(100, (newCoinTotal) => {
+                    // Trigger coin animation in UI
+                    if (window.updateCoinDisplay) {
+                        window.updateCoinDisplay(newCoinTotal, 100);
+                    }
+                });
                 
                 if (this.onEmailSent) {
                     this.onEmailSent();

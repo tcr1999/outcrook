@@ -1,5 +1,5 @@
 ---
-description:
+description: Test all features 1 by 1, and wait to receive confirmation before progressing to the next. Also, always detail which changes/modules you have changed.
 globs:
 alwaysApply: true
 ---

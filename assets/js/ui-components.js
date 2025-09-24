@@ -22,6 +22,65 @@ export function updateCurrentTime() {
 }
 
 /**
+ * Update coin display with animation
+ * @param {number} newTotal - New total coin count
+ * @param {number} addedAmount - Amount of coins added
+ */
+export function updateCoinDisplay(newTotal, addedAmount) {
+    const coinDisplay = document.querySelector('.coin-display-inline');
+    if (!coinDisplay) return;
+
+    const coinCount = coinDisplay.querySelector('.coin-count');
+    const coinIcon = coinDisplay.querySelector('.coin-icon');
+    
+    if (!coinCount || !coinIcon) return;
+
+    // Animate the coin icon
+    coinIcon.classList.add('coin-earned');
+    
+    // Animate the count change
+    const currentCount = parseInt(coinCount.textContent) || 0;
+    const targetCount = newTotal;
+    
+    // Create a smooth counting animation
+    animateCount(coinCount, currentCount, targetCount, 1000);
+    
+    // Remove the animation class after animation completes
+    setTimeout(() => {
+        coinIcon.classList.remove('coin-earned');
+    }, 1000);
+}
+
+/**
+ * Animate counting from current to target number
+ * @param {HTMLElement} element - Element to animate
+ * @param {number} start - Starting number
+ * @param {number} end - Ending number
+ * @param {number} duration - Animation duration in ms
+ */
+function animateCount(element, start, end, duration) {
+    const startTime = performance.now();
+    const difference = end - start;
+    
+    function updateCount(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Use easing function for smooth animation
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+        const currentValue = Math.round(start + (difference * easeOutQuart));
+        
+        element.textContent = currentValue.toLocaleString();
+        
+        if (progress < 1) {
+            requestAnimationFrame(updateCount);
+        }
+    }
+    
+    requestAnimationFrame(updateCount);
+}
+
+/**
  * Update notification badge for a folder
  * @param {string} folderId - Folder ID
  * @param {number} count - Unread count
