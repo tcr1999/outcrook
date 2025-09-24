@@ -412,6 +412,11 @@ body.dark-mode #progress-bar-container {
     display: flex;
     align-items: center;
     margin-bottom: 5px;
+    font-family: monospace; /* Use monospace font for consistent character width */
+}
+
+.email-sender-with-thumbnail span {
+    white-space: pre; /* Preserve whitespace for alignment */
 }
 
 /* Styling for the reply button */

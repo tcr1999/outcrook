@@ -14,7 +14,7 @@ export const CONFIG = {
         CEO_EMAIL_DELAY: 5000,
         DELETE_NUDGE_DELAY: 5000,
         COMPOSE_NUDGE_DELAY: 2000,
-        REPLY_NUDGE_DELAY: 10000
+        REPLY_NUDGE_DELAY: 30000
     },
 
     // UI constants

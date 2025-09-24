@@ -12,21 +12,46 @@
     "storyTriggered": false,
     "emailType": "interactiveReply"
   },
-  "marketingEmailTemplate": {
-    "id": "marketing-email",
-    "sender": "Sarah Chen, Head of Marketing",
-    "subject": "Panic! TasteBuds Cloned Our Snack!",
+  "csoEmailTemplate": {
+    "id": "cso-email",
+    "sender": "Marcus Webb, Chief Security Officer",
+    "senderIP": "192.168.1.089",
+    "subject": "URGENT: New Security Protocol - Personnel Name Encryption",
     "subjectIP": "192.168.1.089",
-    "body": "<h3>Our \"TasteBlast\" is a Double!</h3><p>Team (and especially you, Detective!),</p><p>This is NOT a drill! TasteBuds just launched \"FlavorFusion\" and it's basically our \"TasteBlast\" in a different wrapper! I'm talking identical! My marketing plans are toast!</p><p>Remember those weird computer hiccups last month? Was it a coincidence? Or did someone spill the beans (or the secret spices)? We need to figure out how they copied us! Find the mole, find the truth!</p><p>Frantically yours,</p><p>Sarah Chen<br>Head of Marketing (currently pulling her hair out)</p>",
+    "body": "<h3>Security Protocol Update</h3><p>Detective <span id=\"cso-user-name\"></span>,</p><p>Due to recent security incidents, we're implementing a new protocol for all internal communications.</p><p><strong>Effective immediately:</strong> All personnel names in emails will be automatically encrypted using our \"Secure Name Protocol\" (SNP).</p><p>You may notice names appearing as jumbled text in emails. This is intentional - our system automatically obfuscates personnel references to protect sensitive information.</p><p>Please acknowledge receipt of this security measure.</p><p>Marcus Webb<br>Chief Security Officer</p>",
     "folder": "inbox",
     "read": false,
     "replied": false,
     "emailType": "multipleChoice",
     "replyOptions": [
-      { "text": "Focus on the recipe leak first.", "consequence": "logic" },
-      { "text": "Let's dig into their marketing strategy.", "consequence": "creative" },
-      { "text": "I suspect a mole. Let's watch internally.", "consequence": "suspicion" }
+      { "text": "That's clear. Thanks for the heads up.", "consequence": "acknowledge" },
+      { "text": "That sounds like it will hinder the investigation. How can I get around this?", "consequence": "concern" },
+      { "text": "I understand the protocol, but I need to focus on the case right now.", "consequence": "dismiss" }
     ]
+  },
+  "csoFollowupEmailTemplate": {
+    "id": "cso-followup-email",
+    "sender": "Marcus Webb, Chief Security Officer",
+    "senderIP": "192.168.1.089",
+    "subject": "RE: Security Protocol - Access Clearance Information",
+    "subjectIP": "192.168.1.089",
+    "body": "<h3>Security Protocol Clarification</h3><p>Detective <span id=\"cso-followup-user-name\"></span>,</p><p>I understand your concerns. Security protocols must be maintained to protect sensitive information.</p><p>If you need special clearance, contact IT Support directly. They can review your access requirements.</p><p>Marcus Webb<br>Chief Security Officer</p>",
+    "folder": "inbox",
+    "read": false,
+    "replied": false,
+    "emailType": "readOnly"
+  },
+  "itClearanceEmailTemplate": {
+    "id": "it-clearance-email",
+    "sender": "IT Support",
+    "senderIP": "Unknown",
+    "subject": "RE: Security Clearance Request - Investigation Access",
+    "subjectIP": "Unknown",
+    "body": "<h3>Clearance Request Status</h3><p>Detective <span id=\"it-clearance-user-name\"></span>,</p><p>Thank you for your clearance request. We have reviewed your investigation requirements.</p><p><strong>Status: PENDING APPROVAL</strong></p><p>Your access request is currently under review by the security committee. Due to the sensitive nature of the investigation and recent security incidents, additional approval is required.</p><p>We will notify you once your clearance has been approved. In the meantime, please continue your investigation using standard access protocols.</p><p>IT Support<br>Outcrook Corporation</p>",
+    "folder": "inbox",
+    "read": false,
+    "replied": false,
+    "emailType": "readOnly"
   },
   "rdEmailTemplate": {
     "id": "rd-email",
@@ -43,7 +68,9 @@
   "itSupportEmailTemplate": {
     "id": "it-support-email",
     "sender": "IT Support",
+    "senderIP": "Unknown",
     "subject": "Thank You for Reporting Suspicious Activity!",
+    "subjectIP": "Unknown",
     "body": "<h3>Great catch, Detective!</h3><p>Thanks for reporting that junk email. Vigilance like yours is key to our security. We've analyzed the threat and taken action.</p><p>To help with your investigation, we've approved the installation of a new \"Digital Microscope Tool\" for your terminal. This will grant you elevated privileges to uncover hidden data within our systems.</p><p>Please click the button below to begin the installation. It should only take a moment.</p><button id=\"install-tool-btn\" class=\"install-btn-pulsate\">Install Digital Microscope Tool</button><p>Stay sharp,</p><p>IT Support</p>",
     "folder": "inbox",
     "read": false,
@@ -53,7 +80,9 @@
   "spamEmail1Template": {
     "id": "spam-email-1",
     "sender": "Royal Emissary of Atlantis",
+    "senderIP": "???????????",
     "subject": "URGENT: Sunken Treasure For You",
+    "subjectIP": "???????????",
     "body": "<h3>Greetings from the Deep!</h3><p>I bring tidings from the lost city of Atlantis! We have discovered a chest of ancient gold with your name on it. To transport it to the surface, we require a small tribute for the royal submersibles.</p><p>Please select an option below to proceed.</p>",
     "folder": "inbox",
     "read": false,
@@ -66,7 +95,9 @@
   "spamEmail2Template": {
     "id": "spam-email-2",
     "sender": "Barnaby, Head of Royal Transport",
+    "senderIP": "???????????",
     "subject": "Fuel for the Gilded Narwhal",
+    "subjectIP": "???????????",
     "body": "<h3>A Matter of Nautical Urgency!</h3><p>Further to the Emissary's message, please be advised that the Royal Submersible, the 'Gilded Narwhal', requires a top-up of purified kelp fuel. A small donation from yourself would greatly expedite the treasure's journey!</p>",
     "folder": "inbox",
     "read": false,
@@ -79,7 +110,9 @@
   "spamEmail3Template": {
     "id": "spam-email-3",
     "sender": "Captain Neptune, Head of Naval Affairs",
+    "senderIP": "???????????",
     "subject": "A Royal Request for Your Assistance",
+    "subjectIP": "???????????",
     "body": "<h3>A Royal Request for Your Assistance</h3><p>Your Majesty, the Royal Fleet has encountered a mysterious underwater obstruction. We require a skilled diver to investigate the source. Your presence would be invaluable.</p>",
     "folder": "inbox",
     "read": false,
@@ -92,7 +125,9 @@
   "spamEmail4Template": {
     "id": "spam-email-4",
     "sender": "Mermaid Queen, Head of Underwater Affairs",
+    "senderIP": "???????????",
     "subject": "A Royal Invitation to the Deep",
+    "subjectIP": "???????????",
     "body": "<h3>A Royal Invitation to the Deep</h3><p>Your Majesty, the Mermaid Queen has invited you to a grand underwater banquet. We have prepared the finest Atlantean delicacies and entertainment. Your presence is requested.</p>",
     "folder": "inbox",
     "read": false,
@@ -105,7 +140,9 @@
   "spamEmail5Template": {
     "id": "spam-email-5",
     "sender": "Atlantean Ambassador",
+    "senderIP": "???????????",
     "subject": "A Royal Request for Your Assistance",
+    "subjectIP": "???????????",
     "body": "<h3>A Royal Request for Your Assistance</h3><p>Your Majesty, the Atlantean Ambassador has requested your presence at a diplomatic meeting. We must discuss the recent tensions with the Surface Kingdom.</p>",
     "folder": "inbox",
     "read": false,
@@ -118,6 +155,7 @@
   "alexReplyTemplate": {
     "id": "alex-reply-email",
     "sender": "Alex Chen, Junior Researcher",
+    "senderIP": "192.168.1.156",
     "subject": "Re: A Quick Question",
     "subjectIP": "192.168.1.156",
     "body": "<h3>Response to Your Inquiry</h3><p>Detective,</p><p>I received your email about the \"computer hiccups\" last month. I'm not sure what you're referring to specifically.</p><p>Our systems have been running normally. I haven't noticed any unusual activity or access patterns. I work standard hours and follow all security protocols.</p><p>If there were any issues, I'm sure IT would have documented them properly. I have nothing to hide and nothing to add to your investigation.</p><p>Alex Chen<br>Junior Researcher, R&D</p>",
@@ -131,7 +169,7 @@
       { "text": "I have evidence of your unauthorized access.", "consequence": "confrontation" }
     ]
   },
-  "hrEmailTemplate": {
+  "_hrEmailTemplate_ARCHIVED": {
     "id": "hr-email",
     "sender": "Patricia Wells, HR Director",
     "subject": "Personnel Update - Alex Chen",
@@ -144,7 +182,9 @@
   "ceoEmailTemplate": {
     "id": "ceo-email",
     "sender": "Richard \"Dick\" Thompson, CEO",
+    "senderIP": "Unknown",
     "subject": "How's the Detective Work Going?",
+    "subjectIP": "Unknown",
     "body": "<h3>Detective Update Request</h3><p>Hey Detective <span id=\"ceo-user-name\"></span>!</p><p>Just checking in on your investigation! Eleanor mentioned you're looking into some \"recipe theft\" situation? Sounds like quite the mystery!</p><p>I have to say, I'm not really sure how someone could steal a recipe. I mean, it's just ingredients mixed together, right? How hard can it be to figure out what goes in a snack?</p><p>Anyway, keep me posted! I'm sure you'll crack this case wide open. Maybe check if anyone's been acting suspiciously? Like, wearing sunglasses indoors or something?</p><p>Best of luck!</p><p>Dick Thompson<br>CEO (and amateur detective enthusiast)</p>",
     "folder": "inbox",
     "read": false,
@@ -154,14 +194,16 @@
   "itResetEmailTemplate": {
     "id": "it-reset-email",
     "sender": "IT Security Department",
+    "senderIP": "Unknown",
     "subject": "URGENT: Security Breach Detected - Access Reset Required",
+    "subjectIP": "Unknown",
     "body": "<h3>Security Alert: Multiple Phishing Attempts Detected</h3><p>Detective <span id=\"rd-user-name\"></span>,</p><p>Our security systems have detected multiple failed phishing attempts on your account. As a precautionary measure, we are immediately resetting your access credentials and investigation privileges.</p><p>Your current investigation has been terminated due to security concerns. You will need to restart your investigation from the beginning once your new credentials are issued.</p><p>This is a standard security protocol when multiple suspicious activities are detected on an account.</p><div id=\"reset-countdown\" style=\"background: #ffebee; border: 2px solid #f44336; border-radius: 8px; padding: 15px; margin: 15px 0; text-align: center; font-weight: bold; color: #d32f2f;\"><p style=\"margin: 0 0 10px 0;\">⚠️ SYSTEM RESET IN PROGRESS ⚠️</p><p style=\"margin: 0; font-size: 1.2em;\">Game will reset in <span id=\"countdown-timer\">15</span> seconds...</p></div><p>Please await further instructions.</p><p>IT Security Department<br>Outcrook Corporation</p>",
     "folder": "inbox",
     "read": false,
     "replied": false,
     "emailType": "readOnly"
   },
-  "storyEmailsQueue": ["marketingEmailTemplate"],
+  "storyEmailsQueue": ["csoEmailTemplate"],
   "randomNames": [
     "Alex Chen", "Sarah Johnson", "Mike Rodriguez", "Emma Thompson", "David Kim",
     "Lisa Wang", "James Wilson", "Maria Garcia", "Robert Brown", "Jennifer Lee",

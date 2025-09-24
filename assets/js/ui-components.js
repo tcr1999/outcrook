@@ -8,6 +8,7 @@ import {
     wait,
     applyCursorTheme
 } from './utils.js';
+import { soundSystem } from './sound-system.js';
 
 /**
  * Update current time display
@@ -35,6 +36,9 @@ export function updateCoinDisplay(newTotal, addedAmount) {
     
     if (!coinCount || !coinIcon) return;
 
+    // Play coin sound
+    soundSystem.playCoinSound();
+    
     // Animate the coin icon
     coinIcon.classList.add('coin-earned');
     
@@ -110,7 +114,7 @@ export function getInitials(name) {
     // Handle special cases for known characters
     const nameMap = {
         'Jane Smith': 'JS',
-        'Sarah Johnson': 'SJ', 
+        'Marcus Webb, Chief Security Officer': 'MW', 
         'Dr. Aris Thorne': 'AT',
         'Alex Chen': 'AC',
         'Patricia Wells': 'PW',
@@ -250,7 +254,7 @@ export function renderEmailItem(email, currentFolder, onDeleteClick, onEmailClic
  * @param {Function} onMultipleChoiceReply - Callback for multiple choice reply
  * @param {Function} onInstallClick - Callback for install button click
  */
-export function displayEmailContent(email, onReplyClick, onMultipleChoiceReply, onInstallClick) {
+export function displayEmailContent(email, onReplyClick, onMultipleChoiceReply, onInstallClick, gameState = null) {
     const emailBodyContentDiv = document.querySelector(CONFIG.SELECTORS.EMAIL_BODY_CONTENT_DIV);
     if (!emailBodyContentDiv) return;
 
@@ -262,11 +266,21 @@ export function displayEmailContent(email, onReplyClick, onMultipleChoiceReply, 
     senderLine.appendChild(thumbnail);
     
     const senderText = document.createElement('span');
-    senderText.innerHTML = `From: ${email.senderIP ? `<span class="sender-ip-clue" data-ip="${email.senderIP}">${email.sender}</span>` : email.sender}`;
+    // Create consistent spacing for alignment - pad sender name to fixed width
+    const maxNameLength = 35; // Maximum expected name length
+    const paddedSender = email.sender.padEnd(maxNameLength, ' ');
+    const ipDisplay = email.senderIP ? `[${email.senderIP}]` : '[Unknown]';
+    
+    senderText.innerHTML = `From: ${email.senderIP ? `<span class="sender-ip-clue" data-ip="${email.senderIP}">${paddedSender}</span>` : paddedSender} ${ipDisplay}`;
     senderLine.appendChild(senderText);
 
+    // Create consistent spacing for subject line IP display
+    const maxSubjectLength = 50; // Maximum expected subject length
+    const paddedSubject = email.subject.padEnd(maxSubjectLength, ' ');
+    const subjectIPDisplay = email.subjectIP ? `[${email.subjectIP}]` : '[Unknown]';
+    
     emailBodyContentDiv.innerHTML = `
-        <h3 class="subject-line" data-ip="${email.subjectIP || ''}" data-original-subject="${email.subject}">${email.subject}</h3>
+        <h3 class="subject-line" data-ip="${email.subjectIP || ''}" data-original-subject="${email.subject}">${paddedSubject} ${subjectIPDisplay}</h3>
         <p>Date: ${email.date}</p>
         <hr>
         <div>${processEmailBodyForMagnifier(email.body)}</div>
@@ -301,7 +315,11 @@ export function displayEmailContent(email, onReplyClick, onMultipleChoiceReply, 
             const optionButton = document.createElement('button');
             optionButton.className = 'reply-option-btn';
             optionButton.textContent = option.text;
-            optionButton.addEventListener('click', () => onMultipleChoiceReply(email, option));
+            optionButton.addEventListener('click', () => {
+                // Play clicky multiple choice sound
+                soundSystem.playMultipleChoiceClick();
+                onMultipleChoiceReply(email, option);
+            });
             optionsContainer.appendChild(optionButton);
         });
         emailBodyContentDiv.appendChild(optionsContainer);
@@ -324,10 +342,14 @@ export function displayEmailContent(email, onReplyClick, onMultipleChoiceReply, 
         magnifyingGlassIcon.classList.add('pulse-magnify');
         
         // Start compose pulsation when R&D email is viewed (user can now use magnifier to reveal "Alex")
+        // But only if Alex hasn't been contacted yet
         setTimeout(() => {
             const composeBtn = document.querySelector('.compose-btn');
             if (composeBtn && !composeBtn.classList.contains('compose-nudge-active')) {
-                composeBtn.classList.add('compose-nudge-active');
+                // Check if Alex has been contacted using the storyContacted flag
+                if (!gameState || !gameState.storyContacted) {
+                    composeBtn.classList.add('compose-nudge-active');
+                }
             }
         }, CONFIG.TIMING.COMPOSE_NUDGE_DELAY);
     }
@@ -780,11 +802,15 @@ export function handleMouseMove(e) {
                 const distance = Math.sqrt(Math.pow(spanX - e.clientX, 2) + Math.pow(spanY - e.clientY, 2));
 
                 if (distance < lensRadius && subjectLine.dataset.ip) {
-                    subjectLine.textContent = `IP: ${subjectLine.dataset.ip}`;
+                    const maxSubjectLength = 50;
+                    const paddedSubject = subjectLine.dataset.originalSubject.padEnd(maxSubjectLength, ' ');
+                    subjectLine.textContent = `${paddedSubject} [${subjectLine.dataset.ip}]`;
                     subjectLine.classList.add('revealed');
                 } else if (subjectLine.dataset.ip) {
                     // Restore original subject if it has an IP
-                    subjectLine.textContent = subjectLine.dataset.originalSubject;
+                    const maxSubjectLength = 50;
+                    const paddedSubject = subjectLine.dataset.originalSubject.padEnd(maxSubjectLength, ' ');
+                    subjectLine.textContent = `${paddedSubject} [${subjectLine.dataset.ip}]`;
                     subjectLine.classList.remove('revealed');
                 }
             });
@@ -819,7 +845,7 @@ function processEmailBodyForMagnifier(body) {
     // Define names and their corresponding IP addresses
     const nameIPMap = {
         'Jane': '192.168.1.042',
-        'Sarah Chen': '192.168.1.089', 
+        'Marcus Webb, Chief Security Officer': '192.168.1.089', 
         'Dr. Aris Thorne': '192.168.1.105',
         'Alex Chen': '192.168.1.156',
         'Patricia Wells': '192.168.1.203',

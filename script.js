@@ -25,6 +25,7 @@ import {
     addMagnifyingGlassIcon,
     updateCoinDisplay
 } from './assets/js/ui-components.js';
+import { soundSystem } from './assets/js/sound-system.js';
 import { 
     GameState, 
     EmailDeliverySystem, 
@@ -62,6 +63,7 @@ let settingsBtn;
 let settingsMenu;
 let closeSettingsBtn;
 let darkModeToggle;
+let soundToggle;
 let body;
 
 // Compose elements
@@ -138,6 +140,7 @@ function initializeDOMElements() {
     settingsMenu = document.querySelector(CONFIG.SELECTORS.SETTINGS_MENU);
     closeSettingsBtn = document.querySelector(CONFIG.SELECTORS.CLOSE_SETTINGS_BTN);
     darkModeToggle = document.querySelector(CONFIG.SELECTORS.DARK_MODE_TOGGLE);
+    soundToggle = document.getElementById('sound-toggle');
     body = document.body;
     
     // Compose elements
@@ -171,22 +174,64 @@ function setupEventListeners() {
             const folder = item.id.replace('-nav', '');
             setActiveFolder(folder);
             loadEmailsForFolder(folder);
+            
+            // Play folder navigation sound
+            soundSystem.playFolderNavigation();
         });
     });
     
     // Settings listeners
-    settingsBtn.addEventListener('click', () => settingsMenu.style.display = 'flex');
-    closeSettingsBtn.addEventListener('click', () => settingsMenu.style.display = 'none');
+    settingsBtn.addEventListener('click', () => {
+        settingsMenu.style.display = 'flex';
+        soundSystem.playButtonClick();
+    });
+    closeSettingsBtn.addEventListener('click', () => {
+        settingsMenu.style.display = 'none';
+        soundSystem.playButtonClick();
+    });
     darkModeToggle.addEventListener('change', handleDarkModeToggle);
+    soundToggle.addEventListener('change', handleSoundToggle);
     cursorOptions.forEach(option => {
-        option.addEventListener('click', () => applyCursorTheme(option.dataset.cursor));
+        option.addEventListener('click', () => {
+            applyCursorTheme(option.dataset.cursor);
+            soundSystem.playButtonClick();
+        });
     });
     
     // Compose listeners
-    composeBtn.addEventListener('click', openComposeModal);
-    closeComposeBtn.addEventListener('click', closeComposeModal);
-    sendComposeBtn.addEventListener('click', handleSendCompose);
+    composeBtn.addEventListener('click', () => {
+        openComposeModal();
+        
+        // Play compose sound
+        soundSystem.playComposeSound();
+    });
+    closeComposeBtn.addEventListener('click', () => {
+        closeComposeModal();
+        soundSystem.playButtonClick();
+    });
+    sendComposeBtn.addEventListener('click', () => {
+        handleSendCompose();
+        
+        // Play button click sound
+        soundSystem.playButtonClick();
+    });
     composeTo.addEventListener('change', handleComposeToChange);
+    
+    // Add typing sounds to compose fields
+    const composeSubject = document.getElementById('compose-subject');
+    const composeBody = document.getElementById('compose-body');
+    
+    if (composeSubject) {
+        composeSubject.addEventListener('input', () => {
+            soundSystem.playTypingSound();
+        });
+    }
+    
+    if (composeBody) {
+        composeBody.addEventListener('input', () => {
+            soundSystem.playTypingSound();
+        });
+    }
     
     // Mouse move listener for custom cursor
     document.addEventListener('mousemove', handleMouseMove);
@@ -243,6 +288,9 @@ function handleStartGame() {
         
         // Stop pulsation
         startGameBtn.classList.remove('start-nudge-active');
+        
+        // Play button click sound
+        soundSystem.playButtonClick();
         
         // Hide intro screen and show game
         container.style.display = 'grid';
@@ -345,7 +393,7 @@ function handleNameInputChange() {
             }
         });
 
-    displayEmailContent(email, handleReplyClick, handleMultipleChoiceReply, handleInstallClick);
+    displayEmailContent(email, handleReplyClick, handleMultipleChoiceReply, handleInstallClick, gameState);
 
     // Update active state
         document.querySelectorAll('.email-item').forEach(el => el.classList.remove('active'));
@@ -361,12 +409,14 @@ function handleNameInputChange() {
             }
         }
     
-    // Pulsate install button for IT email
+    // Pulsate install button for IT email after 15 second delay
         if (email.id === 'it-support-email' && !email.replied) {
-            const installBtn = document.getElementById('install-tool-btn');
-            if (installBtn) {
-                installBtn.classList.add('install-btn-pulsate');
-            }
+            setTimeout(() => {
+                const installBtn = document.getElementById('install-tool-btn');
+                if (installBtn) {
+                    installBtn.classList.add('install-btn-pulsate');
+                }
+            }, 15000); // 15 second delay
         }
 
     // Mark as read
@@ -394,6 +444,9 @@ function handleNameInputChange() {
 
         if (!originalEmail || originalEmail.replied) {
             showCustomPrompt('You have already replied to this email or it\'s not a valid email to reply to.', 'alert');
+            
+            // Play error sound
+            soundSystem.playErrorSound();
             return;
         }
 
@@ -416,6 +469,10 @@ function handleNameInputChange() {
  */
 function handleMultipleChoiceReply(originalEmail, selectedOption) {
     console.log('SCRIPT.JS: handleMultipleChoiceReply called with email ID:', originalEmail.id, 'option:', selectedOption.text);
+    
+    // Play clicky multiple choice sound
+    soundSystem.playMultipleChoiceClick();
+    
     replySystem.handleMultipleChoiceReply(originalEmail, selectedOption);
     loadEmailsForFolder(gameState.currentFolder);
     refreshUnreadCounts(gameState.emails);
@@ -511,6 +568,10 @@ function handleDarkModeToggle() {
                 body.classList.remove('dark-mode');
         setDarkMode(false);
     }
+}
+
+function handleSoundToggle() {
+    soundSystem.setSoundsEnabled(soundToggle.checked);
 }
 
 /**
@@ -609,6 +670,38 @@ Detective ${userName}`;
                 }
             };
             document.addEventListener('keydown', startTypingListener);
+        } else if (composeTo.value.toLowerCase() === 'it support') {
+            composeSubject.readOnly = true;
+            composeSubject.value = 'Security Clearance Request';
+            
+            const userName = getUserName();
+            const itEmailBody = `Hi IT Support,
+
+I'm the special investigator looking into the recent security incident. The CSO mentioned I should contact you for clearance to access certain systems for my investigation.
+
+Could you please review my access requirements?
+
+Best,
+Detective ${userName}`;
+
+            // Setup interactive typing
+            composeBody.innerHTML = '';
+            const typePrompt = document.createElement('p');
+            typePrompt.classList.add('flashing-text');
+            typePrompt.style.cssText = 'position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 0.9em;';
+            typePrompt.textContent = 'Press any key to start typing...';
+            composeBody.appendChild(typePrompt);
+
+            const startTypingListener = (event) => {
+                if (!event.metaKey && !event.ctrlKey) {
+                    typePrompt.remove();
+                    document.removeEventListener('keydown', startTypingListener);
+                    simulateTyping(composeBody, itEmailBody, CONFIG.UI.TYPING_CHARS_PER_KEY, () => {
+                        sendComposeBtn.disabled = false;
+                    });
+                }
+            };
+            document.addEventListener('keydown', startTypingListener);
         } else {
             composeSubject.readOnly = false;
             composeSubject.value = '';
@@ -690,6 +783,9 @@ function onReplySent() {
  */
 function onEmailSent() {
     loadEmailsForFolder(CONFIG.FOLDERS.INBOX);
+    
+    // Play success sound for email sent
+    soundSystem.playSuccessSound();
 }
 
 /**

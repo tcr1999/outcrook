@@ -27,6 +27,7 @@ import {
     showCustomPrompt, 
     simulateInstallation 
 } from './ui-components.js';
+import { soundSystem } from './sound-system.js';
 
 /**
  * Game state management
@@ -43,15 +44,18 @@ export class GameState {
         this.storyContacted = false;
         this.interactedContacts = new Set(); // Track which contacts the user has interacted with
         this.coins = 0; // Track player's coins
+        this.csoOption2SpamTriggered = false; // Track if spam has been triggered for CSO option 2
+        this.csoFollowupTime = null; // Track when CSO follow-up email was sent
         this.gameProgress = {
             hasReceivedWelcome: false,
-            hasReceivedMarketing: false,
+            hasReceivedCSO: false,
             hasReceivedRD: false,
             hasReceivedIT: false,
             hasReceivedSpam: false,
             hasReceivedAlex: false,
             hasReceivedHR: false,
-            hasReceivedCEO: false
+            hasReceivedCEO: false,
+            hasInstalledMicroscope: false
         };
     }
 
@@ -62,6 +66,9 @@ export class GameState {
     addEmail(email) {
         this.emails.push(email);
         refreshUnreadCounts(this.emails);
+        
+        // Play email notification sound
+        soundSystem.playEmailNotification();
     }
 
     /**
@@ -142,23 +149,15 @@ export class GameState {
             });
         }
         
-        if (this.gameProgress.hasReceivedMarketing) {
+        if (this.gameProgress.hasReceivedCSO && !this.gameProgress.hasInstalledMicroscope) {
             relevantContacts.push({
-                name: 'Sarah Johnson',
-                role: 'Marketing Director',
-                description: 'Sent marketing email',
+                name: 'IT Support',
+                role: 'Technical Support',
+                description: 'Mentioned by CSO for clearance requests',
                 priority: 'medium'
             });
         }
         
-        if (this.gameProgress.hasReceivedIT) {
-            relevantContacts.push({
-                name: 'IT Support',
-                role: 'Technical Support',
-                description: 'Sent IT support email',
-                priority: 'low'
-            });
-        }
         
         if (this.gameProgress.hasReceivedHR) {
             relevantContacts.push({
@@ -239,8 +238,8 @@ export class EmailDeliverySystem {
                 this.gameState.nextStoryEmailIndex++;
                 
                 // Track progress based on email type
-                if (templateName === 'marketingEmailTemplate') {
-                    this.gameState.gameProgress.hasReceivedMarketing = true;
+                if (templateName === 'csoEmailTemplate') {
+                    this.gameState.gameProgress.hasReceivedCSO = true;
                 }
                 
                 if (this.onEmailDelivered) {
@@ -251,7 +250,7 @@ export class EmailDeliverySystem {
     }
 
     /**
-     * Start spam cascade - only one spam at a time, limited to 3 spam emails
+     * Start spam cascade - only one spam at a time, limited to 4 spam emails
      * @param {string} lastSpamId - ID of the spam email that triggered the cascade
      */
     startSpamCascade(lastSpamId = null) {
@@ -266,10 +265,10 @@ export class EmailDeliverySystem {
         // Determine which spam to deliver next
         let nextSpamNumber = 1; // Default to spam1
         if (lastSpamId) {
-            if (lastSpamId === 'marketing-email') {
-                // Marketing email triggers spam1 (Emissary's message)
+            if (lastSpamId === 'cso-email') {
+                // CSO email triggers spam1 (Emissary's message)
                 nextSpamNumber = 1;
-                console.log('Marketing email detected - delivering spam1');
+                console.log('CSO email detected - delivering spam1');
             } else {
                 // Extract spam number from ID (e.g., "spam-email-1" -> 1)
                 const spamMatch = lastSpamId.match(/spam-email-(\d+)/);
@@ -285,18 +284,18 @@ export class EmailDeliverySystem {
 
         console.log('Final nextSpamNumber:', nextSpamNumber);
 
-        // Only deliver if we haven't exceeded spam limit (3 spam emails max)
-        if (nextSpamNumber <= 3) {
+        // Only deliver if we haven't exceeded spam limit (4 spam emails max)
+        if (nextSpamNumber <= 4) {
             console.log('Delivering spam number:', nextSpamNumber);
             this.deliverSingleSpam(nextSpamNumber);
         } else {
-            console.log('Spam limit reached (3), not delivering more spam');
+            console.log('Spam limit reached (4), not delivering more spam');
         }
     }
 
     /**
      * Deliver a single spam email
-     * @param {number} spamNumber - The spam number to deliver (1, 2, or 3)
+     * @param {number} spamNumber - The spam number to deliver (1, 2, 3, or 4)
      */
     deliverSingleSpam(spamNumber) {
         const templateName = `spamEmail${spamNumber}Template`;
@@ -310,6 +309,32 @@ export class EmailDeliverySystem {
             }
         } else {
             console.log('Failed to create spam email for template:', templateName);
+        }
+    }
+
+    /**
+     * Deliver CSO follow-up email
+     */
+    async deliverCSOFollowupEmail() {
+        const csoFollowupEmail = createEmailFromTemplate('csoFollowupEmailTemplate');
+        if (csoFollowupEmail) {
+            this.gameState.addEmail(csoFollowupEmail);
+            if (this.onEmailDelivered) {
+                this.onEmailDelivered();
+            }
+        }
+    }
+
+    /**
+     * Deliver IT clearance email
+     */
+    async deliverITClearanceEmail() {
+        const itClearanceEmail = createEmailFromTemplate('itClearanceEmailTemplate');
+        if (itClearanceEmail) {
+            this.gameState.addEmail(itClearanceEmail);
+            if (this.onEmailDelivered) {
+                this.onEmailDelivered();
+            }
         }
     }
 
@@ -452,15 +477,18 @@ export class EmailDeliverySystem {
         this.gameState.storyContacted = false;
         this.gameState.interactedContacts = new Set();
         this.gameState.coins = 0; // Reset coins
+        this.gameState.csoOption2SpamTriggered = false; // Reset CSO option 2 spam tracking
+        this.gameState.csoFollowupTime = null; // Reset CSO follow-up time
         this.gameState.gameProgress = {
             hasReceivedWelcome: false,
-            hasReceivedMarketing: false,
+            hasReceivedCSO: false,
             hasReceivedRD: false,
             hasReceivedIT: false,
             hasReceivedSpam: false,
             hasReceivedAlex: false,
             hasReceivedHR: false,
-            hasReceivedCEO: false
+            hasReceivedCEO: false,
+            hasInstalledMicroscope: false
         };
         
         // Deliver welcome email to start over
@@ -507,6 +535,9 @@ export class ReplySystem {
 
             showCustomPrompt('Reply sent!', 'alert');
             
+            // Play reply sent sound
+            soundSystem.playReplySent();
+            
             if (this.onReplySent) {
                 this.onReplySent();
             }
@@ -527,9 +558,9 @@ export class ReplySystem {
         if (originalEmail.id.startsWith('spam-')) {
             console.log('Detected spam email - calling handleSpamReplyConsequences');
             this.handleSpamReplyConsequences(originalEmail, selectedOption);
-        } else if (originalEmail.id === 'marketing-email') {
-            console.log('Detected marketing email - calling handleMarketingReplyConsequences');
-            this.handleMarketingReplyConsequences();
+        } else if (originalEmail.id === 'cso-email') {
+            console.log('Detected CSO email - calling handleCSOReplyConsequences');
+            this.handleCSOReplyConsequences(selectedOption);
         } else {
             console.log('Detected other email - calling handleDefaultReplyConsequences');
             this.handleDefaultReplyConsequences();
@@ -562,18 +593,18 @@ export class ReplySystem {
                 this.emailDeliverySystem.deliverITSupportEmail('reportJunk');
             }, CONFIG.TIMING.IT_EMAIL_DELAY);
         } else if (selectedOption.consequence === 'scam') {
-            // Check if this is spam3 (the last spam)
+            // Check if this is spam4 (the last spam)
             const spamMatch = originalEmail.id.match(/spam-email-(\d+)/);
             console.log('User fell for spam - email ID:', originalEmail.id, 'spam match:', spamMatch);
-            if (spamMatch && parseInt(spamMatch[1]) === 3) {
-                // User fell for spam3 - trigger IT reset email
-                console.log('User fell for spam3 - triggering IT reset email');
+            if (spamMatch && parseInt(spamMatch[1]) === 4) {
+                // User fell for spam4 - trigger IT reset email
+                console.log('User fell for spam4 - triggering IT reset email');
                 setTimeout(() => {
                     this.emailDeliverySystem.deliverITResetEmail();
                 }, 2000);
             } else {
-                // User fell for spam1 or spam2 - deliver next spam
-                console.log('User fell for spam1 or spam2 - triggering next spam cascade');
+                // User fell for spam1, spam2, or spam3 - deliver next spam
+                console.log('User fell for spam1, spam2, or spam3 - triggering next spam cascade');
                 setTimeout(() => {
                     this.emailDeliverySystem.startSpamCascade(originalEmail.id);
                 }, 2000);
@@ -582,15 +613,40 @@ export class ReplySystem {
     }
 
     /**
-     * Handle marketing reply consequences
+     * Handle CSO reply consequences
+     * @param {Object} selectedOption - The selected reply option
      */
-    handleMarketingReplyConsequences() {
-        // Marketing reply triggers spam cascade
-        // Start spam cascade after delay (this should deliver spam1 - the Emissary's message)
-        setTimeout(() => {
-            // Start spam cascade
-            this.emailDeliverySystem.startSpamCascade('marketing-email'); // Pass marketing email ID to start with spam1
-        }, CONFIG.TIMING.SPAM_CASCADE_DELAY);
+    handleCSOReplyConsequences(selectedOption) {
+        if (selectedOption.consequence === 'acknowledge') {
+            // Option 1: "That's clear. Thanks for the heads up" - 6 second delay
+            setTimeout(() => {
+                this.emailDeliverySystem.startSpamCascade('cso-email');
+            }, 6000);
+        } else if (selectedOption.consequence === 'concern') {
+            // Option 2: "That sounds like it will hinder..." - special handling
+            // Send CSO follow-up email first
+            setTimeout(() => {
+                this.emailDeliverySystem.deliverCSOFollowupEmail();
+                
+                // Set up spam delay - either when user contacts IT or 15s after follow-up
+                this.gameState.csoOption2SpamTriggered = false;
+                this.gameState.csoFollowupTime = Date.now();
+                
+                // Set timeout for 15 seconds after follow-up email
+                setTimeout(() => {
+                    if (!this.gameState.csoOption2SpamTriggered) {
+                        this.emailDeliverySystem.startSpamCascade('cso-email');
+                        this.gameState.csoOption2SpamTriggered = true;
+                    }
+                }, 15000);
+                
+            }, 10000); // 10 seconds delay for follow-up email
+        } else {
+            // Option 3: "I understand the protocol..." - use default delay
+            setTimeout(() => {
+                this.emailDeliverySystem.startSpamCascade('cso-email');
+            }, CONFIG.TIMING.SPAM_CASCADE_DELAY);
+        }
     }
 
     /**
@@ -671,11 +727,34 @@ export class ComposeSystem {
                 if (this.onEmailSent) {
                     this.onEmailSent();
                 }
-
+                
                 // Trigger Alex's reply after delay
                 setTimeout(() => {
                     this.emailDeliverySystem.deliverAlexReply();
                 }, CONFIG.TIMING.ALEX_REPLY_DELAY);
+            }
+        } else if (to.toLowerCase() === 'it support' && subject) {
+            const composedEmail = createComposedEmail(to, subject, body);
+            if (composedEmail) {
+                this.gameState.addEmail(composedEmail);
+                
+                // Check if this is CSO option 2 scenario - trigger spam if not already triggered
+                if (this.gameState.csoOption2SpamTriggered === false) {
+                    // Add 10 second delay when user contacts IT support
+                    setTimeout(() => {
+                        this.emailDeliverySystem.startSpamCascade('cso-email');
+                    }, 10000);
+                    this.gameState.csoOption2SpamTriggered = true;
+                }
+                
+                // Deliver IT clearance response after delay
+                setTimeout(() => {
+                    this.emailDeliverySystem.deliverITClearanceEmail();
+                }, 5000); // 5 second delay for IT response
+                
+                if (this.onEmailSent) {
+                    this.onEmailSent();
+                }
             }
         } else {
             showCustomPrompt("Your 'To' field seems incorrect or the subject is empty. Are you contacting the right person?", 'alert');
@@ -715,6 +794,9 @@ export class InstallationSystem {
      */
     handleInstallation(emailToTrash) {
         simulateInstallation(() => {
+            // Mark microscope as installed
+            this.gameState.gameProgress.hasInstalledMicroscope = true;
+            
             // Move the IT email to trash immediately
             if (emailToTrash) {
                 this.gameState.updateEmail(emailToTrash.id, { folder: CONFIG.FOLDERS.TRASH });
