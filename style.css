@@ -109,6 +109,11 @@ body {
     background-color: #005a9e;
 }
 
+#start-game-btn.start-nudge-active {
+    animation: pulse 1.5s infinite;
+    box-shadow: 0 0 15px rgba(0, 120, 212, 1);
+}
+
 /* Custom Cursors */
 .cursor-options {
     display: flex;

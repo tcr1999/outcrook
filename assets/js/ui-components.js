@@ -177,9 +177,11 @@ export function displayEmailContent(email, onReplyClick, onMultipleChoiceReply, 
         }
     }
 
-    // Add nudge for important emails (Jane's welcome email)
+    // Add nudge for important emails (Jane's welcome email) with delay
     if (email.id === 'welcome-email' && !email.replied && replyButton) {
-        replyButton.classList.add('reply-nudge-active');
+        setTimeout(() => {
+            replyButton.classList.add('reply-nudge-active');
+        }, CONFIG.TIMING.REPLY_NUDGE_DELAY);
     }
 
     // Nudge for magnifying glass on R&D email

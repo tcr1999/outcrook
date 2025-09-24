@@ -230,6 +230,9 @@ function handleStartGame() {
         setUserName(formattedName);
         userProfile.textContent = `Detective ${formattedName}`;
         
+        // Stop pulsation
+        startGameBtn.classList.remove('start-nudge-active');
+        
         // Hide intro screen and show game
         container.style.display = 'grid';
         introScreen.style.display = 'none';
@@ -262,8 +265,17 @@ function handleNameInputChange() {
     const placeholder = document.getElementById('placeholder-flash');
     if (nameInput.value.length > 0) {
         placeholder.style.display = 'none';
+        
+        // Start pulsation for start game button after delay
+        if (!startGameBtn.classList.contains('start-nudge-active')) {
+            setTimeout(() => {
+                startGameBtn.classList.add('start-nudge-active');
+            }, CONFIG.TIMING.REPLY_NUDGE_DELAY);
+        }
     } else {
         placeholder.style.display = 'block';
+        // Remove pulsation if name is cleared
+        startGameBtn.classList.remove('start-nudge-active');
     }
 }
 
@@ -357,6 +369,12 @@ function handleNameInputChange() {
  * Handle reply button click
  */
     function handleReplyClick() {
+        // Stop reply button pulsation
+        const replyButton = document.querySelector('.reply-email-btn');
+        if (replyButton) {
+            replyButton.classList.remove('reply-nudge-active');
+        }
+        
         const currentEmailSubject = emailBodyContentDiv.querySelector('h3').textContent;
         const currentEmailSender = emailBodyContentDiv.querySelector('p:nth-of-type(1)').textContent.replace('From: ', '');
 
