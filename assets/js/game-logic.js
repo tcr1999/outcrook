@@ -147,10 +147,15 @@ export class EmailDeliverySystem {
         // Determine which spam to start with based on the last spam that was fallen for
         let startIndex = 1; // Default to spam2
         if (lastSpamId) {
-            // Extract spam number from ID (e.g., "spam-1" -> 1)
-            const spamMatch = lastSpamId.match(/spam-(\d+)/);
-            if (spamMatch) {
-                startIndex = parseInt(spamMatch[1]); // Start with next spam
+            if (lastSpamId === 'marketing-email') {
+                // Marketing email triggers spam1 (Emissary's message)
+                startIndex = 0;
+            } else {
+                // Extract spam number from ID (e.g., "spam-email-1" -> 1)
+                const spamMatch = lastSpamId.match(/spam-email-(\d+)/);
+                if (spamMatch) {
+                    startIndex = parseInt(spamMatch[1]); // Start with next spam
+                }
             }
         }
 
@@ -355,9 +360,9 @@ export class ReplySystem {
      * Handle marketing reply consequences
      */
     handleMarketingReplyConsequences() {
-        // Start spam cascade after delay
+        // Start spam cascade after delay (this should deliver spam1 - the Emissary's message)
         setTimeout(() => {
-            this.emailDeliverySystem.startSpamCascade();
+            this.emailDeliverySystem.startSpamCascade('marketing-email'); // Pass marketing email ID to start with spam1
         }, CONFIG.TIMING.SPAM_CASCADE_DELAY);
     }
 
