@@ -238,3 +238,36 @@ export function waitForEvent(element, event) {
         element.addEventListener(event, resolve, { once: true });
     });
 }
+
+/**
+ * Apply cursor theme
+ * @param {string} theme - Cursor theme to apply
+ */
+export function applyCursorTheme(theme) {
+    const body = document.body;
+    const customCursor = document.getElementById('custom-cursor');
+    const cursorOptions = document.querySelectorAll('.cursor-option');
+    
+    if (!customCursor || !cursorOptions.length) return;
+    
+    if (body.classList.contains('microscope-active')) {
+        // Don't change cursor when microscope is active
+        return;
+    }
+    
+    cursorOptions.forEach(option => {
+        option.classList.remove('active');
+        if (option.dataset.cursor === theme) {
+            option.classList.add('active');
+        }
+    });
+    
+    if (theme === 'default') {
+        body.classList.remove('custom-cursor-active');
+        customCursor.style.display = 'none';
+    } else {
+        body.classList.add('custom-cursor-active');
+        customCursor.style.display = 'block';
+        customCursor.textContent = theme;
+    }
+}
