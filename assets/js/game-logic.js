@@ -342,7 +342,7 @@ export class ReplySystem {
         console.log('handleReplyConsequences called for email ID:', originalEmail.id);
         if (originalEmail.id.startsWith('spam-')) {
             console.log('Detected spam email - calling handleSpamReplyConsequences');
-            this.handleSpamReplyConsequences(selectedOption);
+            this.handleSpamReplyConsequences(originalEmail, selectedOption);
         } else if (originalEmail.id === 'marketing-email') {
             console.log('Detected marketing email - calling handleMarketingReplyConsequences');
             this.handleMarketingReplyConsequences();
@@ -354,9 +354,10 @@ export class ReplySystem {
 
     /**
      * Handle spam reply consequences
+     * @param {Object} originalEmail - Original email
      * @param {Object} selectedOption - Selected option
      */
-    handleSpamReplyConsequences(selectedOption) {
+    handleSpamReplyConsequences(originalEmail, selectedOption) {
         // Stop spam cascade if active
         if (this.gameState.spamCascadeInterval) {
             clearInterval(this.gameState.spamCascadeInterval);
