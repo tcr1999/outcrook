@@ -55,7 +55,7 @@ body {
     color: #999;
     font-size: 1.1em;
     pointer-events: none;
-    animation: gradual-flash 1s ease-in-out infinite;
+    animation: gradual-flash 1s ease-in-out infinite 10s;
 }
 
 #name-input {
