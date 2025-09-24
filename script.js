@@ -215,7 +215,7 @@ function startGame() {
     refreshUnreadCounts(gameState.emails);
     
     // Deliver welcome email after delay
-    setTimeout(() => {
+                setTimeout(() => {
         emailDeliverySystem.deliverWelcomeEmail();
     }, CONFIG.TIMING.WELCOME_EMAIL_DELAY);
 }
@@ -236,7 +236,7 @@ function handleStartGame() {
         
         // Start the game
         startGame();
-    } else {
+            } else {
         nameInput.classList.add('input-error');
     }
 }
@@ -270,107 +270,107 @@ function handleNameInputChange() {
 /**
  * Load emails for a specific folder
  */
-function loadEmailsForFolder(folder) {
+    function loadEmailsForFolder(folder) {
     emailListDiv.innerHTML = '';
-    emailBodyContentDiv.innerHTML = '<h3 class="email-content-placeholder">Select an email to view its content</h3>';
+        emailBodyContentDiv.innerHTML = '<h3 class="email-content-placeholder">Select an email to view its content</h3>';
     if (replyEmailBtn) replyEmailBtn.style.display = 'none';
-    
+
     gameState.currentFolder = folder;
     emailListFolderHeader.textContent = folder.charAt(0).toUpperCase() + folder.slice(1);
     
     const filteredEmails = gameState.getEmailsForFolder(folder);
-    if (filteredEmails.length > 0) {
+        if (filteredEmails.length > 0) {
         // Sort emails by timestamp
-        filteredEmails.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-        
-        filteredEmails.forEach(email => {
+            filteredEmails.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+            filteredEmails.forEach(email => {
             const emailItem = renderEmailItem(email, folder, handleDeleteEmail, handleEmailDisplay);
-            
+                
             // Add pulsation to read legal-email
-            if (email.id === 'legal-email' && email.read) {
-                const deleteButton = emailItem.querySelector('.delete-email-item-btn');
-                if (deleteButton) {
-                    deleteButton.classList.add('delete-nudge-active');
+                if (email.id === 'legal-email' && email.read) {
+                    const deleteButton = emailItem.querySelector('.delete-email-item-btn');
+                    if (deleteButton) {
+                        deleteButton.classList.add('delete-nudge-active');
+                    }
+                }
+
+                emailListDiv.appendChild(emailItem);
+            });
+
+        // Select the first email
+            const firstEmailToSelect = filteredEmails.find(email => !email.read) || filteredEmails[0];
+            if (firstEmailToSelect) {
+                const correspondingEmailItem = emailListDiv.querySelector(`[data-email-id="${firstEmailToSelect.id}"]`);
+                if (correspondingEmailItem) {
+                    handleEmailDisplay(firstEmailToSelect, correspondingEmailItem);
                 }
             }
-            
-            emailListDiv.appendChild(emailItem);
-        });
-        
-        // Select the first email
-        const firstEmailToSelect = filteredEmails.find(email => !email.read) || filteredEmails[0];
-        if (firstEmailToSelect) {
-            const correspondingEmailItem = emailListDiv.querySelector(`[data-email-id="${firstEmailToSelect.id}"]`);
-            if (correspondingEmailItem) {
-                handleEmailDisplay(firstEmailToSelect, correspondingEmailItem);
-            }
-        }
-    } else {
-        emailListDiv.innerHTML = '<div class="email-list-placeholder">No emails in this folder.</div>';
+        } else {
+            emailListDiv.innerHTML = '<div class="email-list-placeholder">No emails in this folder.</div>';
         emailBodyContentDiv.innerHTML = '<div class="email-content-placeholder">Select an email to view its content</div>';
+        }
     }
-}
 
 /**
  * Handle email display
  */
-function handleEmailDisplay(email, emailItem) {
+    function handleEmailDisplay(email, emailItem) {
     // Stop existing pulses
-    document.querySelectorAll('.delete-email-item-btn').forEach(btn => {
-        if (btn.dataset.emailId !== email.id) {
-            btn.classList.remove('delete-nudge-active');
-        }
-    });
-    
+        document.querySelectorAll('.delete-email-item-btn').forEach(btn => {
+            if (btn.dataset.emailId !== email.id) {
+                btn.classList.remove('delete-nudge-active');
+            }
+        });
+
     displayEmailContent(email, handleReplyClick, handleMultipleChoiceReply, handleInstallClick);
-    
+
     // Update active state
-    document.querySelectorAll('.email-item').forEach(el => el.classList.remove('active'));
-    emailItem.classList.add('active');
-    
+        document.querySelectorAll('.email-item').forEach(el => el.classList.remove('active'));
+        emailItem.classList.add('active');
+
     // Start pulsation timer for read-only emails
-    if (email.emailType === 'readOnly' && !email.read) {
-        const deleteButton = emailItem.querySelector('.delete-email-item-btn');
-        if (deleteButton) {
-            setTimeout(() => {
-                deleteButton.classList.add('delete-nudge-active');
+        if (email.emailType === 'readOnly' && !email.read) {
+            const deleteButton = emailItem.querySelector('.delete-email-item-btn');
+            if (deleteButton) {
+                setTimeout(() => {
+                    deleteButton.classList.add('delete-nudge-active');
             }, CONFIG.TIMING.DELETE_NUDGE_DELAY);
+            }
         }
-    }
     
     // Pulsate install button for IT email
-    if (email.id === 'it-support-email' && !email.replied) {
-        const installBtn = document.getElementById('install-tool-btn');
-        if (installBtn) {
-            installBtn.classList.add('install-btn-pulsate');
+        if (email.id === 'it-support-email' && !email.replied) {
+            const installBtn = document.getElementById('install-tool-btn');
+            if (installBtn) {
+                installBtn.classList.add('install-btn-pulsate');
+            }
         }
-    }
-    
+
     // Mark as read
-    if (!email.read) {
+        if (!email.read) {
         gameState.updateEmail(email.id, { read: true });
-        emailItem.classList.remove('unread');
+            emailItem.classList.remove('unread');
     }
 }
 
 /**
  * Handle reply button click
  */
-function handleReplyClick() {
-    const currentEmailSubject = emailBodyContentDiv.querySelector('h3').textContent;
-    const currentEmailSender = emailBodyContentDiv.querySelector('p:nth-of-type(1)').textContent.replace('From: ', '');
-    
+    function handleReplyClick() {
+        const currentEmailSubject = emailBodyContentDiv.querySelector('h3').textContent;
+        const currentEmailSender = emailBodyContentDiv.querySelector('p:nth-of-type(1)').textContent.replace('From: ', '');
+
     const originalEmail = gameState.emails.find(email => email.subject === currentEmailSubject && email.sender === currentEmailSender);
-    
-    if (!originalEmail || originalEmail.replied) {
-        showCustomPrompt('You have already replied to this email or it\'s not a valid email to reply to.', 'alert');
-        return;
-    }
-    
+
+        if (!originalEmail || originalEmail.replied) {
+            showCustomPrompt('You have already replied to this email or it\'s not a valid email to reply to.', 'alert');
+            return;
+        }
+
     // Generate reply text
     const userName = getUserName();
-    const replyText = generateReplyBody(originalEmail, userName);
-    
+        const replyText = generateReplyBody(originalEmail, userName);
+
     // Create interactive reply interface
     createInteractiveReplyInterface(originalEmail, replyText, (finalReplyText) => {
         // Handle the reply completion
@@ -432,40 +432,40 @@ function setActiveFolder(folderId) {
 /**
  * Apply cursor theme
  */
-function applyCursorTheme(theme) {
-    if (document.body.classList.contains('microscope-active')) {
-        showCustomPrompt('Deactivate the Digital Microscope to change your cursor.', 'alert');
-        return;
-    }
-    
-    currentCursorTheme = theme;
-    
-    cursorOptions.forEach(option => {
-        option.classList.remove('active');
-        if (option.dataset.cursor === theme) {
-            option.classList.add('active');
+    function applyCursorTheme(theme) {
+        if (document.body.classList.contains('microscope-active')) {
+            showCustomPrompt('Deactivate the Digital Microscope to change your cursor.', 'alert');
+            return;
         }
-    });
-    
+
+        currentCursorTheme = theme;
+        
+        cursorOptions.forEach(option => {
+            option.classList.remove('active');
+            if (option.dataset.cursor === theme) {
+                option.classList.add('active');
+            }
+        });
+
     if (theme === CONFIG.CURSOR_THEMES.DEFAULT) {
-        body.classList.remove('custom-cursor-active');
-        customCursor.style.display = 'none';
-    } else {
-        body.classList.add('custom-cursor-active');
-        customCursor.style.display = 'block';
+            body.classList.remove('custom-cursor-active');
+            customCursor.style.display = 'none';
+        } else {
+            body.classList.add('custom-cursor-active');
+            customCursor.style.display = 'block';
         customCursor.textContent = CONFIG.CURSOR_EMOJIS[theme];
-    }
-    
+        }
+        
     setCursorTheme(theme);
-}
+    }
 
 /**
  * Handle mouse move
  */
-function handleMouseMove(e) {
-    if (customCursor.style.display === 'block') {
-        customCursor.style.left = e.clientX + 'px';
-        customCursor.style.top = e.clientY + 'px';
+    function handleMouseMove(e) {
+        if (customCursor.style.display === 'block') {
+            customCursor.style.left = e.clientX + 'px';
+            customCursor.style.top = e.clientY + 'px';
         handleMagnifierReveal(e);
     }
 }
@@ -474,11 +474,11 @@ function handleMouseMove(e) {
  * Handle dark mode toggle
  */
 function handleDarkModeToggle() {
-    if (darkModeToggle.checked) {
-        body.classList.add('dark-mode');
+            if (darkModeToggle.checked) {
+                body.classList.add('dark-mode');
         setDarkMode(true);
-    } else {
-        body.classList.remove('dark-mode');
+            } else {
+                body.classList.remove('dark-mode');
         setDarkMode(false);
     }
 }
@@ -486,51 +486,51 @@ function handleDarkModeToggle() {
 /**
  * Open compose modal
  */
-function openComposeModal() {
+    function openComposeModal() {
     if (composeSystem.isStoryContacted()) {
-        showCustomPrompt("You've already followed up on your lead.", 'alert');
-        return;
-    }
-    
+            showCustomPrompt("You've already followed up on your lead.", 'alert');
+            return;
+        }
+        
     // Remove pulsation
-    if (composeBtn) {
-        composeBtn.classList.remove('compose-nudge-active');
-    }
-    
+        if (composeBtn) {
+            composeBtn.classList.remove('compose-nudge-active');
+        }
+        
     // Populate dropdown
-    composeTo.innerHTML = '<option value="">Select a contact...</option>';
+        composeTo.innerHTML = '<option value="">Select a contact...</option>';
     composeSystem.getRandomNames().forEach(name => {
-        const option = document.createElement('option');
-        option.value = name;
-        option.textContent = name;
-        composeTo.appendChild(option);
-    });
-    
-    composeSubject.value = '';
-    composeBody.innerHTML = '';
-    sendComposeBtn.disabled = true;
-    composeModalOverlay.style.display = 'flex';
-}
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            composeTo.appendChild(option);
+        });
+        
+        composeSubject.value = '';
+        composeBody.innerHTML = '';
+        sendComposeBtn.disabled = true;
+        composeModalOverlay.style.display = 'flex';
+    }
 
 /**
  * Close compose modal
  */
-function closeComposeModal() {
-    composeModalOverlay.style.display = 'none';
-}
+    function closeComposeModal() {
+        composeModalOverlay.style.display = 'none';
+    }
 
 /**
  * Handle compose to change
  */
 function handleComposeToChange() {
     if (composeSystem.isStoryContacted()) return;
-    
-    if (composeTo.value.toLowerCase() === 'alex chen') {
-        composeSubject.readOnly = true;
-        composeSubject.value = 'A Quick Question';
-        
+
+        if (composeTo.value.toLowerCase() === 'alex chen') {
+            composeSubject.readOnly = true;
+            composeSubject.value = 'A Quick Question';
+            
         const userName = getUserName();
-        const alexEmailBody = `Hi Alex,
+            const alexEmailBody = `Hi Alex,
 
 I'm the special investigator looking into the recent security incident. I was hoping you could shed some light on the computer hiccups from last month.
 
@@ -538,29 +538,29 @@ Any information would be a great help.
 
 Best,
 Detective ${userName}`;
-        
-        // Setup interactive typing
+
+            // Setup interactive typing
         composeBody.innerHTML = '';
-        const typePrompt = document.createElement('p');
-        typePrompt.classList.add('flashing-text');
-        typePrompt.style.cssText = 'position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 0.9em;';
-        typePrompt.textContent = 'Press any key to start typing...';
-        composeBody.appendChild(typePrompt);
-        
-        const startTypingListener = (event) => {
-            if (!event.metaKey && !event.ctrlKey) {
-                typePrompt.remove();
-                document.removeEventListener('keydown', startTypingListener);
+            const typePrompt = document.createElement('p');
+            typePrompt.classList.add('flashing-text');
+            typePrompt.style.cssText = 'position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 0.9em;';
+            typePrompt.textContent = 'Press any key to start typing...';
+            composeBody.appendChild(typePrompt);
+
+            const startTypingListener = (event) => {
+                if (!event.metaKey && !event.ctrlKey) {
+                    typePrompt.remove();
+                    document.removeEventListener('keydown', startTypingListener);
                 simulateTyping(composeBody, alexEmailBody, CONFIG.UI.TYPING_CHARS_PER_KEY, () => {
-                    sendComposeBtn.disabled = false;
-                });
-            }
-        };
-        document.addEventListener('keydown', startTypingListener);
-    } else {
-        composeSubject.readOnly = false;
-        composeSubject.value = '';
-    }
+                        sendComposeBtn.disabled = false;
+                    });
+                }
+            };
+            document.addEventListener('keydown', startTypingListener);
+        } else {
+            composeSubject.readOnly = false;
+            composeSubject.value = '';
+        }
 }
 
 /**

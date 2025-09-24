@@ -231,6 +231,7 @@ export function updateUserNamePlaceholders() {
  * Jumble clue text for magnifier reveal
  */
 export function jumbleClueText() {
+    
     document.querySelectorAll('.jumbled-clue').forEach(clueElement => {
         if (clueElement.hasChildNodes()) return; // Already jumbled
 
@@ -254,24 +255,42 @@ export function jumbleClueText() {
     
     // Prepare sender IP clues for magnifier reveal
     document.querySelectorAll('.sender-ip-clue').forEach(clueElement => {
-        if (clueElement.hasChildNodes()) return; // Already prepared
+        if (clueElement.querySelector('span')) return; // Already prepared (has span children)
 
         const ip = clueElement.dataset.ip;
         const originalText = clueElement.textContent; // "Dr. Aris Thorne, Head of R&D"
         const letters = originalText.split(''); // Split the original name into letters
 
+
         clueElement.innerHTML = ''; // Clear it
 
+        // Create a mapping of non-space characters to IP characters
+        let ipCharIndex = 0;
+        
         letters.forEach((originalChar, index) => {
             const span = document.createElement('span');
             span.textContent = originalChar; // Show the original character
-            span.dataset.char = index < ip.length ? ip[index] : originalChar; // Store IP char or original
-            span.dataset.jumble = originalChar; // Store the original character
-            span.style.setProperty('--rot', '0deg');
-            span.style.setProperty('--x', '0px');
-            span.style.setProperty('--y', '0px');
+            
+            // Only make non-space characters revealable, and only if we have IP characters left
+            if (originalChar !== ' ' && ipCharIndex < ip.length) {
+                span.dataset.char = ip[ipCharIndex]; // Store IP char for revealable characters
+                span.dataset.jumble = originalChar; // Store the original character
+                span.style.setProperty('--rot', '0deg');
+                span.style.setProperty('--x', '0px');
+                span.style.setProperty('--y', '0px');
+                span.style.setProperty('display', 'inline-block'); // Make revealable characters inline-block
+                ipCharIndex++; // Move to next IP character
+            } else {
+                // For spaces and characters beyond IP length, don't make them revealable
+                span.dataset.char = originalChar; // Keep original character
+                span.dataset.jumble = originalChar; // Keep original character
+                span.style.setProperty('display', 'inline'); // Keep spaces as normal inline elements
+                // No transform styles for non-revealable characters
+            }
+            
             clueElement.appendChild(span);
         });
+        
     });
 }
 
@@ -311,7 +330,10 @@ export function handleMagnifierReveal(event) {
 
         if (distance < lensRadius) {
             span.textContent = span.dataset.char;
-            span.classList.add('revealed');
+            // Only add 'revealed' class if this character has IP data (not a space or non-IP char)
+            if (span.dataset.char !== span.dataset.jumble) {
+                span.classList.add('revealed');
+            }
         } else {
             span.textContent = span.dataset.jumble;
             span.classList.remove('revealed');

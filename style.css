@@ -202,8 +202,8 @@ body.microscope-active #custom-cursor {
     display: inline-block;
     transition: transform 0.3s ease;
     transform: rotate(var(--rot)) translateX(var(--x)) translateY(var(--y));
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: bold;
+    font-family: inherit;
+    font-weight: normal;
     color: #333;
 }
 
