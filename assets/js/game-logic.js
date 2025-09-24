@@ -474,8 +474,14 @@ export class ReplySystem {
         if (replyEmail) {
             this.gameState.addEmail(replyEmail);
             
-            // Move all emails to trash when replied to
-            this.gameState.updateEmail(originalEmail.id, { replied: true, folder: CONFIG.FOLDERS.TRASH });
+            // Move emails to appropriate folder based on reply type
+            if (selectedOption.consequence === 'reportJunk') {
+                // Move spam emails to spam folder when reported as junk
+                this.gameState.updateEmail(originalEmail.id, { replied: true, folder: CONFIG.FOLDERS.SPAM });
+            } else {
+                // Move all other emails to trash when replied to
+                this.gameState.updateEmail(originalEmail.id, { replied: true, folder: CONFIG.FOLDERS.TRASH });
+            }
 
             showCustomPrompt('Reply sent!', 'alert');
             
