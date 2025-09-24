@@ -234,6 +234,8 @@ export class EmailDeliverySystem {
      * @param {string} lastSpamId - ID of the spam email that triggered the cascade
      */
     startSpamCascade(lastSpamId = null) {
+        console.log('startSpamCascade called with lastSpamId:', lastSpamId);
+        
         // Stop any existing spam cascade
         if (this.gameState.spamCascadeInterval) {
             clearInterval(this.gameState.spamCascadeInterval);
@@ -246,18 +248,28 @@ export class EmailDeliverySystem {
             if (lastSpamId === 'marketing-email') {
                 // Marketing email triggers spam1 (Emissary's message)
                 nextSpamNumber = 1;
+                console.log('Marketing email detected - delivering spam1');
             } else {
                 // Extract spam number from ID (e.g., "spam-email-1" -> 1)
                 const spamMatch = lastSpamId.match(/spam-email-(\d+)/);
                 if (spamMatch) {
-                    nextSpamNumber = parseInt(spamMatch[1]) + 1; // Next spam in sequence
+                    const currentSpamNumber = parseInt(spamMatch[1]);
+                    nextSpamNumber = currentSpamNumber + 1; // Next spam in sequence
+                    console.log('Spam email detected - current:', currentSpamNumber, 'next:', nextSpamNumber);
+                } else {
+                    console.log('No spam match found for ID:', lastSpamId);
                 }
             }
         }
 
+        console.log('Final nextSpamNumber:', nextSpamNumber);
+
         // Only deliver if we haven't exceeded spam limit (3 spam emails max)
         if (nextSpamNumber <= 3) {
+            console.log('Delivering spam number:', nextSpamNumber);
             this.deliverSingleSpam(nextSpamNumber);
+        } else {
+            console.log('Spam limit reached (3), not delivering more spam');
         }
     }
 
@@ -267,12 +279,16 @@ export class EmailDeliverySystem {
      */
     deliverSingleSpam(spamNumber) {
         const templateName = `spamEmail${spamNumber}Template`;
+        console.log('deliverSingleSpam called with spamNumber:', spamNumber, 'templateName:', templateName);
         const newSpamEmail = createSpamEmail(templateName);
         if (newSpamEmail) {
+            console.log('Created spam email:', newSpamEmail.id, newSpamEmail.subject);
             this.gameState.addEmail(newSpamEmail);
             if (this.onEmailDelivered) {
                 this.onEmailDelivered();
             }
+        } else {
+            console.log('Failed to create spam email for template:', templateName);
         }
     }
 
@@ -305,11 +321,32 @@ export class EmailDeliverySystem {
                 this.onEmailDelivered();
             }
             
-            // Reset the game after a delay
-            setTimeout(() => {
-                this.resetGame();
-            }, 5000); // 5 second delay to let user read the reset email
+            // Show countdown before reset
+            this.startResetCountdown();
         }
+    }
+
+    /**
+     * Start countdown before game reset
+     */
+    startResetCountdown() {
+        let countdown = 15;
+        
+        // Update countdown every second
+        const countdownInterval = setInterval(() => {
+            countdown--;
+            
+            // Update the countdown timer in the email body
+            const countdownTimer = document.getElementById('countdown-timer');
+            if (countdownTimer) {
+                countdownTimer.textContent = countdown;
+            }
+            
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+                this.resetGame();
+            }
+        }, 1000);
     }
 
     /**
@@ -491,13 +528,16 @@ export class ReplySystem {
         } else if (selectedOption.consequence === 'scam') {
             // Check if this is spam3 (the last spam)
             const spamMatch = originalEmail.id.match(/spam-email-(\d+)/);
+            console.log('User fell for spam - email ID:', originalEmail.id, 'spam match:', spamMatch);
             if (spamMatch && parseInt(spamMatch[1]) === 3) {
                 // User fell for spam3 - trigger IT reset email
+                console.log('User fell for spam3 - triggering IT reset email');
                 setTimeout(() => {
                     this.emailDeliverySystem.deliverITResetEmail();
                 }, 2000);
             } else {
                 // User fell for spam1 or spam2 - deliver next spam
+                console.log('User fell for spam1 or spam2 - triggering next spam cascade');
                 setTimeout(() => {
                     this.emailDeliverySystem.startSpamCascade(originalEmail.id);
                 }, 2000);

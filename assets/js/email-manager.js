@@ -221,7 +221,8 @@ export function createSpamEmail(templateName) {
     }
 
     const email = deepCopy(template);
-    email.id = generateEmailId('spam-cascade');
+    // Keep the original template ID (e.g., "spam-email-1") instead of generating a new one
+    // email.id = generateEmailId('spam-cascade'); // This was causing the issue
     email.date = getCurrentDateString();
     email.receivedTime = getCurrentTimeString();
     email.timestamp = getCurrentTimestamp();
