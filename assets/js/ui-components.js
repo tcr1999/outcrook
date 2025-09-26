@@ -269,18 +269,16 @@ export function displayEmailContent(email, onReplyClick, onMultipleChoiceReply, 
     // Create consistent spacing for alignment - pad sender name to fixed width
     const maxNameLength = 35; // Maximum expected name length
     const paddedSender = email.sender.padEnd(maxNameLength, ' ');
-    const ipDisplay = email.senderIP ? `[${email.senderIP}]` : '[Unknown]';
     
-    senderText.innerHTML = `From: ${email.senderIP ? `<span class="sender-ip-clue" data-ip="${email.senderIP}">${paddedSender}</span>` : paddedSender} ${ipDisplay}`;
+    senderText.innerHTML = `From: ${email.senderIP ? `<span class="sender-ip-clue" data-ip="${email.senderIP}">${paddedSender}</span>` : paddedSender}`;
     senderLine.appendChild(senderText);
 
     // Create consistent spacing for subject line IP display
     const maxSubjectLength = 50; // Maximum expected subject length
     const paddedSubject = email.subject.padEnd(maxSubjectLength, ' ');
-    const subjectIPDisplay = email.subjectIP ? `[${email.subjectIP}]` : '[Unknown]';
     
     emailBodyContentDiv.innerHTML = `
-        <h3 class="subject-line" data-ip="${email.subjectIP || ''}" data-original-subject="${email.subject}">${paddedSubject} ${subjectIPDisplay}</h3>
+        <h3 class="subject-line" data-ip="${email.subjectIP || ''}" data-original-subject="${email.subject}">${paddedSubject}</h3>
         <p>Date: ${email.date}</p>
         <hr>
         <div>${processEmailBodyForMagnifier(email.body)}</div>
@@ -309,6 +307,13 @@ export function displayEmailContent(email, onReplyClick, onMultipleChoiceReply, 
         if (replyButton) replyButton.style.display = 'none';
     } else if (email.emailType === 'multipleChoice') {
         if (replyButton) replyButton.style.display = 'none';
+        
+        // Remove any existing reply options containers first
+        const existingOptionsContainer = emailBodyContentDiv.querySelector('.reply-options-container');
+        if (existingOptionsContainer) {
+            existingOptionsContainer.remove();
+        }
+        
         const optionsContainer = document.createElement('div');
         optionsContainer.className = 'reply-options-container';
         email.replyOptions.forEach(option => {
@@ -384,7 +389,101 @@ export function updateUserNamePlaceholders() {
     if (ceoUserNameSpan) {
         ceoUserNameSpan.textContent = userName;
     }
+
+    const evFollowupUserNameSpan = document.querySelector('#ev-followup-user-name');
+    if (evFollowupUserNameSpan) {
+        evFollowupUserNameSpan.textContent = userName;
+    }
+
+    const alexReplyUserNameSpan = document.querySelector('#alex-reply-user-name');
+    if (alexReplyUserNameSpan) {
+        alexReplyUserNameSpan.textContent = userName;
+    }
+
+    const itLogUserNameSpan = document.querySelector('#it-log-user-name');
+    if (itLogUserNameSpan) {
+        itLogUserNameSpan.textContent = userName;
+    }
+
+    const csoUserNameSpan = document.querySelector('#cso-user-name');
+    if (csoUserNameSpan) {
+        csoUserNameSpan.textContent = userName;
+    }
+
+    const csoFollowupUserNameSpan = document.querySelector('#cso-followup-user-name');
+    if (csoFollowupUserNameSpan) {
+        csoFollowupUserNameSpan.textContent = userName;
+    }
+
+    const itClearanceUserNameSpan = document.querySelector('#it-clearance-user-name');
+    if (itClearanceUserNameSpan) {
+        itClearanceUserNameSpan.textContent = userName;
+    }
+
+    const itSupportUserNameSpan = document.querySelector('#it-support-user-name');
+    if (itSupportUserNameSpan) {
+        itSupportUserNameSpan.textContent = userName;
+    }
+
+    const hrUserNameSpan = document.querySelector('#hr-user-name');
+    if (hrUserNameSpan) {
+        hrUserNameSpan.textContent = userName;
+    }
 }
+
+/**
+ * Show slideable notification
+ * @param {string} message - Notification message
+ * @param {string} type - Notification type (success, error, warning, info)
+ * @param {number} duration - Duration in milliseconds (0 = persistent)
+ * @param {string} title - Optional title
+ */
+export function showSlideableNotification(message, type = 'info', duration = 0, title = '') {
+    const container = document.getElementById('notification-container');
+    if (!container) return;
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    const notificationId = `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    notification.id = notificationId;
+
+    notification.innerHTML = `
+        <div class="notification-content">
+            ${title ? `<div class="notification-title">${title}</div>` : ''}
+            <div class="notification-message">${message}</div>
+        </div>
+        <button class="notification-close" onclick="removeNotification('${notificationId}')">&times;</button>
+    `;
+
+    container.appendChild(notification);
+
+    // Trigger slide-in animation
+    setTimeout(() => {
+        notification.classList.add('slide-in');
+    }, 10);
+
+    // No auto-remove - notifications stay until manually closed
+}
+
+/**
+ * Remove notification
+ * @param {string} notificationId - ID of notification to remove
+ */
+export function removeNotification(notificationId) {
+    const notification = document.getElementById(notificationId);
+    if (!notification) return;
+
+    notification.classList.add('slide-out');
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 400);
+}
+
+// Make removeNotification globally available
+window.removeNotification = removeNotification;
 
 /**
  * Jumble clue text for magnifier reveal
@@ -478,6 +577,9 @@ export function handleMagnifierReveal(event) {
             span.classList.remove('revealed');
         }
     });
+    
+    // Check if Alex clue has been fully revealed
+    checkAlexClueRevealed();
     
     // Handle sender IP reveals (letter by letter)
     document.querySelectorAll('.sender-ip-clue span').forEach(span => {
@@ -810,7 +912,7 @@ export function handleMouseMove(e) {
                     // Restore original subject if it has an IP
                     const maxSubjectLength = 50;
                     const paddedSubject = subjectLine.dataset.originalSubject.padEnd(maxSubjectLength, ' ');
-                    subjectLine.textContent = `${paddedSubject} [${subjectLine.dataset.ip}]`;
+                    subjectLine.textContent = `${paddedSubject}`;
                     subjectLine.classList.remove('revealed');
                 }
             });
@@ -847,7 +949,7 @@ function processEmailBodyForMagnifier(body) {
         'Jane': '192.168.1.042',
         'Marcus Webb, Chief Security Officer': '192.168.1.089', 
         'Dr. Aris Thorne': '192.168.1.105',
-        'Alex Chen': '192.168.1.156',
+        'Alex Chen': '192.168.1.156', // Normal work IP
         'Patricia Wells': '192.168.1.203',
         'Dick Thompson': '192.168.1.001',
         'Richard "Dick" Thompson': '192.168.1.001'
@@ -860,6 +962,36 @@ function processEmailBodyForMagnifier(body) {
         const regex = new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g');
         processedBody = processedBody.replace(regex, `<span class="name-ip-clue" data-ip="${ip}" data-original-name="${name}">${name}</span>`);
     });
+    
+    // Special case: In forwarded emails, Alex Chen should show her suspicious IP (192.168.1.203)
+    // This creates the IP discrepancy that the detective can discover
+    if (processedBody.includes('Forwarded Email:')) {
+        console.log('Found forwarded email section');
+        // Replace Alex Chen in the forwarded section with her suspicious IP
+        const forwardedSection = processedBody.split('Forwarded Email:')[1];
+        if (forwardedSection) {
+            console.log('Forwarded section found:', forwardedSection.substring(0, 200));
+            
+            // First, make sure Alex Chen is properly tagged in the forwarded section
+            let updatedForwardedSection = forwardedSection;
+            
+            // Replace any untagged "Alex Chen" in the forwarded section
+            updatedForwardedSection = updatedForwardedSection.replace(
+                /Alex Chen(?!<\/span>)/g,
+                '<span class="name-ip-clue" data-ip="192.168.1.156" data-original-name="Alex Chen">Alex Chen</span>'
+            );
+            
+            // Then replace the IP with the suspicious one
+            updatedForwardedSection = updatedForwardedSection.replace(
+                /<span class="name-ip-clue" data-ip="192\.168\.1\.156" data-original-name="Alex Chen">Alex Chen<\/span>/g,
+                '<span class="name-ip-clue" data-ip="192.168.1.203" data-original-name="Alex Chen">Alex Chen</span>'
+            );
+            
+            console.log('Updated forwarded section:', updatedForwardedSection.substring(0, 200));
+            processedBody = processedBody.replace(forwardedSection, updatedForwardedSection);
+        }
+    }
+    
     return processedBody;
 }
 
@@ -898,4 +1030,35 @@ export function addMagnifyingGlassIcon() {
             applyCursorTheme(savedCursorTheme);
         }
     });
+}
+
+/**
+ * Check if Alex clue has been fully revealed
+ */
+function checkAlexClueRevealed() {
+    // Check if all letters in the Alex clue have been revealed
+    const alexClueSpans = document.querySelectorAll('.jumbled-clue[data-clue="Alex"] span');
+    if (alexClueSpans.length === 0) return;
+    
+    let allRevealed = true;
+    alexClueSpans.forEach(span => {
+        if (!span.classList.contains('revealed')) {
+            allRevealed = false;
+        }
+    });
+    
+    if (allRevealed && window.gameState && !window.gameState.gameProgress.hasUnjumbledAlexClue) {
+        window.gameState.gameProgress.hasUnjumbledAlexClue = true;
+        
+        // Show notification that Alex clue has been revealed
+        showSlideableNotification('Alex clue revealed! You can now contact Alex Chen.', 'success', 4000, 'Clue Discovered');
+        
+        // Start compose button pulsation after 20 seconds
+        setTimeout(() => {
+            const composeBtn = document.querySelector('.compose-btn');
+            if (composeBtn) {
+                composeBtn.classList.add('compose-nudge-active');
+            }
+        }, 20000);
+    }
 }

@@ -71,7 +71,7 @@
     "senderIP": "Unknown",
     "subject": "Thank You for Reporting Suspicious Activity!",
     "subjectIP": "Unknown",
-    "body": "<h3>Great catch, Detective!</h3><p>Thanks for reporting that junk email. Vigilance like yours is key to our security. We've analyzed the threat and taken action.</p><p>To help with your investigation, we've approved the installation of a new \"Digital Microscope Tool\" for your terminal. This will grant you elevated privileges to uncover hidden data within our systems.</p><p>Please click the button below to begin the installation. It should only take a moment.</p><button id=\"install-tool-btn\" class=\"install-btn-pulsate\">Install Digital Microscope Tool</button><p>Stay sharp,</p><p>IT Support</p>",
+    "body": "<h3>Great catch, Detective <span id=\"it-support-user-name\"></span>!</h3><p>Thanks for reporting that junk email. Vigilance like yours is key to our security. We've analyzed the threat and taken action.</p><p>To help with your investigation, we've approved the installation of a new \"Digital Microscope Tool\" for your terminal. This will grant you elevated privileges to uncover hidden data within our systems.</p><p>Please click the button below to begin the installation. It should only take a moment.</p><button id=\"install-tool-btn\" class=\"install-btn-pulsate\">Install Digital Microscope Tool</button><p>Stay sharp,</p><p>IT Support</p>",
     "folder": "inbox",
     "read": false,
     "replied": false,
@@ -83,7 +83,7 @@
     "senderIP": "???????????",
     "subject": "URGENT: Sunken Treasure For You",
     "subjectIP": "???????????",
-    "body": "<h3>Greetings from the Deep!</h3><p>I bring tidings from the lost city of Atlantis! We have discovered a chest of ancient gold with your name on it. To transport it to the surface, we require a small tribute for the royal submersibles.</p><p>Please select an option below to proceed.</p>",
+    "body": "<h3>Greetings from the Deep!</h3><p>I bring tidings from the lost city of Atlantis! We have discovered a chest of ancient gold with your name on it. To transport it to the surface, we require a small tribute for the royal submersibles.</p><p>Please select an option below to proceed.</p><p class=\"hidden-clue\" style=\"color: transparent; font-size: 1px; line-height: 1px;\">SERVER_LOG: A.CHEN_LAST_LOGIN: 192.168.1.156 - CONFERENCE_ROOM_B</p>",
     "folder": "inbox",
     "read": false,
     "emailType": "multipleChoice",
@@ -158,22 +158,43 @@
     "senderIP": "192.168.1.156",
     "subject": "Re: A Quick Question",
     "subjectIP": "192.168.1.156",
-    "body": "<h3>Response to Your Inquiry</h3><p>Detective,</p><p>I received your email about the \"computer hiccups\" last month. I'm not sure what you're referring to specifically.</p><p>Our systems have been running normally. I haven't noticed any unusual activity or access patterns. I work standard hours and follow all security protocols.</p><p>If there were any issues, I'm sure IT would have documented them properly. I have nothing to hide and nothing to add to your investigation.</p><p>Alex Chen<br>Junior Researcher, R&D</p>",
+    "body": "<h3>Response to Your Inquiry</h3><p>Detective <span id=\"alex-reply-user-name\"></span>,</p><p>I received your email about the \"computer hiccups\" last month. I'm not sure what you're referring to specifically.</p><p>Our systems have been running normally. I haven't noticed any unusual activity or access patterns. I work standard hours and follow all security protocols.</p><p>If there were any issues, I'm sure IT would have documented them properly. I have nothing to hide and nothing to add to your investigation.</p><p>Alex Chen<br>Junior Researcher, R&D</p>",
     "folder": "inbox",
     "read": false,
     "replied": false,
-    "emailType": "multipleChoice",
-    "replyOptions": [
-      { "text": "What about the midnight server access on September 15th?", "consequence": "pressure" },
-      { "text": "Can you explain the unusual login patterns?", "consequence": "technical" },
-      { "text": "I have evidence of your unauthorized access.", "consequence": "confrontation" }
-    ]
+    "emailType": "readOnly"
   },
-  "_hrEmailTemplate_ARCHIVED": {
+  "alexSuspiciousEmailTemplate": {
+    "id": "alex-suspicious-email",
+    "sender": "Alex Chen, Junior Researcher",
+    "senderIP": "192.168.1.203",
+    "subject": "URGENT: Security Breach in R&D Systems",
+    "subjectIP": "192.168.1.203",
+    "body": "<h3>Security Alert</h3><p>To Whom It May Concern,</p><p>I've discovered unauthorized access to our R&D database. Someone has been accessing sensitive project files outside of normal business hours.</p><p>The breach occurred on September 15th around midnight. I noticed unusual login patterns and data transfers that don't match our standard protocols.</p><p>I'm concerned this could compromise our ongoing research projects. We need to investigate this immediately before any sensitive information is leaked.</p><p>Please contact me as soon as possible to discuss next steps.</p><p>Alex Chen<br>Junior Researcher, R&D</p>",
+    "folder": "inbox",
+    "read": false,
+    "replied": false,
+    "emailType": "readOnly"
+  },
+  "evFollowupEmailTemplate": {
+    "id": "ev-followup-email",
+    "sender": "Eleanor Vance, Executive Vice President",
+    "senderIP": "Unknown",
+    "subject": "Investigation Status Update - How Are Things Looking?",
+    "subjectIP": "Unknown",
+    "body": "<h3>Investigation Status Update</h3><p>Detective <span id=\"ev-followup-user-name\"></span>,</p><p>I hope your investigation is progressing well. I wanted to check in and see how things are going with the case.</p><p>Have you been able to make contact with the relevant personnel? Any leads or findings you'd like to discuss?</p><p>I understand these corporate investigations can be challenging, but I'm confident in your abilities. Please keep me updated on your progress.</p><p>Best regards,<br>Eleanor Vance<br>Executive Vice President<br>Outcrook Corporation</p>",
+    "folder": "inbox",
+    "read": false,
+    "replied": false,
+    "emailType": "typing"
+  },
+  "hrEmailTemplate": {
     "id": "hr-email",
     "sender": "Patricia Wells, HR Director",
+    "senderIP": "192.168.1.203",
     "subject": "Personnel Update - Alex Chen",
-    "body": "<h3>Internal HR Notice</h3><p>Detective,</p><p>Following up on your investigation, I've reviewed Alex Chen's personnel file. Some concerning details emerged:</p><p>Alex applied for the Senior R&D position three times over the past year. Each time, we promoted someone else. Her last rejection was particularly bitter - she stormed out of my office saying \"You'll regret this decision.\"</p><p>She's been increasingly vocal about \"unfair treatment\" in team meetings. Several colleagues have reported her hostile attitude toward management.</p><p>Given her access to sensitive projects and this pattern of behavior, I thought you should know.</p><p>Patricia Wells<br>HR Director</p>",
+    "subjectIP": "192.168.1.203",
+    "body": "<h3>Personnel Investigation Update</h3><p>Detective <span id=\"hr-user-name\"></span>,</p><p>I've completed my review of Alex Chen's personnel file and found some concerning patterns:</p><p>Alex applied for the Senior R&D position three times over the past year. Each time, we promoted someone else. Her last rejection was particularly bitter - she stormed out of my office saying \"You'll regret this decision.\"</p><p>More concerning, I discovered this email she sent on September 15th at 11:47 PM - the same night as the data leak. The timing is suspicious, and the content suggests she may have been involved in the security breach.</p><p>I'm forwarding the email below for your review. Given her access to sensitive projects and this pattern of behavior, I believe she warrants closer investigation.</p><p>Patricia Wells<br>HR Director</p><hr><h4>Forwarded Email:</h4><div style=\"border-left: 3px solid #ccc; padding-left: 15px; margin: 10px 0;\"><h3>Re: Project Files Access</h3><p>From: Alex Chen &lt;alex.chen@outcrook.com&gt;</p><p>To: External Contact &lt;external@unknown.com&gt;</p><p>Subject: Project Files Access</p><p>Hi there,</p><p>I've been thinking about our conversation. I can definitely help you get access to those project files you mentioned. I have clearance to most of the R&D systems, and I know the security protocols pretty well.</p><p>I can probably get you the data you need, but I'll need some compensation for the risk I'm taking. This kind of access could get me in serious trouble if anyone finds out.</p><p>Let me know if you're still interested, and we can work out the details.</p><p>Best,<br>Alex</p></div>",
     "folder": "inbox",
     "read": false,
     "replied": false,
@@ -203,7 +224,19 @@
     "replied": false,
     "emailType": "readOnly"
   },
-  "storyEmailsQueue": ["csoEmailTemplate"],
+  "itLogInvestigationTemplate": {
+    "id": "it-log-investigation-email",
+    "sender": "IT Support",
+    "senderIP": "Unknown",
+    "subject": "Log Investigation Results - Suspicious Activity Detected",
+    "subjectIP": "Unknown",
+    "body": "<h3>System Log Analysis Complete</h3><p>Detective <span id=\"it-log-user-name\"></span>,</p><p>I've completed the analysis of our system logs as requested. Here's what I found:</p><p><strong>Suspicious Activity Detected:</strong></p><ul><li>Multiple unauthorized access attempts to R&D databases on September 15th</li><li>Login attempts from IP address 192.168.1.203 at 11:47 PM</li><li>Data transfer activity that doesn't match normal user patterns</li><li>Attempts to access sensitive project files outside normal business hours</li></ul><p><strong>Additional Information:</strong></p><ul><li>Alex Chen's normal work IP address is 192.168.1.156</li><li>All access attempts on September 15th came from 192.168.1.203</li><li>The timing matches the data leak incident exactly</li></ul><p>I've attached the raw log files for your review. The access patterns are definitely suspicious, but I'll let you draw your own conclusions about what this means for your investigation.</p><p>IT Support<br>Outcrook Corporation</p>",
+    "folder": "inbox",
+    "read": false,
+    "replied": false,
+    "emailType": "readOnly"
+  },
+  "storyEmailsQueue": ["csoEmailTemplate", "evFollowupEmailTemplate"],
   "randomNames": [
     "Alex Chen", "Sarah Johnson", "Mike Rodriguez", "Emma Thompson", "David Kim",
     "Lisa Wang", "James Wilson", "Maria Garcia", "Robert Brown", "Jennifer Lee",

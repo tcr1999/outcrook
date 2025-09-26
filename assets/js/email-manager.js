@@ -97,6 +97,15 @@ export function generateReplyBody(originalEmail, userName) {
 
     if (originalEmail.id === 'welcome-email') {
         replyBodyContent = `Wow, thanks for the super-secret welcome, ${senderFirstName}! I'm SO ready to put on my detective hat and dive into this mystery. Consider this case... ON!`;
+    } else if (originalEmail.id === 'ev-followup-email') {
+        replyBodyContent = `Here's my status update: I've been investigating the data leak case and have made contact with several key personnel. Here's what I've found so far:
+
+• Spoke with Alex Chen from R&D - seems cooperative but I'm still gathering information
+• Contacted IT support regarding system access and security protocols
+• Reviewed personnel files and identified some concerning patterns
+• The case is progressing, but I need more time to piece together the full picture
+
+I'll keep you updated as I uncover more details.`;
     } else if (originalEmail.folder === 'spam') {
         replyBodyContent = getRandomSpamResponse();
     } else {
@@ -159,6 +168,25 @@ export function createAlexReplyEmail() {
     const template = getEmailTemplate('alexReplyTemplate');
     if (!template) {
         console.error('Alex reply template not found');
+        return null;
+    }
+
+    const email = deepCopy(template);
+    email.date = getCurrentDateString();
+    email.receivedTime = getCurrentTimeString();
+    email.timestamp = getCurrentTimestamp();
+    
+    return email;
+}
+
+/**
+ * Create EV follow-up email
+ * @returns {Object} EV follow-up email object
+ */
+export function createEVFollowupEmail() {
+    const template = getEmailTemplate('evFollowupEmailTemplate');
+    if (!template) {
+        console.error('EV follow-up template not found');
         return null;
     }
 

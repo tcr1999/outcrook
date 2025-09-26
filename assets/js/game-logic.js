@@ -12,6 +12,7 @@ import {
     createMultipleChoiceReply,
     createComposedEmail,
     createAlexReplyEmail,
+    createEVFollowupEmail,
     createHREmail,
     createCEOEmail,
     createSpamEmail,
@@ -25,7 +26,8 @@ import {
 import { 
     refreshUnreadCounts, 
     showCustomPrompt, 
-    simulateInstallation 
+    simulateInstallation,
+    showSlideableNotification
 } from './ui-components.js';
 import { soundSystem } from './sound-system.js';
 
@@ -55,7 +57,10 @@ export class GameState {
             hasReceivedAlex: false,
             hasReceivedHR: false,
             hasReceivedCEO: false,
-            hasInstalledMicroscope: false
+            hasInstalledMicroscope: false,
+            hasReceivedEV: false,
+            itLogInvestigationAvailable: false,
+            hasUnjumbledAlexClue: false
         };
     }
 
@@ -129,8 +134,8 @@ export class GameState {
     getRelevantContacts() {
         const relevantContacts = [];
         
-        // Always include Alex Chen if the user has received the R&D email
-        if (this.gameProgress.hasReceivedRD) {
+        // Include Alex Chen only if the user has received the R&D email AND unjumbled the clue
+        if (this.gameProgress.hasReceivedRD && this.gameProgress.hasUnjumbledAlexClue) {
             relevantContacts.push({
                 name: 'Alex Chen',
                 role: 'Junior Researcher',
@@ -155,6 +160,16 @@ export class GameState {
                 role: 'Technical Support',
                 description: 'Mentioned by CSO for clearance requests',
                 priority: 'medium'
+            });
+        }
+        
+        // Add IT Support for log investigation after Alex's response
+        if (this.gameProgress.itLogInvestigationAvailable) {
+            relevantContacts.push({
+                name: 'IT Support',
+                role: 'Technical Support',
+                description: 'Investigate strange system logs and access patterns',
+                priority: 'high'
             });
         }
         
@@ -416,14 +431,28 @@ export class EmailDeliverySystem {
         const alexReply = createAlexReplyEmail();
         if (alexReply) {
             this.gameState.addEmail(alexReply);
+            this.gameState.gameProgress.itLogInvestigationAvailable = true; // Enable IT contact for log investigation
             if (this.onEmailDelivered) {
                 this.onEmailDelivered();
             }
             
-            // Trigger HR email after 8 seconds
+            // Trigger EV follow-up email after 8 seconds
             setTimeout(() => {
-                this.deliverHREmail();
+                this.deliverEVFollowupEmail();
             }, CONFIG.TIMING.HR_EMAIL_DELAY);
+        }
+    }
+
+    /**
+     * Deliver EV follow-up email
+     */
+    async deliverEVFollowupEmail() {
+        const evFollowupEmail = createEVFollowupEmail();
+        if (evFollowupEmail) {
+            this.gameState.addEmail(evFollowupEmail);
+            if (this.onEmailDelivered) {
+                this.onEmailDelivered();
+            }
         }
     }
 
@@ -439,10 +468,7 @@ export class EmailDeliverySystem {
                 this.onEmailDelivered();
             }
             
-            // Trigger CEO email after 5 seconds
-            setTimeout(() => {
-                this.deliverCEOEmail();
-            }, CONFIG.TIMING.CEO_EMAIL_DELAY);
+            // CEO email is now triggered by EV follow-up response, not HR email
         }
     }
 
@@ -454,6 +480,19 @@ export class EmailDeliverySystem {
         if (ceoEmail) {
             this.gameState.addEmail(ceoEmail);
             this.gameState.gameProgress.hasReceivedCEO = true;
+            if (this.onEmailDelivered) {
+                this.onEmailDelivered();
+            }
+        }
+    }
+
+    /**
+     * Deliver IT log investigation email
+     */
+    async deliverITLogInvestigationEmail() {
+        const itLogEmail = createEmailFromTemplate('itLogInvestigationTemplate');
+        if (itLogEmail) {
+            this.gameState.addEmail(itLogEmail);
             if (this.onEmailDelivered) {
                 this.onEmailDelivered();
             }
@@ -488,7 +527,10 @@ export class EmailDeliverySystem {
             hasReceivedAlex: false,
             hasReceivedHR: false,
             hasReceivedCEO: false,
-            hasInstalledMicroscope: false
+            hasInstalledMicroscope: false,
+            hasReceivedEV: false,
+            itLogInvestigationAvailable: false,
+            hasUnjumbledAlexClue: false
         };
         
         // Deliver welcome email to start over
@@ -533,7 +575,8 @@ export class ReplySystem {
                 this.gameState.updateEmail(originalEmail.id, { replied: true, folder: CONFIG.FOLDERS.TRASH });
             }
 
-            showCustomPrompt('Reply sent!', 'alert');
+            // Show slideable notification for reply sent
+            showSlideableNotification('Reply sent successfully!', 'success', 0, 'Message Sent');
             
             // Play reply sent sound
             soundSystem.playReplySent();
@@ -563,7 +606,7 @@ export class ReplySystem {
             this.handleCSOReplyConsequences(selectedOption);
         } else {
             console.log('Detected other email - calling handleDefaultReplyConsequences');
-            this.handleDefaultReplyConsequences();
+            this.handleDefaultReplyConsequences(originalEmail);
         }
     }
 
@@ -650,13 +693,50 @@ export class ReplySystem {
     }
 
     /**
+     * Handle EV follow-up reply consequences
+     * @param {Object} selectedOption - The selected reply option
+     */
+    handleEVFollowupReplyConsequences(selectedOption) {
+        // All EV responses trigger the same sequence: CEO email after 10s, then HR email after another 10s
+        setTimeout(() => {
+            this.emailDeliverySystem.deliverCEOEmail();
+        }, 10000); // 10 seconds after EV response
+        
+        setTimeout(() => {
+            this.emailDeliverySystem.deliverHREmail();
+        }, 20000); // 20 seconds after EV response (10s after CEO email)
+        
+        if (selectedOption.consequence === 'bureaucracy') {
+            console.log('EV follow-up: User reported bureaucratic roadblocks');
+        } else if (selectedOption.consequence === 'security') {
+            console.log('EV follow-up: User reported security issues');
+        } else if (selectedOption.consequence === 'smooth') {
+            console.log('EV follow-up: User reported smooth progress');
+        } else if (selectedOption.consequence === 'authority') {
+            console.log('EV follow-up: User requested more authority');
+        }
+    }
+
+    /**
      * Handle default reply consequences
      */
-    handleDefaultReplyConsequences() {
-        // Deliver next story email after delay
-        setTimeout(() => {
-            this.emailDeliverySystem.deliverNextStoryEmail();
-        }, CONFIG.TIMING.NEXT_STORY_EMAIL_DELAY);
+    handleDefaultReplyConsequences(originalEmail) {
+        // Special handling for EV follow-up email
+        if (originalEmail && originalEmail.id === 'ev-followup-email') {
+            // All EV responses trigger the same sequence: CEO email after 10s, then HR email after another 10s
+            setTimeout(() => {
+                this.emailDeliverySystem.deliverCEOEmail();
+            }, 10000); // 10 seconds after EV response
+            
+            setTimeout(() => {
+                this.emailDeliverySystem.deliverHREmail();
+            }, 20000); // 20 seconds after EV response (10s after CEO email)
+        } else {
+            // Deliver next story email after delay for other emails
+            setTimeout(() => {
+                this.emailDeliverySystem.deliverNextStoryEmail();
+            }, CONFIG.TIMING.NEXT_STORY_EMAIL_DELAY);
+        }
     }
 
     /**
@@ -673,7 +753,8 @@ export class ReplySystem {
             this.gameState.addEmail(replyEmail);
             this.gameState.updateEmail(originalEmail.id, { replied: true, folder: CONFIG.FOLDERS.TRASH });
 
-            showCustomPrompt('Reply sent!', 'alert');
+            // Show slideable notification for reply sent
+            showSlideableNotification('Reply sent successfully!', 'success', 0, 'Message Sent');
             
             if (this.onReplySent) {
                 this.onReplySent();
@@ -684,6 +765,14 @@ export class ReplySystem {
                 setTimeout(() => {
                     this.emailDeliverySystem.deliverNextStoryEmail();
                 }, CONFIG.TIMING.NEXT_STORY_EMAIL_DELAY);
+            } else if (originalEmail.id === 'ev-followup-email') {
+                // EV follow-up email consequences: CEO email after 10s, then enable IT contact for log investigation
+                setTimeout(() => {
+                    this.emailDeliverySystem.deliverCEOEmail();
+                }, 10000); // 10 seconds after EV response
+                
+                // Enable IT contact for log investigation instead of delivering HR email
+                this.gameState.gameProgress.hasReceivedEV = true;
             }
 
             if (onReplyComplete) {
@@ -738,19 +827,27 @@ export class ComposeSystem {
             if (composedEmail) {
                 this.gameState.addEmail(composedEmail);
                 
-                // Check if this is CSO option 2 scenario - trigger spam if not already triggered
-                if (this.gameState.csoOption2SpamTriggered === false) {
-                    // Add 10 second delay when user contacts IT support
+                // Check if this is for log investigation (after EV response) or clearance (after CSO response)
+                if (this.gameState.gameProgress.hasReceivedEV) {
+                    // This is for log investigation - deliver IT log investigation email
                     setTimeout(() => {
-                        this.emailDeliverySystem.startSpamCascade('cso-email');
-                    }, 10000);
-                    this.gameState.csoOption2SpamTriggered = true;
+                        this.emailDeliverySystem.deliverITLogInvestigationEmail();
+                    }, 5000); // 5 second delay for IT response
+                } else {
+                    // This is for clearance - check if this is CSO option 2 scenario
+                    if (this.gameState.csoOption2SpamTriggered === false) {
+                        // Add 10 second delay when user contacts IT support
+                        setTimeout(() => {
+                            this.emailDeliverySystem.startSpamCascade('cso-email');
+                        }, 10000);
+                        this.gameState.csoOption2SpamTriggered = true;
+                    }
+                    
+                    // Deliver IT clearance response after delay
+                    setTimeout(() => {
+                        this.emailDeliverySystem.deliverITClearanceEmail();
+                    }, 5000); // 5 second delay for IT response
                 }
-                
-                // Deliver IT clearance response after delay
-                setTimeout(() => {
-                    this.emailDeliverySystem.deliverITClearanceEmail();
-                }, 5000); // 5 second delay for IT response
                 
                 if (this.onEmailSent) {
                     this.onEmailSent();

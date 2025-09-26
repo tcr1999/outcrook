@@ -23,7 +23,8 @@ import {
     jumbleClueText,
     createInteractiveReplyInterface,
     addMagnifyingGlassIcon,
-    updateCoinDisplay
+    updateCoinDisplay,
+    showSlideableNotification
 } from './assets/js/ui-components.js';
 import { soundSystem } from './assets/js/sound-system.js';
 import { 
@@ -97,6 +98,7 @@ async function initializeGame() {
         
         // Make emails global for external functions
         window.emails = gameState.emails;
+        window.gameState = gameState;
         
         // Make coin display function global for game logic
         window.updateCoinDisplay = updateCoinDisplay;
@@ -409,14 +411,14 @@ function handleNameInputChange() {
             }
         }
     
-    // Pulsate install button for IT email after 15 second delay
+    // Pulsate install button for IT email after 30 second delay
         if (email.id === 'it-support-email' && !email.replied) {
             setTimeout(() => {
                 const installBtn = document.getElementById('install-tool-btn');
                 if (installBtn) {
                     installBtn.classList.add('install-btn-pulsate');
                 }
-            }, 15000); // 15 second delay
+            }, 30000); // 30 second delay
         }
 
     // Mark as read
@@ -436,9 +438,9 @@ function handleNameInputChange() {
             replyButton.classList.remove('reply-nudge-active');
         }
         
-        const currentEmailSubject = emailBodyContentDiv.querySelector('h3').textContent;
+        const currentEmailSubject = emailBodyContentDiv.querySelector('h3').textContent.trim();
         const senderLine = emailBodyContentDiv.querySelector('.email-sender-with-thumbnail');
-        const currentEmailSender = senderLine ? senderLine.querySelector('span').textContent.replace('From: ', '') : '';
+        const currentEmailSender = senderLine ? senderLine.querySelector('span').textContent.replace('From: ', '').trim() : '';
 
     const originalEmail = gameState.emails.find(email => email.subject === currentEmailSubject && email.sender === currentEmailSender);
 
@@ -578,7 +580,8 @@ function handleSoundToggle() {
  * Open compose modal
  */
     function openComposeModal() {
-    if (composeSystem.isStoryContacted()) {
+    // Allow compose if story has been contacted but IT is available for log investigation
+    if (composeSystem.isStoryContacted() && !gameState.gameProgress.itLogInvestigationAvailable) {
             showCustomPrompt("You've already followed up on your lead.", 'alert');
             return;
         }
@@ -723,6 +726,7 @@ function handleSendCompose() {
 function handleDeleteEmail(emailId) {
     const emailIndex = gameState.emails.findIndex(email => email.id === emailId);
     if (emailIndex > -1) {
+        // Move email to trash folder instead of permanently deleting
         gameState.updateEmail(emailId, { folder: CONFIG.FOLDERS.TRASH, read: true });
         loadEmailsForFolder(gameState.currentFolder);
         refreshUnreadCounts(gameState.emails);
@@ -783,6 +787,9 @@ function onReplySent() {
  */
 function onEmailSent() {
     loadEmailsForFolder(CONFIG.FOLDERS.INBOX);
+    
+    // Show slideable notification for email sent
+    showSlideableNotification('Email sent successfully!', 'success', 0, 'Message Sent');
     
     // Play success sound for email sent
     soundSystem.playSuccessSound();
