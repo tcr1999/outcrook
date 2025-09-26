@@ -1349,7 +1349,7 @@ body.microscope-active {
     display: flex;
     flex-direction: column-reverse;
     gap: 8px;
-    max-height: 100px;
+    max-height: 300px;
     overflow-y: auto;
     z-index: 2;
 }

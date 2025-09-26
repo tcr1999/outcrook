@@ -458,6 +458,21 @@ export function showSlideableNotification(message, type = 'info', duration = 0, 
 
     container.appendChild(notification);
 
+    // Check if we have more than 3 notifications and remove the oldest
+    const allNotifications = container.querySelectorAll('.notification');
+    if (allNotifications.length > 3) {
+        // Remove the oldest notification (first in the list since we use column-reverse)
+        const oldestNotification = allNotifications[0];
+        if (oldestNotification) {
+            oldestNotification.classList.add('slide-out');
+            setTimeout(() => {
+                if (oldestNotification.parentNode) {
+                    oldestNotification.parentNode.removeChild(oldestNotification);
+                }
+            }, 300);
+        }
+    }
+
     // Trigger slide-in animation
     setTimeout(() => {
         notification.classList.add('slide-in');
