@@ -581,7 +581,9 @@ function handleSoundToggle() {
  */
     function openComposeModal() {
     // Allow compose if story has been contacted but IT is available for log investigation
-    if (composeSystem.isStoryContacted() && !gameState.gameProgress.itLogInvestigationAvailable) {
+    if (composeSystem.isStoryContacted() && gameState.gameProgress.itLogInvestigationAvailable) {
+            // Allow IT contact for log investigation
+        } else if (composeSystem.isStoryContacted() && !gameState.gameProgress.itLogInvestigationAvailable) {
             showCustomPrompt("You've already followed up on your lead.", 'alert');
             return;
         }
@@ -628,7 +630,8 @@ function handleSoundToggle() {
  * Handle compose to change
  */
 function handleComposeToChange() {
-    if (composeSystem.isStoryContacted()) return;
+    // Allow IT Support typing for log investigation even after story is contacted
+    if (composeSystem.isStoryContacted() && composeTo.value.toLowerCase() !== 'it support') return;
 
     // Show/hide contact info
     const contactInfo = document.getElementById('contact-info');
@@ -639,6 +642,13 @@ function handleComposeToChange() {
         contactInfo.style.display = 'block';
     } else {
         contactInfo.style.display = 'none';
+        contactInfo.textContent = '';
+        // Clear compose fields when no contact is selected
+        composeSubject.value = '';
+        composeSubject.readOnly = false;
+        composeBody.innerHTML = '';
+        composeBody.textContent = '';
+        sendComposeBtn.disabled = true;
     }
 
         if (composeTo.value.toLowerCase() === 'alex chen') {
@@ -675,10 +685,26 @@ Detective ${userName}`;
             document.addEventListener('keydown', startTypingListener);
         } else if (composeTo.value.toLowerCase() === 'it support') {
             composeSubject.readOnly = true;
-            composeSubject.value = 'Security Clearance Request';
             
             const userName = getUserName();
-            const itEmailBody = `Hi IT Support,
+            let itEmailBody;
+            
+            // Different content based on context
+            if (gameState.gameProgress.itLogInvestigationAvailable) {
+                // After Alex's response - log investigation
+                composeSubject.value = 'Log Investigation Request';
+                itEmailBody = `Hi IT Support,
+
+I'm investigating the recent security incident and need to examine system logs for any unusual activity.
+
+Could you help me analyze the access patterns and login records?
+
+Best,
+Detective ${userName}`;
+            } else {
+                // CSO clearance request
+                composeSubject.value = 'Security Clearance Request';
+                itEmailBody = `Hi IT Support,
 
 I'm the special investigator looking into the recent security incident. The CSO mentioned I should contact you for clearance to access certain systems for my investigation.
 
@@ -686,6 +712,7 @@ Could you please review my access requirements?
 
 Best,
 Detective ${userName}`;
+            }
 
             // Setup interactive typing
             composeBody.innerHTML = '';
@@ -789,7 +816,7 @@ function onEmailSent() {
     loadEmailsForFolder(CONFIG.FOLDERS.INBOX);
     
     // Show slideable notification for email sent
-    showSlideableNotification('Email sent successfully!', 'success', 0, 'Message Sent');
+    showSlideableNotification('Email sent successfully!', 'success', 10000, 'Message Sent');
     
     // Play success sound for email sent
     soundSystem.playSuccessSound();

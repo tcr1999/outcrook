@@ -1445,6 +1445,23 @@ body.microscope-active {
     background-color: rgba(255, 255, 255, 0.2);
 }
 
+.notification-progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+.notification-progress-fill {
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    width: 0%;
+    transition: width linear;
+}
+
 .notification-progress {
     position: absolute;
     bottom: 0;

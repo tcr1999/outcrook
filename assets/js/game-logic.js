@@ -174,20 +174,32 @@ export class GameState {
         }
         
         
+        // Only add HR if they've actually contacted us
         if (this.gameProgress.hasReceivedHR) {
             relevantContacts.push({
                 name: 'HR Department',
                 role: 'Human Resources',
-                description: 'Sent HR notification',
-                priority: 'medium'
+                description: 'Forwarded suspicious email from Alex Chen',
+                priority: 'high'
             });
         }
         
+        // Only add CEO if they've actually contacted us
         if (this.gameProgress.hasReceivedCEO) {
             relevantContacts.push({
                 name: 'CEO Office',
                 role: 'Executive Team',
-                description: 'Sent executive communication',
+                description: 'Requested investigation update',
+                priority: 'high'
+            });
+        }
+        
+        // Only add EV if they've actually contacted us
+        if (this.gameProgress.hasReceivedEV) {
+            relevantContacts.push({
+                name: 'Eleanor Vance',
+                role: 'Executive Vice President',
+                description: 'Requested status update on investigation',
                 priority: 'high'
             });
         }
@@ -436,10 +448,10 @@ export class EmailDeliverySystem {
                 this.onEmailDelivered();
             }
             
-            // Trigger EV follow-up email after 8 seconds
+            // Trigger EV follow-up email after 8 seconds + 10 seconds
             setTimeout(() => {
                 this.deliverEVFollowupEmail();
-            }, CONFIG.TIMING.HR_EMAIL_DELAY);
+            }, CONFIG.TIMING.HR_EMAIL_DELAY + 10000);
         }
     }
 
@@ -576,7 +588,7 @@ export class ReplySystem {
             }
 
             // Show slideable notification for reply sent
-            showSlideableNotification('Reply sent successfully!', 'success', 0, 'Message Sent');
+            showSlideableNotification('Reply sent successfully!', 'success', 10000, 'Message Sent');
             
             // Play reply sent sound
             soundSystem.playReplySent();
@@ -754,7 +766,7 @@ export class ReplySystem {
             this.gameState.updateEmail(originalEmail.id, { replied: true, folder: CONFIG.FOLDERS.TRASH });
 
             // Show slideable notification for reply sent
-            showSlideableNotification('Reply sent successfully!', 'success', 0, 'Message Sent');
+            showSlideableNotification('Reply sent successfully!', 'success', 10000, 'Message Sent');
             
             if (this.onReplySent) {
                 this.onReplySent();
@@ -827,8 +839,8 @@ export class ComposeSystem {
             if (composedEmail) {
                 this.gameState.addEmail(composedEmail);
                 
-                // Check if this is for log investigation (after EV response) or clearance (after CSO response)
-                if (this.gameState.gameProgress.hasReceivedEV) {
+                // Check if this is for log investigation (after Alex response) or clearance (after CSO response)
+                if (this.gameState.gameProgress.itLogInvestigationAvailable) {
                     // This is for log investigation - deliver IT log investigation email
                     setTimeout(() => {
                         this.emailDeliverySystem.deliverITLogInvestigationEmail();

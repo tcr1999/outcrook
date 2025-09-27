@@ -448,12 +448,16 @@ export function showSlideableNotification(message, type = 'info', duration = 0, 
     const notificationId = `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     notification.id = notificationId;
 
+    // Add progress bar for timed notifications
+    const progressBarHTML = duration > 0 ? '<div class="notification-progress-bar"><div class="notification-progress-fill"></div></div>' : '';
+    
     notification.innerHTML = `
         <div class="notification-content">
             ${title ? `<div class="notification-title">${title}</div>` : ''}
             <div class="notification-message">${message}</div>
         </div>
         <button class="notification-close" onclick="removeNotification('${notificationId}')">&times;</button>
+        ${progressBarHTML}
     `;
 
     container.appendChild(notification);
@@ -478,7 +482,28 @@ export function showSlideableNotification(message, type = 'info', duration = 0, 
         notification.classList.add('slide-in');
     }, 10);
 
-    // No auto-remove - notifications stay until manually closed
+    // Auto-remove for timed notifications
+    if (duration > 0) {
+        // Animate progress bar
+        const progressFill = notification.querySelector('.notification-progress-fill');
+        if (progressFill) {
+            // Start animation after a small delay to ensure element is rendered
+            setTimeout(() => {
+                progressFill.style.transition = `width ${duration}ms linear`;
+                progressFill.style.width = '100%';
+            }, 50);
+        }
+        
+        // Auto-remove after duration
+        setTimeout(() => {
+            notification.classList.add('slide-out');
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, duration);
+    }
 }
 
 /**
