@@ -236,6 +236,18 @@
     "replied": false,
     "emailType": "readOnly"
   },
+  "evidenceBoardTemplate": {
+    "id": "evidence-board",
+    "sender": "Detective Evidence Board",
+    "senderIP": "Local System",
+    "subject": "🔍 Investigation Evidence Board",
+    "subjectIP": "Local System",
+    "body": "<div class=\"evidence-board-email\"><h2>🔍 Investigation Evidence Board</h2><div class=\"timeline-container\"><div class=\"timeline-item\" data-timestamp=\"2025-09-15\"><div class=\"timeline-marker\"></div><div class=\"timeline-content\"><h4>Data Leak Incident</h4><p>R&D databases accessed from IP 192.168.1.203 at 11:47 PM</p><span class=\"evidence-tag\">Network Logs</span></div></div><div class=\"timeline-item\" data-timestamp=\"2025-09-15\"><div class=\"timeline-marker\"></div><div class=\"timeline-content\"><h4>Alex Chen's Normal Activity</h4><p>Regular work IP: 192.168.1.156 (different from leak IP)</p><span class=\"evidence-tag\">Employee Records</span></div></div></div><div class=\"evidence-connections\"><h3>🔗 Evidence Connections</h3><div class=\"connection-line\" data-from=\"network-logs\" data-to=\"employee-records\"></div></div></div>",
+    "folder": "drafts",
+    "read": false,
+    "replied": false,
+    "emailType": "readOnly"
+  },
   "storyEmailsQueue": ["csoEmailTemplate", "evFollowupEmailTemplate"],
   "randomNames": [
     "Alex Chen", "Sarah Johnson", "Mike Rodriguez", "Emma Thompson", "David Kim",

@@ -624,6 +624,16 @@ body.dark-mode #progress-bar-container {
     height: 100%; /* Ensure email-view takes full height of its grid cell */
 }
 
+/* When evidence board is displayed, make email-view use single column */
+.email-view.evidence-board-mode {
+    grid-template-columns: 1fr;
+}
+
+/* When evidence board is displayed, make email-content span the full width */
+.email-view.evidence-board-mode .email-content {
+    grid-column: 1 / -1; /* Span the full width in single column mode */
+}
+
 .email-list-header {
     grid-column: 1 / -1; /* Ensure header spans both columns in email-view */
     padding: 10px 15px;
@@ -741,6 +751,27 @@ body.dark-mode #progress-bar-container {
 
 #email-body-content {
     flex-grow: 1; /* Allow content to fill available space */
+    position: relative; /* Allow absolute positioning of children */
+    height: 100vh; /* Full viewport height */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Fill evidence board content when displayed */
+#email-body-content .evidence-board-email {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
 .email-content-placeholder {
@@ -1460,6 +1491,116 @@ body.microscope-active {
     background: rgba(255, 255, 255, 0.8);
     width: 0%;
     transition: width linear;
+}
+
+
+/* Evidence Board Styles */
+.evidence-board-email {
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    border: 2px solid #007bff;
+    box-shadow: 0 4px 16px rgba(0, 123, 255, 0.1);
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* Allow scrolling if content is too long */
+}
+
+.evidence-board-email h2 {
+    color: #007bff;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.timeline-container {
+    position: relative;
+    margin: 20px 0;
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.timeline-item {
+    display: flex;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.timeline-marker {
+    width: 12px;
+    height: 12px;
+    background: #007bff;
+    border-radius: 50%;
+    margin-right: 15px;
+    margin-top: 5px;
+    flex-shrink: 0;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #007bff;
+}
+
+.timeline-content {
+    flex: 1;
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid #007bff;
+}
+
+.timeline-content h4 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.timeline-content p {
+    margin: 0 0 10px 0;
+    color: #666;
+    line-height: 1.4;
+}
+
+.evidence-tag {
+    display: inline-block;
+    background: #007bff;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.evidence-connections {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.evidence-connections h3 {
+    color: #007bff;
+    margin-bottom: 15px;
+}
+
+.connection-line {
+    height: 2px;
+    background: linear-gradient(90deg, #007bff, #28a745);
+    margin: 10px 0;
+    border-radius: 1px;
+    position: relative;
+}
+
+.connection-line::after {
+    content: '→';
+    position: absolute;
+    right: -10px;
+    top: -8px;
+    color: #28a745;
+    font-weight: bold;
 }
 
 .notification-progress {

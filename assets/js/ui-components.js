@@ -258,35 +258,44 @@ export function displayEmailContent(email, onReplyClick, onMultipleChoiceReply, 
     const emailBodyContentDiv = document.querySelector(CONFIG.SELECTORS.EMAIL_BODY_CONTENT_DIV);
     if (!emailBodyContentDiv) return;
 
-    // Create sender line with thumbnail
-    const senderLine = document.createElement('div');
-    senderLine.className = 'email-sender-with-thumbnail';
-    
-    const thumbnail = createCharacterThumbnail(email.sender);
-    senderLine.appendChild(thumbnail);
-    
-    const senderText = document.createElement('span');
-    // Create consistent spacing for alignment - pad sender name to fixed width
-    const maxNameLength = 35; // Maximum expected name length
-    const paddedSender = email.sender.padEnd(maxNameLength, ' ');
-    
-    senderText.innerHTML = `From: ${email.senderIP ? `<span class="sender-ip-clue" data-ip="${email.senderIP}">${paddedSender}</span>` : paddedSender}`;
-    senderLine.appendChild(senderText);
+    // Check if this is the evidence board email in drafts
+    if (email.id === 'evidence-board' && email.folder === 'drafts') {
+        // For evidence board, show only the body content without email headers
+        emailBodyContentDiv.innerHTML = `
+            <div>${email.body}</div>
+        `;
+    } else {
+        // Normal email display with headers
+        // Create sender line with thumbnail
+        const senderLine = document.createElement('div');
+        senderLine.className = 'email-sender-with-thumbnail';
+        
+        const thumbnail = createCharacterThumbnail(email.sender);
+        senderLine.appendChild(thumbnail);
+        
+        const senderText = document.createElement('span');
+        // Create consistent spacing for alignment - pad sender name to fixed width
+        const maxNameLength = 35; // Maximum expected name length
+        const paddedSender = email.sender.padEnd(maxNameLength, ' ');
+        
+        senderText.innerHTML = `From: ${email.senderIP ? `<span class="sender-ip-clue" data-ip="${email.senderIP}">${paddedSender}</span>` : paddedSender}`;
+        senderLine.appendChild(senderText);
 
-    // Create consistent spacing for subject line IP display
-    const maxSubjectLength = 50; // Maximum expected subject length
-    const paddedSubject = email.subject.padEnd(maxSubjectLength, ' ');
-    
-    emailBodyContentDiv.innerHTML = `
-        <h3 class="subject-line" data-ip="${email.subjectIP || ''}" data-original-subject="${email.subject}">${paddedSubject}</h3>
-        <p>Date: ${email.date}</p>
-        <hr>
-        <div>${processEmailBodyForMagnifier(email.body)}</div>
-    `;
-    
-    // Insert sender line after subject
-    const subjectLine = emailBodyContentDiv.querySelector('.subject-line');
-    subjectLine.insertAdjacentElement('afterend', senderLine);
+        // Create consistent spacing for subject line IP display
+        const maxSubjectLength = 50; // Maximum expected subject length
+        const paddedSubject = email.subject.padEnd(maxSubjectLength, ' ');
+        
+        emailBodyContentDiv.innerHTML = `
+            <h3 class="subject-line" data-ip="${email.subjectIP || ''}" data-original-subject="${email.subject}">${paddedSubject}</h3>
+            <p>Date: ${email.date}</p>
+            <hr>
+            <div>${processEmailBodyForMagnifier(email.body)}</div>
+        `;
+        
+        // Insert sender line after subject
+        const subjectLine = emailBodyContentDiv.querySelector('.subject-line');
+        subjectLine.insertAdjacentElement('afterend', senderLine);
+    }
     
     // Jumble the clue text after setting the HTML
     jumbleClueText();
@@ -621,6 +630,7 @@ export function handleMagnifierReveal(event) {
     // Check if Alex clue has been fully revealed
     checkAlexClueRevealed();
     
+
     // Handle sender IP reveals (letter by letter)
     document.querySelectorAll('.sender-ip-clue span').forEach(span => {
         const rect = span.getBoundingClientRect();
@@ -638,6 +648,28 @@ export function handleMagnifierReveal(event) {
         } else {
             span.textContent = span.dataset.jumble;
             span.classList.remove('revealed');
+        }
+    });
+    
+    // Handle name IP reveals in email body
+    document.querySelectorAll('.name-ip-clue').forEach(nameElement => {
+        const rect = nameElement.getBoundingClientRect();
+        const nameX = rect.left + rect.width / 2;
+        const nameY = rect.top + rect.height / 2;
+        
+        const distance = calculateDistance(nameX, nameY, event.clientX, event.clientY);
+
+        if (distance < lensRadius) {
+            // Show IP address
+            const ip = nameElement.dataset.ip;
+            if (ip) {
+                nameElement.innerHTML = `${nameElement.dataset.originalName} <span class="ip-address" style="color: #007bff; font-weight: bold;">(${ip})</span>`;
+                nameElement.classList.add('revealed');
+            }
+        } else {
+            // Show original name
+            nameElement.textContent = nameElement.dataset.originalName;
+            nameElement.classList.remove('revealed');
         }
     });
 }

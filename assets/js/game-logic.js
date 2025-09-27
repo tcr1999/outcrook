@@ -380,6 +380,9 @@ export class EmailDeliverySystem {
             if (this.onEmailDelivered) {
                 this.onEmailDelivered();
             }
+            
+            // Update evidence board
+            this.updateEvidenceBoard();
         }
     }
 
@@ -480,6 +483,9 @@ export class EmailDeliverySystem {
                 this.onEmailDelivered();
             }
             
+            // Update evidence board
+            this.updateEvidenceBoard();
+            
             // CEO email is now triggered by EV follow-up response, not HR email
         }
     }
@@ -509,6 +515,110 @@ export class EmailDeliverySystem {
                 this.onEmailDelivered();
             }
         }
+    }
+
+    /**
+     * Create or update evidence board
+     */
+    updateEvidenceBoard() {
+        // Check if evidence board already exists
+        let evidenceBoard = this.gameState.emails.find(email => email.id === 'evidence-board');
+        
+        if (!evidenceBoard) {
+            // Create new evidence board
+            evidenceBoard = createEmailFromTemplate('evidenceBoardTemplate');
+            if (evidenceBoard) {
+                this.gameState.addEmail(evidenceBoard);
+            }
+        }
+        
+        // Update evidence board content based on current progress
+        this.updateEvidenceBoardContent(evidenceBoard);
+    }
+    
+    /**
+     * Update evidence board content based on investigation progress
+     */
+    updateEvidenceBoardContent(evidenceBoard) {
+        if (!evidenceBoard) return;
+        
+        let timelineItems = [];
+        let connections = [];
+        
+        // Add evidence based on what's been discovered
+        if (this.gameState.gameProgress.hasReceivedIT) {
+            timelineItems.push({
+                timestamp: '2025-09-15',
+                title: 'Data Leak Incident',
+                description: 'R&D databases accessed from IP 192.168.1.203 at 11:47 PM',
+                tag: 'Network Logs'
+            });
+        }
+        
+        if (this.gameState.gameProgress.hasReceivedHR) {
+            timelineItems.push({
+                timestamp: '2025-09-15',
+                title: 'Alex Chen\'s Normal Activity',
+                description: 'Regular work IP: 192.168.1.156 (different from leak IP)',
+                tag: 'Employee Records'
+            });
+            
+            // Add connection if both pieces of evidence exist
+            if (this.gameState.gameProgress.hasReceivedIT) {
+                connections.push({
+                    from: 'Network Logs',
+                    to: 'Employee Records',
+                    description: 'IP Address Discrepancy'
+                });
+            }
+        }
+        
+        // Update the evidence board body
+        evidenceBoard.body = this.generateEvidenceBoardHTML(timelineItems, connections);
+    }
+    
+
+    /**
+     * Generate HTML for evidence board
+     */
+    generateEvidenceBoardHTML(timelineItems, connections) {
+        let timelineHTML = '';
+        timelineItems.forEach(item => {
+            timelineHTML += `
+                <div class="timeline-item" data-timestamp="${item.timestamp}">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h4>${item.title}</h4>
+                        <p>${item.description}</p>
+                        <span class="evidence-tag">${item.tag}</span>
+                    </div>
+                </div>
+            `;
+        });
+        
+        let connectionsHTML = '';
+        if (connections.length > 0) {
+            connectionsHTML = `
+                <div class="evidence-connections">
+                    <h3>🔗 Evidence Connections</h3>
+                    ${connections.map(conn => `
+                        <div class="connection-line" data-from="${conn.from}" data-to="${conn.to}">
+                            <span class="connection-label">${conn.description}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        return `
+            <div class="evidence-board-email">
+                <h2>🔍 Investigation Evidence Board</h2>
+                <div class="timeline-container">
+                    ${timelineHTML}
+                </div>
+                ${connectionsHTML}
+            </div>
+        `;
     }
 
     /**
@@ -549,6 +659,9 @@ export class EmailDeliverySystem {
         setTimeout(() => {
             this.deliverWelcomeEmail();
         }, 1000);
+        
+        // Create evidence board
+        this.updateEvidenceBoard();
         
         // Notify the UI that the game has been reset
         if (this.onGameReset) {

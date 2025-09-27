@@ -100,6 +100,9 @@ async function initializeGame() {
         window.emails = gameState.emails;
         window.gameState = gameState;
         
+        // Create evidence board
+        emailDeliverySystem.updateEvidenceBoard();
+        
         // Make coin display function global for game logic
         window.updateCoinDisplay = updateCoinDisplay;
         
@@ -350,6 +353,35 @@ function handleNameInputChange() {
 
     gameState.currentFolder = folder;
     emailListFolderHeader.textContent = folder.charAt(0).toUpperCase() + folder.slice(1);
+    
+    // For drafts folder, hide the email list panel and show evidence board
+    if (folder === CONFIG.FOLDERS.DRAFTS) {
+        emailListDiv.style.display = 'none';
+        emailListFolderHeader.style.display = 'none';
+        
+        // Add class to email-view to make it single column
+        const emailView = document.querySelector('.email-view');
+        if (emailView) {
+            emailView.classList.add('evidence-board-mode');
+        }
+        
+        // Find and display the evidence board
+        const evidenceBoard = gameState.emails.find(email => email.id === 'evidence-board');
+        if (evidenceBoard) {
+            displayEmailContent(evidenceBoard, handleReplyClick, handleMultipleChoiceReply, handleInstallClick, gameState);
+        }
+        return;
+    } else {
+        // Show the email list panel for other folders
+        emailListDiv.style.display = 'block';
+        emailListFolderHeader.style.display = 'block';
+        
+        // Remove evidence board mode class
+        const emailView = document.querySelector('.email-view');
+        if (emailView) {
+            emailView.classList.remove('evidence-board-mode');
+        }
+    }
     
     const filteredEmails = gameState.getEmailsForFolder(folder);
         if (filteredEmails.length > 0) {
